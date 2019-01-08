@@ -62,9 +62,11 @@ class UARTService:
         return self._periph.connected
 
     def read(self):
-        """Read the next available byte from the buffered input. Return None if nothing is available."""
+        """Read the next available byte from the buffered input.
+        Return None if nothing is available.
+        """
         return self._rx_buffer.read()
 
-    def write(self, char):
-        """TEMP"""
-        self._nus_tx_char.value = char
+    def write(self, bytes_to_write):
+        """Write a buffer of bytes."""
+        self._nus_tx_char.value = bytes_to_write
