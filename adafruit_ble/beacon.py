@@ -151,6 +151,6 @@ class EddystoneURLBeacon(Beacon):
         adv_data.add_field(AdvertisingData.SERVICE_DATA_16_BIT_UUID,
                            b''.join((self._EDDYSTONE_ID,
                                      b'\x10',
-                                     struct.pack("<BB", url_scheme_num, tx_power),
+                                     struct.pack("<BB", tx_power, url_scheme_num),
                                      bytes(short_url, 'ascii'))))
         super().__init__(adv_data, interval)
