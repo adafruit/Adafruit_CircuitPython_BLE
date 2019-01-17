@@ -31,9 +31,6 @@ building on the native `bleio` module.
 Implementation Notes
 --------------------
 
-The Python classes here wrap rather than subclass the native `bleio` classes, due to limitations of
-native subclassing in the current MicroPython language core.
-
 **Hardware:**
 
    inline format: "* `Adafruit Feather nRF52840 Express <https://www.adafruit.com/product/4062>`_"
