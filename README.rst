@@ -30,8 +30,13 @@ Usage Example
 
 .. code-block:: python
 
-    import ble
-    # Put an advertising or simple peripheral example here.
+    from adafruit_ble.uart import UARTService
+
+    uart_service = UARTService()
+    uart_service.start_advertising()
+
+    uart_service.write('abc')
+
 
 Contributing
 ============

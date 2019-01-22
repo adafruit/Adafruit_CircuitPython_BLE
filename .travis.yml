@@ -1,0 +1,35 @@
+dist: xenial
+language: python
+python:
+- '3.6'
+cache:
+  pip: true
+deploy:
+  matrix:
+  - provider: releases
+    api_key: "$GITHUB_TOKEN"
+    file_glob: true
+    file: "$TRAVIS_BUILD_DIR/bundles/*"
+    skip_cleanup: true
+    overwrite: true
+    on:
+      tags: true
+ # - provider: pypi
+ #   user: adafruit-travis
+ #   on:
+ #     tags: true
+ # password:
+ #     secure: TBS
+
+install:
+- pip install -r requirements.txt
+- pip install circuitpython-build-tools Sphinx sphinx-rtd-theme
+- pip install --force-reinstall pylint==1.9.2
+
+script:
+- pylint adafruit_ble/*.py
+- ([[ ! -d "examples" ]] || pylint --disable=missing-docstring,invalid-name,bad-whitespace
+  examples/*.py)
+- circuitpython-build-bundles --filename_prefix adafruit-circuitpython-ble
+  --library_location .
+- cd docs && sphinx-build -E -W -b html . _build/html && cd ..

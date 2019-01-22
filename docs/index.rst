@@ -31,7 +31,7 @@ Table of Contents
 .. toctree::
     :caption: Other Links
 
-    Download <https://github.com/adafruit/adafruit_CircuitPython_ble/releases/latest>
+    Download <https://github.com/adafruit/adafruit_CircuitPython_BLE/releases/latest>
     CircuitPython Reference Documentation <https://circuitpython.readthedocs.io>
     CircuitPython Support Forum <https://forums.adafruit.com/viewforum.php?f=60>
     Discord Chat <https://adafru.it/discord>
