@@ -31,7 +31,7 @@ UART-style communication.
 from bleio import UUID, Characteristic, Service, Peripheral, CharacteristicBuffer
 
 
-class UARTService:
+class UARTServer:
     """
     Provide UART-like functionality via the Nordic NUS service.
 
@@ -42,8 +42,15 @@ class UARTService:
 
     Example::
 
-        from adafruit_ble.uart import UARTService()
-        uart = UARTService()    # Starts advertising immediately.
+        from adafruit_ble.uart import UARTServer
+        uart = UARTServer()
+        uart.start_advertising()
+
+        # Wait for a connection.
+        while not uart.connected:
+            pass
+
+        uart.write('abc')
     """
 
     NUS_SERVICE_UUID = UUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
@@ -76,7 +83,7 @@ class UARTService:
 
     @property
     def connected(self):
-        """True if someone connected to the service."""
+        """True if someone connected to the server."""
         return self._periph.connected
 
     def read(self, nbytes=None):

@@ -30,12 +30,16 @@ Usage Example
 
 .. code-block:: python
 
-    from adafruit_ble.uart import UARTService
+    from adafruit_ble.uart import UARTServer
 
-    uart_service = UARTService()
-    uart_service.start_advertising()
+    uart_server = UARTServer()
+    uart_server.start_advertising()
 
-    uart_service.write('abc')
+    # Wait for a connection.
+    while not uart_server.connected:
+        pass
+
+    uart_server.write('abc')
 
 
 Contributing

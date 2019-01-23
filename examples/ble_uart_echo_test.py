@@ -1,10 +1,14 @@
-from adafruit_ble.uart import UARTService
+from adafruit_ble.uart import UARTServer
 
-# Starts advertising automatically. That may change in later versions.
-uart = UARTService()
+uart = UARTServer()
+uart.start_advertising()
 
-while True:
-    # Returns one if nothing was read.
-    one_byte = uart.read()
+# Wait for a connection
+while not uart.connected:
+    pass
+
+while uart.connected:
+    # Returns b'' if nothing was read.
+    one_byte = uart.read(1)
     if one_byte:
         uart.write(bytes([one_byte]))
