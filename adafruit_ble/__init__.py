@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2018 Dan Halbert for Adafruit Industries
+# Copyright (c) 2019 Dan Halbert for Adafruit Industries
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,9 +30,6 @@ building on the native `bleio` module.
 
 Implementation Notes
 --------------------
-
-The Python classes here wrap rather than subclass the native `bleio` classes, due to limitations of
-native subclassing in the current MicroPython language core.
 
 **Hardware:**
 

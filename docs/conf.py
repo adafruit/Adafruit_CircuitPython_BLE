@@ -35,7 +35,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Adafruit ble Library'
-copyright = u'2018 Dan Halbert'
+copyright = u'2019 Dan Halbert for Adafruit Industries'
 author = u'Dan Halbert'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -135,7 +135,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'AdafruitbleLibrary.tex', u'Adafruitble Library Documentation',
+    (master_doc, 'AdafruitbleLibrary.tex', u'Adafruit BLE Library Documentation',
      author, 'manual'),
 ]
 
@@ -144,7 +144,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'Adafruitblelibrary', u'Adafruit ble Library Documentation',
+    (master_doc, 'Adafruitblelibrary', u'Adafruit BLE Library Documentation',
      [author], 1)
 ]
 
@@ -154,7 +154,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'AdafruitbleLibrary', u'Adafruit ble Library Documentation',
+    (master_doc, 'AdafruitbleLibrary', u'Adafruit BLE Library Documentation',
      author, 'AdafruitbleLibrary', 'One line description of project.',
      'Miscellaneous'),
 ]

@@ -30,8 +30,17 @@ Usage Example
 
 .. code-block:: python
 
-    import ble
-    # Put an advertising or simple peripheral example here.
+    from adafruit_ble.uart import UARTServer
+
+    uart_server = UARTServer()
+    uart_server.start_advertising()
+
+    # Wait for a connection.
+    while not uart_server.connected:
+        pass
+
+    uart_server.write('abc')
+
 
 Contributing
 ============

@@ -26,12 +26,12 @@ Table of Contents
 .. toctree::
     :caption: Related Products
 
-   inline format: "* `Adafruit Feather nRF52840 Express <https://www.adafruit.com/product/4062>`_"
+    Adafruit Feather nRF52840 Express <https://www.adafruit.com/product/4062>
 
 .. toctree::
     :caption: Other Links
 
-    Download <https://github.com/adafruit/adafruit_CircuitPython_ble/releases/latest>
+    Download <https://github.com/adafruit/adafruit_CircuitPython_BLE/releases/latest>
     CircuitPython Reference Documentation <https://circuitpython.readthedocs.io>
     CircuitPython Support Forum <https://forums.adafruit.com/viewforum.php?f=60>
     Discord Chat <https://adafru.it/discord>
