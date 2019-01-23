@@ -5,21 +5,14 @@ python:
 cache:
   pip: true
 deploy:
-  matrix:
-  - provider: releases
-    api_key: "$GITHUB_TOKEN"
-    file_glob: true
-    file: "$TRAVIS_BUILD_DIR/bundles/*"
-    skip_cleanup: true
-    overwrite: true
-    on:
-      tags: true
- # - provider: pypi
- #   user: adafruit-travis
- #   on:
- #     tags: true
- # password:
- #     secure: TBS
+  provider: releases
+  api_key: "$GITHUB_TOKEN"
+  file_glob: true
+  file: "$TRAVIS_BUILD_DIR/bundles/*"
+  skip_cleanup: true
+  overwrite: true
+  on:
+    tags: true
 
 install:
 - pip install -r requirements.txt
