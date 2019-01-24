@@ -7,8 +7,9 @@ uart.start_advertising()
 while not uart.connected:
     pass
 
+# When the client disconnects, the program will exit.
 while uart.connected:
     # Returns b'' if nothing was read.
     one_byte = uart.read(1)
     if one_byte:
-        uart.write(bytes([one_byte]))
+        uart.write(one_byte)
