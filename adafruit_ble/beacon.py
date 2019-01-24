@@ -74,7 +74,7 @@ class LocationBeacon(Beacon):
     Example::
 
         from adafruit_ble.beacon import LocationBeacon
-        from adafruit_ble.uuid import UUID
+        from bleio import UUID
         test_uuid = UUID('12345678-1234-1234-1234-123456789abc')
         test_company = 0xFFFF
         b = LocationBeacon(test_company, test_uuid, 123, 234, -54)

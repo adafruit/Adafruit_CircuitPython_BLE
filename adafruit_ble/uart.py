@@ -69,8 +69,6 @@ class UARTServer:
         self._rx_buffer = CharacteristicBuffer(self._nus_rx_char,
                                                timeout=timeout, buffer_size=buffer_size)
 
-        self._periph.start_advertising()
-
     def start_advertising(self):
         """Start advertising the service. When a client connects, advertising will stop.
         When the client disconnects, restart advertising by calling ``start_advertising()`` again.

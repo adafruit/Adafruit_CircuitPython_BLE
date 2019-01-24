@@ -6,3 +6,12 @@
 
 .. automodule:: adafruit_ble
    :members:
+
+.. automodule:: adafruit_ble.advertising
+   :members:
+
+.. automodule:: adafruit_ble.beacon
+   :members:
+
+.. automodule:: adafruit_ble.uart
+   :members:
