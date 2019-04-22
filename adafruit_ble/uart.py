@@ -125,4 +125,8 @@ class UARTServer:
 
     def write(self, buf):
         """Write a buffer of bytes."""
-        self._nus_tx_char.value = buf
+        # We can only write 20 bytes at a time.
+        offset = 0
+        while offset < len(buf):
+            self._nus_tx_char.value = buf[offset:offset+20]
+            offset += 20
