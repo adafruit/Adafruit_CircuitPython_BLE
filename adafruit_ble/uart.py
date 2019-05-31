@@ -29,7 +29,7 @@ UART-style communication.
 
 """
 from bleio import UUID, Characteristic, Service, Peripheral, CharacteristicBuffer
-
+from .advertising import ServerAdvertisement
 
 class UARTServer:
     """
@@ -68,12 +68,13 @@ class UARTServer:
         self._periph = Peripheral((nus_uart_service,))
         self._rx_buffer = CharacteristicBuffer(self._nus_rx_char,
                                                timeout=timeout, buffer_size=buffer_size)
+        self._advertisement = ServerAdvertisement(self._periph)
 
     def start_advertising(self):
         """Start advertising the service. When a client connects, advertising will stop.
         When the client disconnects, restart advertising by calling ``start_advertising()`` again.
         """
-        self._periph.start_advertising()
+        self._periph.start_advertising(data=self._advertisement.data)
 
     def stop_advertising(self):
         """Stop advertising the service."""

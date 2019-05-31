@@ -31,7 +31,7 @@ Advertising-related classes.
 
 import struct
 
-class AdvertisingData:
+class Advertisement:
     """Build up a BLE advertising data packet."""
     # BR/EDR flags not included here, since we don't support BR/EDR.
     FLAG_LIMITED_DISCOVERY = 0x01
@@ -53,7 +53,7 @@ class AdvertisingData:
     """Complete list of 128 bit service UUIDs."""
     SHORT_LOCAL_NAME = 0x08
     """Short local device name (shortened to fit)."""
-    COMPLETE_LOCALNAME = 0x09
+    COMPLETE_LOCAL_NAME = 0x09
     """Complete local device name."""
     TX_POWER = 0x0A
     """Transmit power level"""
@@ -87,9 +87,13 @@ class AdvertisingData:
         self._max_length = max_length
         self._check_length()
 
+    @property
+    def bytes_remaining(self):
+        return self._max_length - len(self.data)
+
     def _check_length(self):
         if len(self.data) > self._max_length:
-            raise IndexError("Advertising data exceeds max_length")
+            raise IndexError("Advertising data too long")
 
     def add_field(self, field_type, field_data):
         """Append an advertising data field to the current packet, of the given type.
@@ -101,12 +105,57 @@ class AdvertisingData:
 
     def add_16_bit_uuids(self, uuids):
         """Add a complete list of 16 bit service UUIDs."""
-        self.add_field(self.ALL_16_BIT_SERVICE_UUIDS, bytes(uuid.uuid16 for uuid in uuids))
+        for uuid in uuids:
+            self.add_field(self.ALL_16_BIT_SERVICE_UUIDS, struct.pack("<H", uuid.uuid16))
 
     def add_128_bit_uuids(self, uuids):
         """Add a complete list of 128 bit service UUIDs."""
-        self.add_field(self.ALL_128_BIT_SERVICE_UUIDS, bytes(uuid.uuid128 for uuid in uuids))
+        for uuid in uuids:
+            self.add_field(self.ALL_128_BIT_SERVICE_UUIDS, uuid.uuid128)
 
     def add_mfr_specific_data(self, mfr_id, data):
         """Add manufacturer-specific data bytes."""
         self.add_field(self.MANUFACTURER_SPECIFIC_DATA, struct.pack('<H', mfr_id) + data)
+
+
+class ServerAdvertisement:
+    def __init__(self, peripheral, *, tx_power=0):
+        """Create an advertisement to advertise a peripheral's services.
+
+        :param peripheral Peripheral the Peripheral to advertise. Use its services and name
+        :param int tx_power: transmit power in dBm at 0 meters (8 bit signed value). Default 0 dBm
+        """
+
+        self._peripheral = peripheral
+
+        adv = Advertisement()
+
+        # Need to check service.secondary
+        uuids_16_bits = [service.uuid for service in peripheral.services
+                         if service.uuid.size == 16 and not service.secondary]
+        if uuids_16_bits:
+            adv.add_16_bit_uuids(uuids_16_bits)
+
+        uuids_128_bits = [service.uuid for service in peripheral.services
+                         if service.uuid.size == 128 and not service.secondary]
+        if uuids_128_bits:
+            adv.add_128_bit_uuids(uuids_128_bits)
+
+        adv.add_field(Advertisement.TX_POWER, struct.pack("<b", tx_power))
+
+        # 2 bytes needed for field length and type.
+        bytes_available = adv.bytes_remaining - 2
+        if bytes_available <= 0:
+            raise IndexError("No room for name")
+
+        name_bytes = bytes(peripheral.name, 'utf-8')
+        if bytes_available >= len(name_bytes):
+            adv.add_field(Advertisement.COMPLETE_LOCAL_NAME, name_bytes)
+        else:
+            adv.add_field(Advertisement.SHORT_LOCAL_NAME, name_bytes[:bytes_available])
+
+        self._advertisement = adv
+
+    @property
+    def data(self):
+        return self._advertisement.data
