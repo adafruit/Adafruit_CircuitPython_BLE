@@ -31,8 +31,8 @@ Advertising-related classes.
 
 import struct
 
-class Advertisement:
-    """Build up a BLE advertising data packet."""
+class AdvertisingPacket:
+    """Build up a BLE advertising data or scan response packet."""
     # BR/EDR flags not included here, since we don't support BR/EDR.
     FLAG_LIMITED_DISCOVERY = 0x01
     """Discoverable only for a limited time period."""
@@ -81,27 +81,37 @@ class Advertisement:
     MAX_DATA_SIZE = 31
     """Data size in a regular BLE packet."""
 
-    def __init__(self, flags=(FLAG_GENERAL_DISCOVERY | FLAG_LE_ONLY), max_length=MAX_DATA_SIZE):
-        """Initalize an advertising packet, with the given flags, no larger than max_length."""
-        self.data = bytearray((2, self.FLAGS, flags))
+    def __init__(self, *, max_length=MAX_DATA_SIZE):
+        """Create an empty advertising packet, no larger than max_length."""
+        self._packet_bytes = bytearray()
         self._max_length = max_length
         self._check_length()
 
     @property
+    def packet_bytes(self):
+        """The raw packet bytes."""
+        return self._packet_bytes
+
+    @property
     def bytes_remaining(self):
-        return self._max_length - len(self.data)
+        """Number of bytes still available for use in the packet."""
+        return self._max_length - len(self._packet_bytes)
 
     def _check_length(self):
-        if len(self.data) > self._max_length:
+        if len(self._packet_bytes) > self._max_length:
             raise IndexError("Advertising data too long")
 
     def add_field(self, field_type, field_data):
         """Append an advertising data field to the current packet, of the given type.
         The length field is calculated from the length of field_data."""
-        self.data.append(1 + len(field_data))
-        self.data.append(field_type)
-        self.data.extend(field_data)
+        self._packet_bytes.append(1 + len(field_data))
+        self._packet_bytes.append(field_type)
+        self._packet_bytes.extend(field_data)
         self._check_length()
+
+    def add_flags(self, flags=(FLAG_GENERAL_DISCOVERY | FLAG_LE_ONLY)):
+        """Add default or custom advertising flags."""
+        self.add_field(self.FLAGS, struct.pack("<B", flags))
 
     def add_16_bit_uuids(self, uuids):
         """Add a complete list of 16 bit service UUIDs."""
@@ -119,43 +129,64 @@ class Advertisement:
 
 
 class ServerAdvertisement:
+    """
+    Data to advertise a peripheral's services.
+
+    The advertisement consists of an advertising data packet and an optional scan response packet,
+    The scan response packet is created only if there is not room in the
+    advertising data packet for the complete peripheral name.
+
+    :param peripheral Peripheral the Peripheral to advertise. Use its services and name
+    :param int tx_power: transmit power in dBm at 0 meters (8 bit signed value). Default 0 dBm
+    """
+
     def __init__(self, peripheral, *, tx_power=0):
-        """Create an advertisement to advertise a peripheral's services.
-
-        :param peripheral Peripheral the Peripheral to advertise. Use its services and name
-        :param int tx_power: transmit power in dBm at 0 meters (8 bit signed value). Default 0 dBm
-        """
-
         self._peripheral = peripheral
 
-        adv = Advertisement()
+        packet = AdvertisingPacket()
+        packet.add_flags()
+        self._scan_response_packet = None
 
         # Need to check service.secondary
         uuids_16_bits = [service.uuid for service in peripheral.services
                          if service.uuid.size == 16 and not service.secondary]
         if uuids_16_bits:
-            adv.add_16_bit_uuids(uuids_16_bits)
+            packet.add_16_bit_uuids(uuids_16_bits)
 
         uuids_128_bits = [service.uuid for service in peripheral.services
-                         if service.uuid.size == 128 and not service.secondary]
+                          if service.uuid.size == 128 and not service.secondary]
         if uuids_128_bits:
-            adv.add_128_bit_uuids(uuids_128_bits)
+            packet.add_128_bit_uuids(uuids_128_bits)
 
-        adv.add_field(Advertisement.TX_POWER, struct.pack("<b", tx_power))
+        packet.add_field(AdvertisingPacket.TX_POWER, struct.pack("<b", tx_power))
 
         # 2 bytes needed for field length and type.
-        bytes_available = adv.bytes_remaining - 2
+        bytes_available = packet.bytes_remaining - 2
         if bytes_available <= 0:
             raise IndexError("No room for name")
 
         name_bytes = bytes(peripheral.name, 'utf-8')
         if bytes_available >= len(name_bytes):
-            adv.add_field(Advertisement.COMPLETE_LOCAL_NAME, name_bytes)
+            packet.add_field(AdvertisingPacket.COMPLETE_LOCAL_NAME, name_bytes)
         else:
-            adv.add_field(Advertisement.SHORT_LOCAL_NAME, name_bytes[:bytes_available])
+            packet.add_field(AdvertisingPacket.SHORT_LOCAL_NAME, name_bytes[:bytes_available])
+            self._scan_response_packet = AdvertisingPacket()
+            try:
+                self._scan_response_packet.add_field(AdvertisingPacket.COMPLETE_LOCAL_NAME,
+                                                     name_bytes)
+            except IndexError:
+                raise IndexError("Name too long")
 
-        self._advertisement = adv
+        self._advertising_data_packet = packet
 
     @property
-    def data(self):
-        return self._advertisement.data
+    def advertising_data_bytes(self):
+        """The raw bytes for the initial advertising data packet."""
+        return self._advertising_data_packet.packet_bytes
+
+    @property
+    def scan_response_bytes(self):
+        """The raw bytes for the scan response packet. None if there is no response packet."""
+        if self._scan_response_packet:
+            return self._scan_response_packet.packet_bytes
+        return None

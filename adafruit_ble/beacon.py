@@ -32,26 +32,26 @@ BLE Beacon-related classes.
 import struct
 import bleio
 
-from .advertising import Advertisement
+from .advertising import AdvertisingPacket
 
 class Beacon:
     """Base class for Beacon advertisers."""
-    def __init__(self, advertisement, interval=1.0):
-        """Set up a beacon with the given Advertisement.
+    def __init__(self, advertising_packet, interval=1.0):
+        """Set up a beacon with the given AdvertisingPacket.
 
-        :param Advertisement advertisement: The advertising packet
+        :param AdvertisingPacket advertising_packet
         :param float interval: Advertising interval in seconds
         """
-        self.broadcaster = bleio.Broadcaster(interval)
-        self.advertisement = advertisement
+        self._broadcaster = bleio.Broadcaster(interval)
+        self._advertising_packet = advertising_packet
 
     def start(self):
         """Turn on beacon."""
-        self.broadcaster.start_advertising(self.advertisement.data)
+        self._broadcaster.start_advertising(self._advertising_packet.packet_bytes)
 
     def stop(self):
         """Turn off beacon."""
-        self.broadcaster.stop_advertising()
+        self._broadcaster.stop_advertising()
 
 
 
@@ -81,7 +81,8 @@ class LocationBeacon(Beacon):
         b.start()
         """
 
-        adv = Advertisement()
+        adv = AdvertisingPacket()
+        adv.add_flags()
         adv.add_mfr_specific_data(
             company_id,
             b''.join((
@@ -131,11 +132,12 @@ class EddystoneURLBeacon(Beacon):
 
         :param url URL to encode. Must be short enough to fit after encoding.
         :param int tx_power: transmit power in dBm at 0 meters (8 bit signed value)
-        :param float interval: Advertising interval in seconds
+        :param float interval: advertising interval in seconds
         """
 
-        adv = Advertisement()
-        adv.add_field(Advertisement.ALL_16_BIT_SERVICE_UUIDS, self._EDDYSTONE_ID)
+        adv = AdvertisingPacket()
+        adv.add_flags()
+        adv.add_field(AdvertisingPacket.ALL_16_BIT_SERVICE_UUIDS, self._EDDYSTONE_ID)
         short_url = None
         for idx, prefix in enumerate(self._URL_SCHEMES):
             if url.startswith(prefix):
@@ -148,7 +150,7 @@ class EddystoneURLBeacon(Beacon):
             short_url = short_url.replace(subst + '/', chr(code))
         for code, subst in enumerate(self._SUBSTITUTIONS, 7):
             short_url = short_url.replace(subst, chr(code))
-        adv.add_field(Advertisement.SERVICE_DATA_16_BIT_UUID,
+        adv.add_field(AdvertisingPacket.SERVICE_DATA_16_BIT_UUID,
                       b''.join((self._EDDYSTONE_ID,
                                 b'\x10',
                                 struct.pack("<bB", tx_power, url_scheme_num),

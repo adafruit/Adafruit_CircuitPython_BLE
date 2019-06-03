@@ -39,6 +39,7 @@ class UARTServer:
       for the first character and between subsequent characters.
     :param int buffer_size: buffer up to this many bytes.
       If more bytes are received, older bytes will be discarded.
+    :param str name: Name to advertise for server. If None, use default Peripheral name.
 
     Example::
 
@@ -57,15 +58,14 @@ class UARTServer:
     NUS_RX_CHAR_UUID = UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
     NUS_TX_CHAR_UUID = UUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
 
-    def __init__(self, timeout=1.0, buffer_size=64):
-        """Define the NUS service and start advertising it."""
+    def __init__(self, *, timeout=1.0, buffer_size=64, name=None):
         self._nus_tx_char = Characteristic(self.NUS_TX_CHAR_UUID, notify=True)
         self._nus_rx_char = Characteristic(self.NUS_RX_CHAR_UUID,
                                            write=True, write_no_response=True)
 
         nus_uart_service = Service(self.NUS_SERVICE_UUID, (self._nus_tx_char, self._nus_rx_char))
 
-        self._periph = Peripheral((nus_uart_service,))
+        self._periph = Peripheral((nus_uart_service,), name=name)
         self._rx_buffer = CharacteristicBuffer(self._nus_rx_char,
                                                timeout=timeout, buffer_size=buffer_size)
         self._advertisement = ServerAdvertisement(self._periph)
@@ -74,7 +74,8 @@ class UARTServer:
         """Start advertising the service. When a client connects, advertising will stop.
         When the client disconnects, restart advertising by calling ``start_advertising()`` again.
         """
-        self._periph.start_advertising(data=self._advertisement.data)
+        self._periph.start_advertising(data=self._advertisement.advertising_data_bytes,
+                                       scan_response=self._advertisement.scan_response_bytes)
 
     def stop_advertising(self):
         """Stop advertising the service."""
