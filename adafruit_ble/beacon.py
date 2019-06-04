@@ -40,14 +40,16 @@ class Beacon:
         """Set up a beacon with the given AdvertisingPacket.
 
         :param AdvertisingPacket advertising_packet
-        :param float interval: Advertising interval in seconds
         """
-        self._broadcaster = bleio.Broadcaster(interval)
+        self._broadcaster = bleio.Peripheral(name=None)
         self._advertising_packet = advertising_packet
 
-    def start(self):
-        """Turn on beacon."""
-        self._broadcaster.start_advertising(self._advertising_packet.packet_bytes)
+    def start(self, interval=1.0):
+        """Turn on beacon.
+
+        :param float interval: Advertising interval in seconds
+        """
+        self._broadcaster.start_advertising(self._advertising_packet.packet_bytes, interval=interval)
 
     def stop(self):
         """Turn off beacon."""
@@ -60,7 +62,7 @@ class LocationBeacon(Beacon):
     Used for Apple iBeacon, Nordic nRF Beacon, etc.
     """
     # pylint: disable=too-many-arguments
-    def __init__(self, company_id, uuid, major, minor, rssi, interval=1.0):
+    def __init__(self, company_id, uuid, major, minor, rssi):
         """Create a beacon with the given values.
 
         :param int company_id: 16-bit company id designating beacon specification owner
@@ -69,7 +71,6 @@ class LocationBeacon(Beacon):
         :param int major: 16-bit major number, such as a store number
         :param int minor: 16-bit minor number, such as a location within a store
         :param int rssi: Signal strength in dBm at 1m (signed 8-bit value)
-        :param float interval: Advertising interval in seconds
 
     Example::
 
@@ -93,7 +94,7 @@ class LocationBeacon(Beacon):
                 bytes(reversed(uuid.uuid128)),
                 # major and minor are big-endian.
                 struct.pack(">HHb", major, minor, rssi))))
-        super().__init__(adv, interval=interval)
+        super().__init__(adv)
 
 
 class EddystoneURLBeacon(Beacon):
@@ -127,12 +128,11 @@ class EddystoneURLBeacon(Beacon):
         '.gov',
     )
 
-    def __init__(self, url, tx_power=0, interval=1.0):
+    def __init__(self, url, tx_power=0):
         """Create a URL beacon with an encoded version of the url and a transmit power.
 
         :param url URL to encode. Must be short enough to fit after encoding.
         :param int tx_power: transmit power in dBm at 0 meters (8 bit signed value)
-        :param float interval: advertising interval in seconds
         """
 
         adv = AdvertisingPacket()
@@ -155,4 +155,4 @@ class EddystoneURLBeacon(Beacon):
                                 b'\x10',
                                 struct.pack("<bB", tx_power, url_scheme_num),
                                 bytes(short_url, 'ascii'))))
-        super().__init__(adv, interval)
+        super().__init__(adv)
