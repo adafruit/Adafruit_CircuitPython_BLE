@@ -36,7 +36,7 @@ from .advertising import AdvertisingPacket
 
 class Beacon:
     """Base class for Beacon advertisers."""
-    def __init__(self, advertising_packet, interval=1.0):
+    def __init__(self, advertising_packet):
         """Set up a beacon with the given AdvertisingPacket.
 
         :param AdvertisingPacket advertising_packet
@@ -49,7 +49,8 @@ class Beacon:
 
         :param float interval: Advertising interval in seconds
         """
-        self._broadcaster.start_advertising(self._advertising_packet.packet_bytes, interval=interval)
+        self._broadcaster.start_advertising(self._advertising_packet.packet_bytes,
+                                            interval=interval)
 
     def stop(self):
         """Turn off beacon."""
