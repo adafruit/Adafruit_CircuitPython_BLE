@@ -73,11 +73,10 @@ class Scanner:
 
 class ScanEntry:
     """
-    Information about a single transmission of data from a BLE device received by a `Scanner`.
+    Information about an advertising packet from a BLE device received by a `Scanner`.
 
-    :param bleio.ScanEntry entry: lower-level ScanEntry from a `bleio.Scanner`.
-
-    This constructor would normally only be used by `Scanner`.
+    :param bleio.ScanEntry entry: lower-level ScanEntry returned from `bleio.Scanner`.
+      This constructor is normally used only `Scanner`.
     """
 
     def __init__(self, entry):
@@ -96,7 +95,7 @@ class ScanEntry:
         while i < len(adv_bytes):
             item_length = adv_bytes[i]
             if  item_type != adv_bytes[i+1]:
-                # Type doesn't match: skip to next item
+                # Type doesn't match: skip to next item.
                 i += item_length + 1
             else:
                 return adv_bytes[i + 2:i + item_length]
