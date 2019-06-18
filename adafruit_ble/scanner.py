@@ -30,9 +30,7 @@ UART-style communication.
 """
 import struct
 
-import bleio.ScanEntry
-import bleio.Scanner
-import bleio.UUID
+import bleio
 
 from .advertising import AdvertisingPacket
 
@@ -68,7 +66,7 @@ class Scanner:
         :returns: advertising packets found
         :rtype: list of `adafruit_ble.ScanEntry` objects
         """
-        return [ScanEntry(entry) for entry in self._scanner.scan(timeout, interval, window)]
+        return [ScanEntry(entry) for entry in self._scanner.scan(timeout, interval=interval, window=window)]
 
 
 class ScanEntry:
