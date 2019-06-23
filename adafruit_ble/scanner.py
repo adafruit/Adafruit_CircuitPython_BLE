@@ -23,7 +23,7 @@
 `adafruit_ble.scanner`
 ====================================================
 
-UART-style communication.
+Scan for nearby BLE Devices
 
 * Author(s): Dan Halbert for Adafruit Industries
 
@@ -63,22 +63,21 @@ class Scanner:
            Must be in the range 0.0025 - 40.959375 seconds.
         :param float window: the duration (in seconds) to scan a single BLE channel.
           `window` must be <= `interval`.
-        :returns: advertising packets found
-        :rtype: list of `adafruit_ble.ScanEntry` objects
-        """
-        return [ScanEntry(entry) for entry in self._scanner.scan(timeout, interval=interval, window=window)]
+        :returns a list of `adafruit_ble.ScanEntry` objects.
 
+        """
+        return [ScanEntry(e) for e in self._scanner.scan(timeout, interval=interval, window=window)]
 
 class ScanEntry:
     """
     Information about an advertising packet from a BLE device received by a `Scanner`.
 
-    :param bleio.ScanEntry entry: lower-level ScanEntry returned from `bleio.Scanner`.
-      This constructor is normally used only `Scanner`.
+    :param bleio.ScanEntry scan_entry: lower-level ScanEntry returned from `bleio.Scanner`.
+      This constructor is normally used only by `Scanner`.
     """
 
-    def __init__(self, entry):
-        self._bleio_entry = entry
+    def __init__(self, scan_entry):
+        self._bleio_scan_entry = scan_entry
 
     def item(self, item_type):
         """Return the bytes in the advertising packet for given the element type.
@@ -96,23 +95,23 @@ class ScanEntry:
                 # Type doesn't match: skip to next item.
                 i += item_length + 1
             else:
-                return adv_bytes[i + 2:i + item_length]
+                return adv_bytes[i + 2:i + 1 + item_length]
         return None
 
     @property
     def advertisement_bytes(self):
         """The raw bytes of the received advertisement."""
-        return self._bleio_entry.raw_data
+        return self._bleio_scan_entry.advertisement_bytes
 
     @property
     def rssi(self):
         """The signal strength of the device at the time of the scan. (read-only)."""
-        return self._bleio_entry.rssi
+        return self._bleio_scan_entry.rssi
 
     @property
     def address(self):
         """The address of the device. (read-only)."""
-        return self._bleio_entry.address
+        return self._bleio_scan_entry.address
 
     @property
     def name(self):
@@ -146,3 +145,22 @@ class ScanEntry:
     def manufacturer_specific_data(self):
         """Manufacturer-specific data in the advertisement, returned as bytes."""
         return self.item(AdvertisingPacket.MANUFACTURER_SPECIFIC_DATA)
+
+    def matches(self, other):
+        """True if two scan entries appear to be from the same device. Their
+        addresses and advertisement_bytes must match.
+        """
+        return self.address == other.address and self.advertisement_bytes == other.advertisement_bytes
+
+    @classmethod
+    def unique(self, scan_entries):
+        """Discard duplicate scan entries that appear to be from the same device.
+
+        :param sequence scan_entries: ScanEntry objects
+        :returns list: list with duplicates removed
+        """
+        unique = []
+        for entry in scan_entries:
+            if not any(entry.matches(unique_entry) for unique_entry in unique):
+                unique.append(entry);
+        return unique
