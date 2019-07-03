@@ -54,6 +54,21 @@ class Scanner:
     def __init__(self):
         self._scanner = bleio.Scanner()
 
+    def scan_unique(self, timeout, *, interval=0.1, window=0.1):
+        """Scan for advertisements from BLE devices. Suppress duplicates
+        in returned `ScanEntry` objects.
+
+        :param int timeout: how long to scan for (in seconds)
+        :param float interval: the interval (in seconds) between the start
+           of two consecutive scan windows.
+           Must be in the range 0.0025 - 40.959375 seconds.
+        :param float window: the duration (in seconds) to scan a single BLE channel.
+          `window` must be <= `interval`.
+        :returns a list of `adafruit_ble.ScanEntry` objects.
+
+        """
+        return ScanEntry.unique(self.scan(timeout, interval=interval, window=window))
+
     def scan(self, timeout, *, interval=0.1, window=0.1):
         """Scan for advertisements from BLE devices.
 
@@ -122,13 +137,14 @@ class ScanEntry:
     @property
     def service_uuids(self):
         """List of all the service UUIDs in the advertisement."""
+        uuid_values = []
+
         concat_uuids = self.item(AdvertisingPacket.ALL_16_BIT_SERVICE_UUIDS)
         concat_uuids = concat_uuids if concat_uuids else self.item(
             AdvertisingPacket.SOME_16_BIT_SERVICE_UUIDS)
 
-        uuid_values = []
         if concat_uuids:
-            for i in range(0, len(uuid_values), 2):
+            for i in range(0, len(concat_uuids), 2):
                 uuid_values.append(struct.unpack("<H", concat_uuids[i:i+2]))
 
         concat_uuids = self.item(AdvertisingPacket.ALL_128_BIT_SERVICE_UUIDS)
@@ -136,9 +152,10 @@ class ScanEntry:
             AdvertisingPacket.SOME_128_BIT_SERVICE_UUIDS)
 
         if concat_uuids:
-            for i in range(0, len(uuid_values), 16):
+            for i in range(0, len(concat_uuids), 16):
                 uuid_values.append(concat_uuids[i:i+16])
 
+        print(uuid_values)
         return [bleio.UUID(value) for value in uuid_values]
 
     @property
@@ -150,10 +167,16 @@ class ScanEntry:
         """True if two scan entries appear to be from the same device. Their
         addresses and advertisement_bytes must match.
         """
-        return self.address == other.address and self.advertisement_bytes == other.advertisement_bytes
+        return (self.address == other.address and
+                self.advertisement_bytes == other.advertisement_bytes)
 
-    @classmethod
-    def unique(self, scan_entries):
+    @staticmethod
+    def with_service_uuid(scan_entries, service_uuid):
+        """Return all scan entries advertising the given service_uuid."""
+        return [se for se in scan_entries if service_uuid in se.service_uuids]
+
+    @staticmethod
+    def unique(scan_entries):
         """Discard duplicate scan entries that appear to be from the same device.
 
         :param sequence scan_entries: ScanEntry objects
@@ -162,5 +185,5 @@ class ScanEntry:
         unique = []
         for entry in scan_entries:
             if not any(entry.matches(unique_entry) for unique_entry in unique):
-                unique.append(entry);
+                unique.append(entry)
         return unique
