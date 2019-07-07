@@ -28,11 +28,11 @@ UART-style communication: Peripheral acting as a GATT Server.
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
-from bleio import Characteristic, Service, Peripheral
+from bleio import Characteristic, CharacteristicBuffer, Peripheral, Service
 from .advertising import ServerAdvertisement
-from .uart import UART
+from .uart import NUS_SERVICE_UUID, NUS_RX_CHAR_UUID, NUS_TX_CHAR_UUID
 
-class UARTServer(UART):
+class UARTServer:
     """
     Provide UART-like functionality via the Nordic NUS service.
 
@@ -56,12 +56,12 @@ class UARTServer(UART):
     """
 
     def __init__(self, *, timeout=1.0, buffer_size=64, name=None):
-        read_char = Characteristic(UART.NUS_RX_CHAR_UUID, write=True, write_no_response=True)
-        write_char = Characteristic(UART.NUS_TX_CHAR_UUID, notify=True)
-        super().__init__(read_characteristic=read_char, write_characteristic=write_char,
-                         timeout=timeout, buffer_size=buffer_size)
+        self._read_char = Characteristic(NUS_RX_CHAR_UUID, write=True, write_no_response=True)
+        self._write_char = Characteristic(NUS_TX_CHAR_UUID, notify=True)
+        self._read_buffer = CharacteristicBuffer(self._read_char,
+                                                 timeout=timeout, buffer_size=buffer_size)
 
-        nus_uart_service = Service(UART.NUS_SERVICE_UUID, (read_char, write_char))
+        nus_uart_service = Service(NUS_SERVICE_UUID, (self._read_char, self._write_char))
 
         self._periph = Peripheral((nus_uart_service,), name=name)
         self._advertisement = ServerAdvertisement(self._periph)
@@ -81,3 +81,50 @@ class UARTServer(UART):
     def connected(self):
         """True if someone connected to the server."""
         return self._periph.connected
+
+    def read(self, nbytes=None):
+        """
+        Read characters. If ``nbytes`` is specified then read at most that many bytes.
+        Otherwise, read everything that arrives until the connection times out.
+        Providing the number of bytes expected is highly recommended because it will be faster.
+
+        :return: Data read
+        :rtype: bytes or None
+        """
+        return self._read_buffer.read(nbytes)
+
+    def readinto(self, buf, nbytes=None):
+        """
+        Read bytes into the ``buf``. If ``nbytes`` is specified then read at most
+        that many bytes. Otherwise, read at most ``len(buf)`` bytes.
+
+        :return: number of bytes read and stored into ``buf``
+        :rtype: int or None (on a non-blocking error)
+        """
+        return self._read_buffer.readinto(buf, nbytes)
+
+    def readline(self):
+        """
+        Read a line, ending in a newline character.
+
+        :return: the line read
+        :rtype: int or None
+        """
+        return self._read_buffer.readline()
+
+    @property
+    def in_waiting(self):
+        """The number of bytes in the input buffer, available to be read."""
+        return self._read_buffer.in_waiting
+
+    def reset_input_buffer(self):
+        """Discard any unread characters in the input buffer."""
+        self._read_buffer.reset_input_buffer()
+
+    def write(self, buf):
+        """Write a buffer of bytes."""
+        # We can only write 20 bytes at a time.
+        offset = 0
+        while offset < len(buf):
+            self._write_char.value = buf[offset:offset+20]
+            offset += 20
