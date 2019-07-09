@@ -57,7 +57,7 @@ class UARTClient:
         uart_client.write('abc')
     """
 
-    def __init__(self, *, timeout=5.0, buffer_size=64):
+    def __init__(self, *, timeout=1.0, buffer_size=64):
         self._buffer_size = buffer_size
         self._timeout = timeout
         self._read_char = self._write_char = self._read_buffer = None
@@ -67,7 +67,8 @@ class UARTClient:
         """Try to connect to the peripheral at the given address.
 
         :param bleio.Address address: The address of the peripheral to connect to
-        :param float/int timeout: Try to connect for timeout seconds.
+        :param float/int timeout: Try to connect for ``timeout`` seconds.
+           Not related to the timeout passed to ``UARTClient()``.
         """
         self._central.connect(address, timeout, service_uuids=(NUS_SERVICE_UUID,))
 
@@ -83,9 +84,13 @@ class UARTClient:
                 self._read_char = characteristic
         if not self._write_char or not self._read_char:
             raise OSError("Remote UART missing needed characteristic")
+
+        # Enable notifications from the server (the peripheral).
+        self._read_char.set_cccd(notify=True)
         self._read_buffer = CharacteristicBuffer(self._read_char,
                                                  timeout=self._timeout,
                                                  buffer_size=self._buffer_size)
+
 
     def disconnect(self):
         """Disconnect from the peripheral."""

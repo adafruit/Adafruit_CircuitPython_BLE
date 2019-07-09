@@ -145,7 +145,7 @@ class ScanEntry:
 
         if concat_uuids:
             for i in range(0, len(concat_uuids), 2):
-                uuid_values.append(struct.unpack("<H", concat_uuids[i:i+2]))
+                uuid_values.extend(struct.unpack("<H", concat_uuids[i:i+2]))
 
         concat_uuids = self.item(AdvertisingPacket.ALL_128_BIT_SERVICE_UUIDS)
         concat_uuids = concat_uuids if concat_uuids else self.item(
@@ -155,7 +155,6 @@ class ScanEntry:
             for i in range(0, len(concat_uuids), 16):
                 uuid_values.append(concat_uuids[i:i+16])
 
-        print(uuid_values)
         return [bleio.UUID(value) for value in uuid_values]
 
     @property
