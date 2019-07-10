@@ -1,5 +1,4 @@
 import board
-import neopixel
 from adafruit_ble.uart import UARTServer
 
 # Adapted from "Getting Started with CircuitPython and Bluetooth Low Energy" by Kattni Rembor
