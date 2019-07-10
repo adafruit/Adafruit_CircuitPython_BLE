@@ -30,6 +30,7 @@ UART-style communication by a Central as a GATT Client
 """
 from bleio import Central, CharacteristicBuffer
 from .uart import NUS_SERVICE_UUID, NUS_RX_CHAR_UUID, NUS_TX_CHAR_UUID
+from .scanner import ScanEntry
 
 class UARTClient:
     """
@@ -46,13 +47,12 @@ class UARTClient:
         from adafruit_ble.uart_client import UARTClient
         from adafruit_ble.scanner import Scanner, ScanEntry
 
-        scanner = Scanner()
-        uarts = ScanEntry.with_service_uuid(scanner.scan_unique(3), UART.NUS_SERVICE_UUID)
-        if not uarts:
-            raise ValueError("No UART for connection")
-
         uart_client = UARTClient()
-        uart_client.connect(uarts[0].address, 5, service_uuids=(UART.NUS_SERVICE_UUID,))
+        uart_addresses = uart_client.scan()
+        if uart_addresses:
+            uart_client.connect(uarts[0].address, 5, service_uuids=(UART.NUS_SERVICE_UUID,))
+        else:
+            raise Error("No UART servers found.")
 
         uart_client.write('abc')
     """
@@ -91,6 +91,17 @@ class UARTClient:
                                                  timeout=self._timeout,
                                                  buffer_size=self._buffer_size)
 
+    def scan(self, scanner=None, scan_time=2):
+        """Scan for Peripherals advertising the Nordic UART Service,
+        and return their addresses.
+
+        :param int scanner: Scanner to use. If not supplied, a local one will
+          be created.
+        :param float scan_time: scan for this many seconds.
+        :return list of Address objects, or an empty list, if none found
+        """
+        return [se.address for se in
+                ScanEntry.with_service_uuid(scanner.scan_unique(scan_time), NUS_SERVICE_UUID)]
 
     def disconnect(self):
         """Disconnect from the peripheral."""
