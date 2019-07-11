@@ -91,7 +91,8 @@ class UARTClient:
                                                  timeout=self._timeout,
                                                  buffer_size=self._buffer_size)
 
-    def scan(self, scanner=None, scan_time=2):
+    @staticmethod
+    def scan(scanner=None, scan_time=2):
         """Scan for Peripherals advertising the Nordic UART Service,
         and return their addresses.
 
