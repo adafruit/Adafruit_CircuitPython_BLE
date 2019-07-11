@@ -101,6 +101,9 @@ class UARTClient:
         :param float scan_time: scan for this many seconds.
         :return list of Address objects, or an empty list, if none found
         """
+        if not scanner:
+            scanner = Scanner()
+
         return [se.address for se in
                 ScanEntry.with_service_uuid(scanner.scan_unique(scan_time), NUS_SERVICE_UUID)]
 
