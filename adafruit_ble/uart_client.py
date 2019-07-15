@@ -30,7 +30,7 @@ UART-style communication by a Central as a GATT Client
 """
 from bleio import Central, CharacteristicBuffer
 from .uart import NUS_SERVICE_UUID, NUS_RX_CHAR_UUID, NUS_TX_CHAR_UUID
-from .scanner import ScanEntry
+from .scanner import Scanner, ScanEntry
 
 class UARTClient:
     """
@@ -45,7 +45,6 @@ class UARTClient:
     Example::
 
         from adafruit_ble.uart_client import UARTClient
-        from adafruit_ble.scanner import Scanner, ScanEntry
 
         uart_client = UARTClient()
         uart_addresses = uart_client.scan()
