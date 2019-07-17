@@ -49,7 +49,7 @@ class UARTClient:
         uart_client = UARTClient()
         uart_addresses = uart_client.scan()
         if uart_addresses:
-            uart_client.connect(uarts[0].address, 5, service_uuids=(UART.NUS_SERVICE_UUID,))
+            uart_client.connect(uarts[0].address, 5, service_uuids_whitelist=(UART.NUS_SERVICE_UUID,))
         else:
             raise Error("No UART servers found.")
 
@@ -69,7 +69,7 @@ class UARTClient:
         :param float/int timeout: Try to connect for ``timeout`` seconds.
            Not related to the timeout passed to ``UARTClient()``.
         """
-        self._central.connect(address, timeout, service_uuids=(NUS_SERVICE_UUID,))
+        self._central.connect(address, timeout, service_uuids_whitelist=(NUS_SERVICE_UUID,))
 
         # Connect succeeded. Get the remote characteristics we need, which were
         # found during discovery.
