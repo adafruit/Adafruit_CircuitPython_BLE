@@ -1,4 +1,4 @@
-from adafruit_ble.uart import UARTServer
+from adafruit_ble.uart_server import UARTServer
 
 uart = UARTServer()
 

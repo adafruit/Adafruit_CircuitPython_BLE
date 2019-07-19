@@ -20,19 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble.uart`
+`adafruit_ble.uuid`
 ====================================================
 
-BLE UART-style communication. Common definitions.
+BLE UUIDs
 
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
-from bleio import UUID
 
-NUS_SERVICE_UUID = UUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
-"""Nordic UART Service UUID"""
-NUS_RX_CHAR_UUID = UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
-"""Nordic UART Service RX Characteristic UUID"""
-NUS_TX_CHAR_UUID = UUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
-"""Nordic UART Service TX Characteristic UUID"""
+from bleio import UUID as bleio_UUID
+
+UUID = bleio_UUID
+"""`adafruit_ble.UUID` is the same as `bleio.UUID`"""
