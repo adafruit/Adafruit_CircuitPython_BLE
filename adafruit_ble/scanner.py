@@ -42,13 +42,7 @@ class Scanner:
 
         from adafruit_ble.scanner import Scanner
         scanner = Scanner()
-        scanner.Scan
-
-        # Wait for a connection.
-        while not uart.connected:
-            pass
-
-        uart.write('abc')
+        scan_entries = scanner.scan()
     """
 
     def __init__(self):
