@@ -42,7 +42,7 @@ class Scanner:
 
         from adafruit_ble.scanner import Scanner
         scanner = Scanner()
-        scan_entries = scanner.scan()
+        scan_entries = scanner.scan(3)  # scan for 3 seconds
     """
 
     def __init__(self):
