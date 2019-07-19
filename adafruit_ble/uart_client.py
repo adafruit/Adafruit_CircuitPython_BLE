@@ -105,7 +105,7 @@ class UARTClient:
             scanner = Scanner()
 
         return [se.address for se in
-                ScanEntry.with_service_uuid(scanner.scan_unique(scan_time), NUS_SERVICE_UUID)]
+                ScanEntry.with_service_uuid(scanner.scan(scan_time), NUS_SERVICE_UUID)]
 
     def disconnect(self):
         """Disconnect from the peripheral."""

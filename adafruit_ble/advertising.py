@@ -81,9 +81,15 @@ class AdvertisingPacket:
     MAX_DATA_SIZE = 31
     """Data size in a regular BLE packet."""
 
-    def __init__(self, *, max_length=MAX_DATA_SIZE):
-        """Create an empty advertising packet, no larger than max_length."""
-        self._packet_bytes = bytearray()
+    def __init__(self, data=None, *, max_length=MAX_DATA_SIZE):
+        """Create an advertising packet, no larger than max_length.
+
+        :param buf data: if not supplied (None), create an empty packet
+          if supplied, create a packet with supplied data. This is usually used
+          to parse an existing packet.
+        :param int max_length: maximum length of packet
+        """
+        self._packet_bytes = bytearray(data) if data else bytearray()
         self._max_length = max_length
         self._check_length()
 
@@ -91,6 +97,39 @@ class AdvertisingPacket:
     def packet_bytes(self):
         """The raw packet bytes."""
         return self._packet_bytes
+
+    @packet_bytes.setter
+    def packet_bytes(self, value):
+        self._packet_bytes = value
+
+    def __getitem__(self, element_type):
+        """Return the bytes stored in the advertising packet for the given element type.
+
+        :param int element_type: An integer designating an advertising element type.
+           A number of types are defined in `AdvertisingPacket`,
+           such as `AdvertisingPacket.TX_POWER`.
+        :returns: bytes that are the value for the given element type.
+           If the element type is not present in the packet, raise KeyError.
+        """
+        i = 0
+        adv_bytes = self.packet_bytes
+        while i < len(adv_bytes):
+            item_length = adv_bytes[i]
+            if  element_type != adv_bytes[i+1]:
+                # Type doesn't match: skip to next item.
+                i += item_length + 1
+            else:
+                return adv_bytes[i + 2:i + 1 + item_length]
+        raise KeyError
+
+    def get(self, element_type, default=None):
+        """Return the bytes stored in the advertising packet for the given element type,
+        returning the default value if not found.
+        """
+        try:
+            return self.__getitem__(element_type)
+        except KeyError:
+            return default
 
     @property
     def bytes_remaining(self):

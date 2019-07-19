@@ -54,9 +54,9 @@ class Scanner:
     def __init__(self):
         self._scanner = bleio.Scanner()
 
-    def scan_unique(self, timeout, *, interval=0.1, window=0.1):
+    def scan(self, timeout, *, interval=0.1, window=0.1):
         """Scan for advertisements from BLE devices. Suppress duplicates
-        in returned `ScanEntry` objects.
+        in returned `ScanEntry` objects, so there is only one entry per address (device).
 
         :param int timeout: how long to scan for (in seconds)
         :param float interval: the interval (in seconds) between the start
@@ -67,10 +67,11 @@ class Scanner:
         :returns a list of `adafruit_ble.ScanEntry` objects.
 
         """
-        return ScanEntry.unique(self.scan(timeout, interval=interval, window=window))
+        return ScanEntry.unique_devices(self.raw_scan(timeout, interval=interval, window=window))
 
-    def scan(self, timeout, *, interval=0.1, window=0.1):
-        """Scan for advertisements from BLE devices.
+    def raw_scan(self, timeout, *, interval=0.1, window=0.1):
+        """Scan for advertisements from BLE devices. Include every scan entry,
+        even duplicates.
 
         :param int timeout: how long to scan for (in seconds)
         :param float interval: the interval (in seconds) between the start
@@ -92,63 +93,46 @@ class ScanEntry:
     """
 
     def __init__(self, scan_entry):
-        self._bleio_scan_entry = scan_entry
-
-    def item(self, item_type):
-        """Return the bytes in the advertising packet for given the element type.
-
-        :param int element_type: An integer designating an element type.
-           A number are defined in `AdvertisingPacket`, such as `AdvertisingPacket.TX_POWER`.
-        :returns: bytes that are the value for the given element type.
-           If the element type is not present in the packet, return ``None``.
-        """
-        i = 0
-        adv_bytes = self.advertisement_bytes
-        while i < len(adv_bytes):
-            item_length = adv_bytes[i]
-            if  item_type != adv_bytes[i+1]:
-                # Type doesn't match: skip to next item.
-                i += item_length + 1
-            else:
-                return adv_bytes[i + 2:i + 1 + item_length]
-        return None
+        self._rssi = scan_entry.rssi
+        self._address = scan_entry.address
+        self._packet = AdvertisingPacket(scan_entry.advertisement_bytes)
 
     @property
-    def advertisement_bytes(self):
-        """The raw bytes of the received advertisement."""
-        return self._bleio_scan_entry.advertisement_bytes
+    def advertisement_packet(self):
+        """The received advertising packet."""
+        return self._packet
 
     @property
     def rssi(self):
         """The signal strength of the device at the time of the scan. (read-only)."""
-        return self._bleio_scan_entry.rssi
+        return self._rssi
 
     @property
     def address(self):
         """The address of the device. (read-only)."""
-        return self._bleio_scan_entry.address
+        return self._address
 
     @property
     def name(self):
         """The name of the device. (read-only)"""
-        name = self.item(AdvertisingPacket.COMPLETE_LOCAL_NAME)
-        return name if name else self.item(AdvertisingPacket.SHORT_LOCAL_NAME)
+        name = self._packet.get(AdvertisingPacket.COMPLETE_LOCAL_NAME)
+        return name if name else self._packet.get(AdvertisingPacket.SHORT_LOCAL_NAME)
 
     @property
     def service_uuids(self):
         """List of all the service UUIDs in the advertisement."""
         uuid_values = []
 
-        concat_uuids = self.item(AdvertisingPacket.ALL_16_BIT_SERVICE_UUIDS)
-        concat_uuids = concat_uuids if concat_uuids else self.item(
+        concat_uuids = self._packet.get(AdvertisingPacket.ALL_16_BIT_SERVICE_UUIDS)
+        concat_uuids = concat_uuids if concat_uuids else self._packet.get(
             AdvertisingPacket.SOME_16_BIT_SERVICE_UUIDS)
 
         if concat_uuids:
             for i in range(0, len(concat_uuids), 2):
                 uuid_values.extend(struct.unpack("<H", concat_uuids[i:i+2]))
 
-        concat_uuids = self.item(AdvertisingPacket.ALL_128_BIT_SERVICE_UUIDS)
-        concat_uuids = concat_uuids if concat_uuids else self.item(
+        concat_uuids = self._packet.get(AdvertisingPacket.ALL_128_BIT_SERVICE_UUIDS)
+        concat_uuids = concat_uuids if concat_uuids else self._packet.get(
             AdvertisingPacket.SOME_128_BIT_SERVICE_UUIDS)
 
         if concat_uuids:
@@ -160,14 +144,15 @@ class ScanEntry:
     @property
     def manufacturer_specific_data(self):
         """Manufacturer-specific data in the advertisement, returned as bytes."""
-        return self.item(AdvertisingPacket.MANUFACTURER_SPECIFIC_DATA)
+        return self._packet.get(AdvertisingPacket.MANUFACTURER_SPECIFIC_DATA)
 
-    def matches(self, other):
+    def same_device(self, other):
         """True if two scan entries appear to be from the same device. Their
-        addresses and advertisement_bytes must match.
+        addresses and advertisement must match.
         """
         return (self.address == other.address and
-                self.advertisement_bytes == other.advertisement_bytes)
+                self.advertisement_packet.packet_bytes ==
+                other.advertisement_packet.packet_bytes)
 
     @staticmethod
     def with_service_uuid(scan_entries, service_uuid):
@@ -175,7 +160,7 @@ class ScanEntry:
         return [se for se in scan_entries if service_uuid in se.service_uuids]
 
     @staticmethod
-    def unique(scan_entries):
+    def unique_devices(scan_entries):
         """Discard duplicate scan entries that appear to be from the same device.
 
         :param sequence scan_entries: ScanEntry objects
@@ -183,6 +168,6 @@ class ScanEntry:
         """
         unique = []
         for entry in scan_entries:
-            if not any(entry.matches(unique_entry) for unique_entry in unique):
+            if not any(entry.same_device(unique_entry) for unique_entry in unique):
                 unique.append(entry)
         return unique
