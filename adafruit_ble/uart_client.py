@@ -70,7 +70,9 @@ class UARTClient:
         :param float/int timeout: Try to connect for ``timeout`` seconds.
            Not related to the timeout passed to ``UARTClient()``.
         """
-        self._central.connect(address, timeout, service_uuids_whitelist=(NUS_SERVICE_UUID,))
+        self._central.connect(address, timeout)
+        # Restrict discovery to NUS service only.
+        self._central.discover_remote_services((NUS_SERVICE_UUID,))
 
         # Connect succeeded. Get the remote characteristics we need, which were
         # found during discovery.
