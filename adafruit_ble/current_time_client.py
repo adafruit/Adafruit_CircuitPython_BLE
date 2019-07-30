@@ -28,6 +28,9 @@ UART-style communication by a Central as a GATT Client
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
+import struct
+import time
+
 from bleio import Peripheral, UUID
 from .advertising import SolicitationAdvertisement
 
@@ -40,20 +43,26 @@ class CurrentTimeClient:
 
     Example::
 
-        from adafruit_ble.current_time_client import SolicitationAdvertisement
+        from adafruit_ble.current_time_client import CurrentTimeClient
 
         cts_client = CurrentTimeClient()
         cts_client.start_advertising()
         while not cts_client.connected:
             pass
-        print(cts_client.time)
+        cts_client.discover()
+        cts_client.pair()
+        print(cts_client.current_local_time)
     """
 
     CTS_UUID = UUID(0x1805)
+    CURRENT_TIME_UUID = UUID(0x2A2B)
+    LOCAL_TIME_INFORMATION_UUID = UUID(0x2A0F)
 
     def __init__(self, name="CTSClient", tx_power=0):
         self._periph = Peripheral()
         self._advertisement = SolicitationAdvertisement(name, (self.CTS_UUID,), tx_power=tx_power)
+        self._current_time_char = self._local_time_char = None
+
 
     def start_advertising(self):
         """Start advertising to solicit a central that supports Current Time Service."""
@@ -69,11 +78,66 @@ class CurrentTimeClient:
         """True if a central connected to this peripheral."""
         return self._periph.connected
 
+    def disconnect(self):
+        """Disconnect from central."""
+        self._periph.disconnect()
+
+    def _check_connected(self):
+        if not self.connected:
+            raise OSError("Not connected")
+
     def pair(self):
         """Pair with the connected central."""
-        pass
+        self._check_connected()
+        self._periph.pair()
+
+    def discover(self):
+        """Discover service information."""
+        self._check_connected()
+        self._periph.discover_remote_services((self.CTS_UUID,))
+        services = self._periph.remote_services
+        if not services:
+            raise OSError("Unable to discover service")
+        for characteristic in services[0].characteristics:
+            if characteristic.uuid == self.CURRENT_TIME_UUID:
+                self._current_time_char = characteristic
+            elif characteristic.uuid == self.LOCAL_TIME_INFORMATION_UUID:
+                self._local_time_char = characteristic
+        if not self._current_time_char or not self._local_time_char:
+            raise OSError("Remote service missing needed characteristic")
 
     @property
-    def time(self):
-        """Get the current time from the server."""
-        return None
+    def current_time(self):
+        """Get a tuple describing the current time from the server:
+        (year, month, day, hour, minute, second, weekday, subsecond, adjust_reason)
+        """
+        self._check_connected()
+        if self._current_time_char:
+            # year, month, day, hour, minute, second, weekday, subsecond, adjust_reason
+            values = struct.unpack('<HBBBBBBBB', self._current_time_char.value)
+            return values
+        else:
+            raise OSError("Characteristic not discovered")
+
+
+    @property
+    def local_time_information(self):
+        """Get a tuple of location information from the server:
+        (timezone, dst_offset)
+        """
+        self._check_connected()
+        if self._local_time_char:
+            # timezone, dst_offset
+            values = struct.unpack('<bB', self._local_time_char.value)
+            return values
+        else:
+            raise OSError("Characteristic not discovered")
+
+    @property
+    def struct_time(self):
+        """Return the current time as a `time.struct_time` Day of year and whether DST is in effect
+        is not available from Current Time Service, so these are set to -1.
+        """
+        _, month, day, hour, minute, second, weekday, _, _ = self.current_time
+        # Bluetooth weekdays count from 1. struct_time counts from 0.
+        return time.struct_time((month, day, hour, minute, second, weekday - 1, -1))
