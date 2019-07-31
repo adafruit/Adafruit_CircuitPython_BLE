@@ -40,7 +40,6 @@ class UARTClient:
       for the first character and between subsequent characters.
     :param int buffer_size: buffer up to this many bytes.
       If more bytes are received, older bytes will be discarded.
-    :param str name: Name to advertise for server. If None, use default Peripheral name.
 
     Example::
 

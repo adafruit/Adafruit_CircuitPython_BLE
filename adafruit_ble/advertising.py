@@ -29,6 +29,7 @@ Advertising-related classes.
 
 """
 
+import bleio
 import struct
 
 class AdvertisingPacket:
@@ -171,7 +172,7 @@ class AdvertisingPacket:
 
     def add_appearance(self, appearance):
         """Add BLE Appearance value."""
-        self.add_field(AdvertisingPacket.APPEARANCE, struct.pack("<h", appearance))
+        self.add_field(AdvertisingPacket.APPEARANCE, struct.pack("<H", appearance))
 
 
 class Advertisement:
