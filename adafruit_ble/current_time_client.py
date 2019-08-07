@@ -36,7 +36,7 @@ from .advertising import SolicitationAdvertisement
 
 class CurrentTimeClient:
     """
-    Set up a peripheral that solicits centrals for Current Time Service,
+    Set up a peripheral that solicits centrals for Current Time Service.
 
     :param str name: Name to advertise for server. If None, use default Advertisement name.
 
@@ -50,7 +50,12 @@ class CurrentTimeClient:
             pass
         cts_client.discover()
         cts_client.pair()
-        print(cts_client.current_local_time)
+        print(cts_client.current__time)
+
+    To try the example above, open Settings->Bluetooth on your iOS device.
+    After the program starts advertising, ``CIRCUITPYxxxx` will show up as a Bluetooth
+    device for possible connection. Tap it, and then accept the pairing request.
+    Then the time should print.
     """
 
     CTS_UUID = UUID(0x1805)
@@ -59,7 +64,7 @@ class CurrentTimeClient:
 
     def __init__(self, name=None, tx_power=0):
         self._periph = Peripheral(name=name)
-        self._advertisement = SolicitationAdvertisement(peripheral.name, (self.CTS_UUID,), tx_power=tx_power)
+        self._advertisement = SolicitationAdvertisement(self._periph.name, (self.CTS_UUID,), tx_power=tx_power)
         self._current_time_char = self._local_time_char = None
 
 
