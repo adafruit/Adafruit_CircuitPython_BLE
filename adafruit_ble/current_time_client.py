@@ -64,7 +64,8 @@ class CurrentTimeClient:
 
     def __init__(self, name=None, tx_power=0):
         self._periph = Peripheral(name=name)
-        self._advertisement = SolicitationAdvertisement(self._periph.name, (self.CTS_UUID,), tx_power=tx_power)
+        self._advertisement = SolicitationAdvertisement(self._periph.name,
+                                                        (self.CTS_UUID,), tx_power=tx_power)
         self._current_time_char = self._local_time_char = None
 
 

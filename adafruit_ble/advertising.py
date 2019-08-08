@@ -29,7 +29,6 @@ Advertising-related classes.
 
 """
 
-import bleio
 import struct
 
 class AdvertisingPacket:
