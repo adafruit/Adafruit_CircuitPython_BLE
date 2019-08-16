@@ -40,7 +40,6 @@ class UARTClient:
       for the first character and between subsequent characters.
     :param int buffer_size: buffer up to this many bytes.
       If more bytes are received, older bytes will be discarded.
-    :param str name: Name to advertise for server. If None, use default Peripheral name.
 
     Example::
 
@@ -70,12 +69,14 @@ class UARTClient:
         :param float/int timeout: Try to connect for ``timeout`` seconds.
            Not related to the timeout passed to ``UARTClient()``.
         """
-        self._central.connect(address, timeout, service_uuids_whitelist=(NUS_SERVICE_UUID,))
+        self._central.connect(address, timeout)
+        # Restrict discovery to NUS service only.
+        remote_services = self._central.discover_remote_services((NUS_SERVICE_UUID,))
 
         # Connect succeeded. Get the remote characteristics we need, which were
         # found during discovery.
 
-        for characteristic in self._central.remote_services[0].characteristics:
+        for characteristic in remote_services[0].characteristics:
             # Since we're remote we receive on tx and send on rx.
             # The names are from the point of view of the server.
             if characteristic.uuid == NUS_RX_CHAR_UUID:
