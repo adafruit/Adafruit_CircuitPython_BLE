@@ -99,8 +99,7 @@ class CurrentTimeClient:
     def discover(self):
         """Discover service information."""
         self._check_connected()
-        self._periph.discover_remote_services((self.CTS_UUID,))
-        services = self._periph.remote_services
+        services = self._periph.discover_remote_services((self.CTS_UUID,))
         if not services:
             raise OSError("Unable to discover service")
         for characteristic in services[0].characteristics:

@@ -71,12 +71,12 @@ class UARTClient:
         """
         self._central.connect(address, timeout)
         # Restrict discovery to NUS service only.
-        self._central.discover_remote_services((NUS_SERVICE_UUID,))
+        remote_services = self._central.discover_remote_services((NUS_SERVICE_UUID,))
 
         # Connect succeeded. Get the remote characteristics we need, which were
         # found during discovery.
 
-        for characteristic in self._central.remote_services[0].characteristics:
+        for characteristic in remote_services[0].characteristics:
             # Since we're remote we receive on tx and send on rx.
             # The names are from the point of view of the server.
             if characteristic.uuid == NUS_RX_CHAR_UUID:
