@@ -23,7 +23,7 @@
 `adafruit_ble.current_time_client`
 ====================================================
 
-UART-style communication by a Central as a GATT Client
+Connect to a Current Time Service, as a peripheral.
 
 * Author(s): Dan Halbert for Adafruit Industries
 
@@ -43,14 +43,17 @@ class CurrentTimeClient:
     Example::
 
         from adafruit_ble.current_time_client import CurrentTimeClient
+        import time
 
         cts_client = CurrentTimeClient()
         cts_client.start_advertising()
         while not cts_client.connected:
             pass
-        cts_client.discover()
-        cts_client.pair()
-        print(cts_client.current__time)
+        # The first time a property is read, the client
+        # will do discovery and pairing.
+        while True:
+            print(cts_client.current_time)
+            time.sleep(5)
 
     To try the example above, open Settings->Bluetooth on your iOS device.
     After the program starts advertising, ``CIRCUITPYxxxx` will show up as a Bluetooth
@@ -90,15 +93,13 @@ class CurrentTimeClient:
     def _check_connected(self):
         if not self.connected:
             raise OSError("Not connected")
+        # Do discovery and pairing if not already done.
+        if not self._current_time_char:
+            self._discover()
+            self._periph.pair()
 
-    def pair(self):
-        """Pair with the connected central."""
-        self._check_connected()
-        self._periph.pair()
-
-    def discover(self):
+    def _discover(self):
         """Discover service information."""
-        self._check_connected()
         services = self._periph.discover_remote_services((self.CTS_UUID,))
         if not services:
             raise OSError("Unable to discover service")
