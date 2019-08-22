@@ -21,22 +21,22 @@ def scale(value):
 
 scanner = Scanner()
 uart_client = UARTClient()
-uart_addresses = []
 
-# Keep trying to find a UART peripheral
-while not uart_addresses:
-    uart_addresses = uart_client.scan(scanner)
-
-a0 = AnalogIn(board.A0)
-a1 = AnalogIn(board.A1)
-a2 = AnalogIn(board.A2)
+a3 = AnalogIn(board.A3)
+a4 = AnalogIn(board.A4)
+a5 = AnalogIn(board.A5)
 
 while True:
+    uart_addresses = []
+    # Keep trying to find a UART peripheral
+    while not uart_addresses:
+        uart_addresses = uart_client.scan(scanner)
     uart_client.connect(uart_addresses[0], 5)
+
     while uart_client.connected:
-        r = scale(a0.value)
-        g = scale(a1.value)
-        b = scale(a2.value)
+        r = scale(a3.value)
+        g = scale(a4.value)
+        b = scale(a5.value)
 
         color = (r, g, b)
         print(color)
