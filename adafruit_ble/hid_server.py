@@ -1,4 +1,4 @@
- # The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2019 Dan Halbert for Adafruit Industries
 #
@@ -239,24 +239,24 @@ class HIDServer:
         # Protocol mode: boot or report. Make it read-only for now because
         # it can't be changed
 
-        # protocol_mode_char = Characteristic(
-        #     UUID(_PROTOCOL_MODE_UUID_NUM), properties=Characteristic.READ | Characteristic.WRITE_NO_RESPONSE,
-        #     read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
-        #     max_length=1, fixed_length=True)
-        # protocol_mode_char.value = _PROTOCOL_MODE_REPORT
+        protocol_mode_char = Characteristic(
+            UUID(_PROTOCOL_MODE_UUID_NUM), properties=Characteristic.READ | Characteristic.WRITE_NO_RESPONSE,
+            read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
+            max_length=1, fixed_length=True)
+        protocol_mode_char.value = _PROTOCOL_MODE_REPORT
 
-        # boot_keyboard_input_report = Characteristic(
-        #     UUID(_BOOT_KEYBOARD_INPUT_REPORT_UUID_NUM),
-        #     properties=Characteristic.READ | Characteristic.NOTIFY,
-        #     read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
-        #     max_length=self._INPUT_REPORT_SIZES[self.REPORT_ID_KEYBOARD], fixed_length=True)
+        boot_keyboard_input_report = Characteristic(
+            UUID(_BOOT_KEYBOARD_INPUT_REPORT_UUID_NUM),
+            properties=Characteristic.READ | Characteristic.NOTIFY,
+            read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
+            max_length=self._INPUT_REPORT_SIZES[self.REPORT_ID_KEYBOARD], fixed_length=True)
 
-        # boot_keyboard_output_report = Characteristic(
-        #     UUID(_BOOT_KEYBOARD_OUTPUT_REPORT_UUID_NUM),
-        #     properties=(Characteristic.READ | Characteristic.WRITE |
-        #                 Characteristic.WRITE_NO_RESPONSE),
-        #     read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.ENCRYPT_NO_MITM,
-        #     max_length=self._OUTPUT_REPORT_SIZES[self.REPORT_ID_KEYBOARD], fixed_length=True)
+        boot_keyboard_output_report = Characteristic(
+            UUID(_BOOT_KEYBOARD_OUTPUT_REPORT_UUID_NUM),
+            properties=(Characteristic.READ | Characteristic.WRITE |
+                        Characteristic.WRITE_NO_RESPONSE),
+            read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.ENCRYPT_NO_MITM,
+            max_length=self._OUTPUT_REPORT_SIZES[self.REPORT_ID_KEYBOARD], fixed_length=True)
 
         # This is the USB HID descriptor (not to be confused with a BLE Descriptor).
         report_map_char = Characteristic(
@@ -283,9 +283,9 @@ class HIDServer:
         hid_service = Service(UUID(_HID_SERVICE_UUID_NUM),
                               tuple(self._input_chars.values()) +
                               tuple(self._output_chars.values()) +
-                              (#boot_keyboard_input_report,
-                               #boot_keyboard_output_report,
-                               #protocol_mode_char,
+                              (boot_keyboard_input_report,
+                               boot_keyboard_output_report,
+                               protocol_mode_char,
                                report_map_char,
                                hid_information_char,
                                self._hid_control_point_char,
