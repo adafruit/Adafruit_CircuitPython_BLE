@@ -28,65 +28,69 @@ Device Information Service (DIS)
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
-from bleio import Attribute, Characteristic, Service, UUID
+from bleio import Attribute, Characteristic, UUID
 
-# pylint: disable=invalid-name
-def DeviceInformationService(*, model_number=None, serial_number=None, firmware_revision=None,
-                             hardware_revision='', software_revision='', manufacturer=''):
-    """
-    Set up a Service with fixed Device Information Service charcteristics.
-    All values are optional.
+class DeviceInformationService:
+    """This is a factory class only, and has no instances."""
 
-    Note that this is a pseudo class: It returns a Service, but is not a subclass of Service,
-    because Service is a native class and doesn't handle subclassing.
+    @staticmethod
+    def add_to_peripheral(peripheral, *, model_number=None, serial_number=None,
+                          firmware_revision=None, hardware_revision='',
+                          software_revision='', manufacturer=''):
+        """
+        Add a Service with fixed Device Information Service characteristics to the given Peripheral.
+        All values are optional.
 
-      :param str model_number: Device model number. If None use `sys.platform`.
-      :param str serial_number: Device serial number. If None use a hex representation of
-         ``microcontroller.cpu.id``.
-      :param str firmware_revision: Device firmware revision. If None use ``os.uname().version``.
-      :param str hardware_revision: Device hardware revision.
-      :param str software_revision: Device software revision.
-      :param str manufacturer: Device manufacturer name
+          :param str model_number: Device model number. If None use `sys.platform`.
+          :param str serial_number: Device serial number. If None use a hex representation of
+             ``microcontroller.cpu.id``.
+          :param str firmware_revision: Device firmware revision.
+             If None use ``os.uname().version``.
+          :param str hardware_revision: Device hardware revision.
+          :param str software_revision: Device software revision.
+          :param str manufacturer: Device manufacturer name
+          :return: the created Service
 
-    Example::
+        Example::
 
-        dis = DeviceInformationService(software_revision="1.2.4", manufacturer="Acme Corp")
-    """
+            peripheral = Peripheral()
+            dis = DeviceInformationService.add_to_peripheral(
+                peripheral, software_revision="1.2.4", manufacturer="Acme Corp")
+        """
 
-    # Avoid creating constants with names if not necessary. Just takes up space.
-    # Device Information Service UUID = 0x180A
-    # Module Number UUID = 0x2A24
-    # Serial Number UUID = 0x2A25
-    # Firmware Revision UUID = 0x2A26
-    # Hardware Revision UUID = 0x2A27
-    # Software Revision UUID = 0x2A28
-    # Manufacturer Name UUID = 0x2A29
+        # Avoid creating constants with names if not necessary. Just takes up space.
+        # Device Information Service UUID = 0x180A
+        # Module Number UUID = 0x2A24
+        # Serial Number UUID = 0x2A25
+        # Firmware Revision UUID = 0x2A26
+        # Hardware Revision UUID = 0x2A27
+        # Software Revision UUID = 0x2A28
+        # Manufacturer Name UUID = 0x2A29
 
-    characteristics = []
-    # Values must correspond to UUID numbers.
+        service = peripheral.add_service(UUID(0x180A))
 
-    if model_number is None:
-        import sys
-        model_number = sys.platform
-    if serial_number is None:
-        import microcontroller
-        import binascii
-        serial_number = binascii.hexlify(microcontroller.cpu.uid).decode('utf-8') # pylint: disable=no-member
+        if model_number is None:
+            import sys
+            model_number = sys.platform
+        if serial_number is None:
+            import microcontroller
+            import binascii
+            serial_number = binascii.hexlify(microcontroller.cpu.uid).decode('utf-8') # pylint: disable=no-member
 
-    if firmware_revision is None:
-        import os
-        firmware_revision = os.uname().version
+        if firmware_revision is None:
+            import os
+            firmware_revision = os.uname().version
 
-    for uuid_num, string in zip(
-            range(0x2A24, 0x2A29+1),
-            (model_number, serial_number,
-             firmware_revision, hardware_revision, software_revision,
-             manufacturer)):
+        # Values must correspond to UUID numbers.
+        for uuid_num, value in zip(
+                range(0x2A24, 0x2A29+1),
+                (model_number, serial_number,
+                 firmware_revision, hardware_revision, software_revision,
+                 manufacturer)):
 
-        char = Characteristic(UUID(uuid_num), properties=Characteristic.READ,
-                              read_perm=Attribute.OPEN, write_perm=Attribute.NO_ACCESS,
-                              fixed_length=True, max_length=len(string))
-        char.value = string
-        characteristics.append(char)
+            service.add_characteristic(UUID(uuid_num), properties=Characteristic.READ,
+                                       read_perm=Attribute.OPEN, write_perm=Attribute.NO_ACCESS,
+                                       fixed_length=True, max_length=len(value),
+                                       initial_value=value)
 
-    return Service(UUID(0x180A), characteristics)
+        return service

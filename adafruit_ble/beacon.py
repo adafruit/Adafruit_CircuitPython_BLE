@@ -41,7 +41,7 @@ class Beacon:
 
         :param AdvertisingPacket advertising_packet
         """
-        self._broadcaster = bleio.Peripheral(name=None)
+        self._broadcaster = bleio.Peripheral()
         self._advertising_packet = advertising_packet
 
     def start(self, interval=1.0):

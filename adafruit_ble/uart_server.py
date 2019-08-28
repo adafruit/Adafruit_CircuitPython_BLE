@@ -28,7 +28,7 @@ UART-style communication: Peripheral acting as a GATT Server.
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
-from bleio import Attribute, Characteristic, CharacteristicBuffer, Peripheral, Service
+from bleio import Attribute, Characteristic, CharacteristicBuffer, Peripheral
 from .advertising import ServerAdvertisement
 from .uart import NUS_SERVICE_UUID, NUS_RX_CHAR_UUID, NUS_TX_CHAR_UUID
 
@@ -56,20 +56,23 @@ class UARTServer:
     """
 
     def __init__(self, *, timeout=1.0, buffer_size=64, name=None):
-        self._read_char = Characteristic(
+        self._periph = Peripheral(name)
+        service = self._periph.add_service(NUS_SERVICE_UUID)
+
+        self._read_char = service.add_characteristic(
             NUS_RX_CHAR_UUID,
             properties=Characteristic.WRITE | Characteristic.WRITE_NO_RESPONSE,
             read_perm=Attribute.NO_ACCESS, write_perm=Attribute.OPEN)
-        self._write_char = Characteristic(
+
+        self._write_char = service.add_characteristic(
             NUS_TX_CHAR_UUID,
             properties=Characteristic.NOTIFY,
             read_perm=Attribute.OPEN, write_perm=Attribute.NO_ACCESS)
+
         self._read_buffer = CharacteristicBuffer(self._read_char,
                                                  timeout=timeout, buffer_size=buffer_size)
 
-        nus_uart_service = Service(NUS_SERVICE_UUID, (self._read_char, self._write_char))
 
-        self._periph = Peripheral((nus_uart_service,), name=name)
         self._advertisement = ServerAdvertisement(self._periph)
 
     def start_advertising(self):
