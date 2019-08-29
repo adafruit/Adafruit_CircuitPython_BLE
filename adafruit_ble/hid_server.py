@@ -35,7 +35,7 @@ from micropython import const
 # for __version__
 import adafruit_ble
 
-from bleio import Attribute, Characteristic, Peripheral, UUID
+from bleio import Attribute, Characteristic, Descriptor, Peripheral, Service, UUID
 from .advertising import ServerAdvertisement
 from .device_information_service import DeviceInformationService
 
@@ -215,30 +215,31 @@ class HIDServer:
             self._periph, software_revision=adafruit_ble.__version__,
             manufacturer="Adafruit Industries")
 
-        service = self._periph.add_service(UUID(_HID_SERVICE_UUID_NUM))
+        hid_service = Service.add_to_peripheral(UUID(_HID_SERVICE_UUID_NUM))
 
         self._input_chars = {}
         for report_id in sorted(self._INPUT_REPORT_SIZES.keys()):
-            input_char = service.add_characteristic(
-                self._REPORT_UUID, properties=Characteristic.READ | Characteristic.NOTIFY,
+            input_char = Characteristic.add_to_service(
+                hid_service, self._REPORT_UUID,
+                properties=Characteristic.READ | Characteristic.NOTIFY,
                 read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
                 max_length=self._INPUT_REPORT_SIZES[report_id], fixed_length=True)
-            input_char.add_descriptor(
-                self._REPORT_REF_DESCR_UUID,
+            Descriptor.add_to_characteristic(
+                input_char, self._REPORT_REF_DESCR_UUID,
                 read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
                 initial_value=struct.pack('<BB', report_id, _REPORT_TYPE_INPUT))
             self._input_chars[report_id] = input_char
 
         self._output_chars = {}
         for report_id in sorted(self._OUTPUT_REPORT_SIZES.keys()):
-            output_char = service.add_characteristic(
-                self._REPORT_UUID,
+            output_char = Characteristic.add_to_service(
+                hid_service, self._REPORT_UUID,
                 properties=(Characteristic.READ | Characteristic.WRITE |
                             Characteristic.WRITE_NO_RESPONSE),
                 read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.ENCRYPT_NO_MITM,
                 max_length=self._OUTPUT_REPORT_SIZES[report_id], fixed_length=True)
-            output_char.add_descriptor(
-                self._REPORT_REF_DESCR_UUID,
+            Descriptor.add_to_characteristic(
+                output_char, self._REPORT_REF_DESCR_UUID,
                 read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
                 initial_value=struct.pack('<BB', report_id, _REPORT_TYPE_OUTPUT))
             self._output_chars[report_id] = output_char
@@ -246,43 +247,45 @@ class HIDServer:
         # Protocol mode: boot or report. Make it read-only for now because
         # it can't be changed
 
-        service.add_characteristic(
-            UUID(_PROTOCOL_MODE_UUID_NUM),
+        Characteristic.add_to_service(
+            hid_service, UUID(_PROTOCOL_MODE_UUID_NUM),
             properties=Characteristic.READ | Characteristic.WRITE_NO_RESPONSE,
             read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
             max_length=1, fixed_length=True,
             initial_value=_PROTOCOL_MODE_REPORT)
 
-        service.add_characteristic(
-            UUID(_BOOT_KEYBOARD_INPUT_REPORT_UUID_NUM),
+        Characteristic.add_to_service(
+            hid_service, UUID(_BOOT_KEYBOARD_INPUT_REPORT_UUID_NUM),
             properties=Characteristic.READ | Characteristic.NOTIFY,
             read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
             max_length=self._INPUT_REPORT_SIZES[self.REPORT_ID_KEYBOARD], fixed_length=True)
 
-        service.add_characteristic(
-            UUID(_BOOT_KEYBOARD_OUTPUT_REPORT_UUID_NUM),
+        Characteristic.add_to_service(
+            hid_service, UUID(_BOOT_KEYBOARD_OUTPUT_REPORT_UUID_NUM),
             properties=(Characteristic.READ | Characteristic.WRITE |
                         Characteristic.WRITE_NO_RESPONSE),
             read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.ENCRYPT_NO_MITM,
             max_length=self._OUTPUT_REPORT_SIZES[self.REPORT_ID_KEYBOARD], fixed_length=True)
 
         # This is the USB HID descriptor (not to be confused with a BLE Descriptor).
-        service.add_characteristic(
-            UUID(_REPORT_MAP_UUID_NUM), properties=Characteristic.READ,
+        Characteristic.add_to_service(
+            hid_service, UUID(_REPORT_MAP_UUID_NUM), properties=Characteristic.READ,
             read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
             max_length=len(self.HID_DESCRIPTOR), fixed_length=True,
             initial_value=self.HID_DESCRIPTOR)
 
         # bcdHID (version), bCountryCode (0 not localized), Flags: RemoteWake, NormallyConnectable
         # bcd1.1, country = 0, flag = normal connect
-        service.add_characteristic(
-            UUID(_HID_INFORMATION_UUID_NUM), properties=Characteristic.READ,
+        Characteristic.add_to_service(
+            hid_service, UUID(_HID_INFORMATION_UUID_NUM),
+            properties=Characteristic.READ,
             read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
             initial_value=b'\x01\x01\x00\x02')
 
         # 0 = suspend; 1 = exit suspend
-        service.add_characteristic(
-            UUID(_HID_CONTROL_POINT_UUID_NUM), properties=Characteristic.WRITE_NO_RESPONSE,
+        Characteristic.add_to_service(
+            hid_service, UUID(_HID_CONTROL_POINT_UUID_NUM),
+            properties=Characteristic.WRITE_NO_RESPONSE,
             read_perm=Attribute.NO_ACCESS, write_perm=Attribute.ENCRYPT_NO_MITM)
 
         self._advertisement = ServerAdvertisement(self._periph, tx_power=tx_power,
