@@ -35,7 +35,7 @@ from micropython import const
 # for __version__
 import adafruit_ble
 
-from bleio import Attribute, Characteristic, Descriptor, Peripheral, Service, UUID
+from _bleio import Attribute, Characteristic, Descriptor, Peripheral, Service, UUID
 from .advertising import ServerAdvertisement
 from .device_information_service import DeviceInformationService
 
@@ -116,52 +116,52 @@ class HIDServer:
         b'\x95\x03'        #   Report Count (3)
         b'\x91\x01'        #   Output (Const,Array,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
         b'\xC0'            # End Collection
-        # b'\x05\x01'        # Usage Page (Generic Desktop Ctrls)
-        # b'\x09\x02'        # Usage (Mouse)
-        # b'\xA1\x01'        # Collection (Application)
-        # b'\x09\x01'        #   Usage (Pointer)
-        # b'\xA1\x00'        #   Collection (Physical)
-        # b'\x85\x02'        #     Report ID (2)
-        # b'\x05\x09'        #     Usage Page (Button)
-        # b'\x19\x01'        #     Usage Minimum (\x01)
-        # b'\x29\x05'        #     Usage Maximum (\x05)
-        # b'\x15\x00'        #     Logical Minimum (0)
-        # b'\x25\x01'        #     Logical Maximum (1)
-        # b'\x95\x05'        #     Report Count (5)
-        # b'\x75\x01'        #     Report Size (1)
-        # b'\x81\x02'        #     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-        # b'\x95\x01'        #     Report Count (1)
-        # b'\x75\x03'        #     Report Size (3)
-        # b'\x81\x01'        #     Input (Const,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
-        # b'\x05\x01'        #     Usage Page (Generic Desktop Ctrls)
-        # b'\x09\x30'        #     Usage (X)
-        # b'\x09\x31'        #     Usage (Y)
-        # b'\x15\x81'        #     Logical Minimum (-127)
-        # b'\x25\x7F'        #     Logical Maximum (127)
-        # b'\x75\x08'        #     Report Size (8)
-        # b'\x95\x02'        #     Report Count (2)
-        # b'\x81\x06'        #     Input (Data,Var,Rel,No Wrap,Linear,Preferred State,No Null Position)
-        # b'\x09\x38'        #     Usage (Wheel)
-        # b'\x15\x81'        #     Logical Minimum (-127)
-        # b'\x25\x7F'        #     Logical Maximum (127)
-        # b'\x75\x08'        #     Report Size (8)
-        # b'\x95\x01'        #     Report Count (1)
-        # b'\x81\x06'        #     Input (Data,Var,Rel,No Wrap,Linear,Preferred State,No Null Position)
-        # b'\xC0'            #   End Collection
-        # b'\xC0'            # End Collection
-        # b'\x05\x0C'        # Usage Page (Consumer)
-        # b'\x09\x01'        # Usage (Consumer Control)
-        # b'\xA1\x01'        # Collection (Application)
-        # b'\x85\x03'        #   Report ID (3)
-        # b'\x75\x10'        #   Report Size (16)
-        # b'\x95\x01'        #   Report Count (1)
-        # b'\x15\x01'        #   Logical Minimum (1)
-        # b'\x26\x8C\x02'    #   Logical Maximum (652)
-        # b'\x19\x01'        #   Usage Minimum (Consumer Control)
-        # b'\x2A\x8C\x02'    #   Usage Maximum (AC Send)
-        # b'\x81\x00'        #   Input (Data,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
-        # b'\xC0'            # End Collection
-        # b'\x05\x01'        # Usage Page (Generic Desktop Ctrls)
+        b'\x05\x01'        # Usage Page (Generic Desktop Ctrls)
+        b'\x09\x02'        # Usage (Mouse)
+        b'\xA1\x01'        # Collection (Application)
+        b'\x09\x01'        #   Usage (Pointer)
+        b'\xA1\x00'        #   Collection (Physical)
+        b'\x85\x02'        #     Report ID (2)
+        b'\x05\x09'        #     Usage Page (Button)
+        b'\x19\x01'        #     Usage Minimum (\x01)
+        b'\x29\x05'        #     Usage Maximum (\x05)
+        b'\x15\x00'        #     Logical Minimum (0)
+        b'\x25\x01'        #     Logical Maximum (1)
+        b'\x95\x05'        #     Report Count (5)
+        b'\x75\x01'        #     Report Size (1)
+        b'\x81\x02'        #     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        b'\x95\x01'        #     Report Count (1)
+        b'\x75\x03'        #     Report Size (3)
+        b'\x81\x01'        #     Input (Const,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        b'\x05\x01'        #     Usage Page (Generic Desktop Ctrls)
+        b'\x09\x30'        #     Usage (X)
+        b'\x09\x31'        #     Usage (Y)
+        b'\x15\x81'        #     Logical Minimum (-127)
+        b'\x25\x7F'        #     Logical Maximum (127)
+        b'\x75\x08'        #     Report Size (8)
+        b'\x95\x02'        #     Report Count (2)
+        b'\x81\x06'        #     Input (Data,Var,Rel,No Wrap,Linear,Preferred State,No Null Position)
+        b'\x09\x38'        #     Usage (Wheel)
+        b'\x15\x81'        #     Logical Minimum (-127)
+        b'\x25\x7F'        #     Logical Maximum (127)
+        b'\x75\x08'        #     Report Size (8)
+        b'\x95\x01'        #     Report Count (1)
+        b'\x81\x06'        #     Input (Data,Var,Rel,No Wrap,Linear,Preferred State,No Null Position)
+        b'\xC0'            #   End Collection
+        b'\xC0'            # End Collection
+        b'\x05\x0C'        # Usage Page (Consumer)
+        b'\x09\x01'        # Usage (Consumer Control)
+        b'\xA1\x01'        # Collection (Application)
+        b'\x85\x03'        #   Report ID (3)
+        b'\x75\x10'        #   Report Size (16)
+        b'\x95\x01'        #   Report Count (1)
+        b'\x15\x01'        #   Logical Minimum (1)
+        b'\x26\x8C\x02'    #   Logical Maximum (652)
+        b'\x19\x01'        #   Usage Minimum (Consumer Control)
+        b'\x2A\x8C\x02'    #   Usage Maximum (AC Send)
+        b'\x81\x00'        #   Input (Data,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        b'\xC0'            # End Collection
+        b'\x05\x01'        # Usage Page (Generic Desktop Ctrls)
         # b'\x09\x05'        # Usage (Game Pad)
         # b'\xA1\x01'        # Collection (Application)
         # b'\x85\x05'        #   Report ID (5)
@@ -198,8 +198,8 @@ class HIDServer:
 
     _INPUT_REPORT_SIZES = {
         REPORT_ID_KEYBOARD : 8,
-        # REPORT_ID_MOUSE : 4,
-        # REPORT_ID_CONSUMER_CONTROL : 2,
+        REPORT_ID_MOUSE : 4,
+        REPORT_ID_CONSUMER_CONTROL : 2,
         # REPORT_ID_GAMEPAD : 6,
     }
 
@@ -215,7 +215,7 @@ class HIDServer:
             self._periph, software_revision=adafruit_ble.__version__,
             manufacturer="Adafruit Industries")
 
-        hid_service = Service.add_to_peripheral(UUID(_HID_SERVICE_UUID_NUM))
+        hid_service = Service.add_to_peripheral(self._periph, UUID(_HID_SERVICE_UUID_NUM))
 
         self._input_chars = {}
         for report_id in sorted(self._INPUT_REPORT_SIZES.keys()):

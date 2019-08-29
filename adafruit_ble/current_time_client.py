@@ -31,7 +31,7 @@ Connect to a Current Time Service, as a peripheral.
 import struct
 import time
 
-from bleio import Peripheral, UUID
+from _bleio import Peripheral, UUID
 from .advertising import SolicitationAdvertisement
 
 class CurrentTimeClient:

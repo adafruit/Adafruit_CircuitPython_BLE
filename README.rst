@@ -13,7 +13,8 @@ Introduction
     :target: https://travis-ci.com/adafruit/Adafruit_CircuitPython_ble
     :alt: Build Status
 
-This module provides higher-level BLE (Bluetooth Low Energy) functionality, building on the native `bleio` module.
+This module provides higher-level BLE (Bluetooth Low Energy) functionality,
+building on the native `_bleio` module.
 
 Dependencies
 =============

@@ -30,7 +30,8 @@ Scan for nearby BLE Devices
 """
 import struct
 
-import bleio
+from _bleio import Scanner as _BLEIOScanner
+from _bleio import UUID
 
 from .advertising import AdvertisingPacket
 
@@ -46,7 +47,7 @@ class Scanner:
     """
 
     def __init__(self):
-        self._scanner = bleio.Scanner()
+        self._scanner = _BLEIOScanner()
 
     def scan(self, timeout, *, interval=0.1, window=0.1):
         """Scan for advertisements from BLE devices. Suppress duplicates
@@ -82,7 +83,7 @@ class ScanEntry:
     """
     Information about an advertising packet from a BLE device received by a `Scanner`.
 
-    :param bleio.ScanEntry scan_entry: lower-level ScanEntry returned from `bleio.Scanner`.
+    :param _bleio.ScanEntry scan_entry: lower-level ScanEntry returned from `_bleio.Scanner`.
       This constructor is normally used only by `Scanner`.
     """
 
@@ -133,7 +134,7 @@ class ScanEntry:
             for i in range(0, len(concat_uuids), 16):
                 uuid_values.append(concat_uuids[i:i+16])
 
-        return [bleio.UUID(value) for value in uuid_values]
+        return [UUID(value) for value in uuid_values]
 
     @property
     def manufacturer_specific_data(self):

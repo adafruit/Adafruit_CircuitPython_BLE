@@ -28,7 +28,7 @@ Device Information Service (DIS)
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
-from bleio import Attribute, Characteristic, UUID
+from _bleio import Attribute, Characteristic, Service, UUID
 
 class DeviceInformationService:
     """This is a factory class only, and has no instances."""
@@ -67,7 +67,7 @@ class DeviceInformationService:
         # Software Revision UUID = 0x2A28
         # Manufacturer Name UUID = 0x2A29
 
-        service = peripheral.add_service(UUID(0x180A))
+        service = Service.add_to_peripheral(peripheral, UUID(0x180A))
 
         if model_number is None:
             import sys
@@ -88,9 +88,10 @@ class DeviceInformationService:
                  firmware_revision, hardware_revision, software_revision,
                  manufacturer)):
 
-            service.add_characteristic(UUID(uuid_num), properties=Characteristic.READ,
-                                       read_perm=Attribute.OPEN, write_perm=Attribute.NO_ACCESS,
-                                       fixed_length=True, max_length=len(value),
-                                       initial_value=value)
+            Characteristic.add_to_service(
+                service, UUID(uuid_num), properties=Characteristic.READ,
+                read_perm=Attribute.OPEN, write_perm=Attribute.NO_ACCESS,
+                fixed_length=True, max_length=len(value),
+                initial_value=value)
 
         return service

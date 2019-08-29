@@ -28,7 +28,7 @@ UART-style communication: Peripheral acting as a GATT Server.
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
-from bleio import Attribute, Characteristic, CharacteristicBuffer, Peripheral, Service
+from _bleio import Attribute, Characteristic, CharacteristicBuffer, Peripheral, Service
 from .advertising import ServerAdvertisement
 from .uart import NUS_SERVICE_UUID, NUS_RX_CHAR_UUID, NUS_TX_CHAR_UUID
 

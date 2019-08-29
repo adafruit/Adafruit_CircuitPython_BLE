@@ -24,7 +24,7 @@
 ====================================================
 
 This module provides higher-level BLE (Bluetooth Low Energy) functionality,
-building on the native `bleio` module.
+building on the native `_bleio` module.
 
 * Author(s): Dan Halbert for Adafruit Industries
 
