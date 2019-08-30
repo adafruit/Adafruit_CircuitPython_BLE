@@ -179,7 +179,9 @@ class Advertisement:
     consisting of an advertising data packet and an optional scan response packet.
 
     :param int flags: advertising flags. Default is general discovery, and BLE only (not classic)
-    :param int appearance: If not None, add appearance value to advertisement.
+    :param int appearance: If not None, add BLE Appearance value to advertisement.
+      An Appearance describes what kind of device is advertising (keyboard, clock,
+      glucose meter, etc.)
     """
     def __init__(self, flags=None, tx_power=None, appearance=None):
         self._packet = AdvertisingPacket()
