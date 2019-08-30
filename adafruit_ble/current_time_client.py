@@ -31,7 +31,7 @@ Connect to a Current Time Service, as a peripheral.
 import struct
 import time
 
-from bleio import Peripheral, UUID
+from _bleio import Peripheral, UUID
 from .advertising import SolicitationAdvertisement
 
 class CurrentTimeClient:
@@ -66,7 +66,7 @@ class CurrentTimeClient:
     LOCAL_TIME_INFORMATION_UUID = UUID(0x2A0F)
 
     def __init__(self, name=None, tx_power=0):
-        self._periph = Peripheral(name=name)
+        self._periph = Peripheral(name)
         self._advertisement = SolicitationAdvertisement(self._periph.name,
                                                         (self.CTS_UUID,), tx_power=tx_power)
         self._current_time_char = self._local_time_char = None

@@ -29,7 +29,7 @@ BLE UUIDs
 
 """
 
-from bleio import UUID as bleio_UUID
+from _bleio import UUID as _bleio_UUID
 
-UUID = bleio_UUID
-"""`adafruit_ble.UUID` is the same as `bleio.UUID`"""
+UUID = _bleio_UUID
+"""`adafruit_ble.UUID` is the same as `_bleio.UUID`"""

@@ -28,7 +28,7 @@ UART-style communication by a Central as a GATT Client
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
-from bleio import Central, CharacteristicBuffer
+from _bleio import Central, CharacteristicBuffer
 from .uart import NUS_SERVICE_UUID, NUS_RX_CHAR_UUID, NUS_TX_CHAR_UUID
 from .scanner import Scanner, ScanEntry
 
@@ -65,7 +65,7 @@ class UARTClient:
     def connect(self, address, timeout):
         """Try to connect to the peripheral at the given address.
 
-        :param bleio.Address address: The address of the peripheral to connect to
+        :param Address address: The address of the peripheral to connect to
         :param float/int timeout: Try to connect for ``timeout`` seconds.
            Not related to the timeout passed to ``UARTClient()``.
         """

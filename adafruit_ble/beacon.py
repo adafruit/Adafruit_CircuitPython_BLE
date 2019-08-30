@@ -30,7 +30,7 @@ BLE Beacon-related classes.
 """
 
 import struct
-import bleio
+from _bleio import Peripheral
 
 from .advertising import AdvertisingPacket
 
@@ -41,7 +41,7 @@ class Beacon:
 
         :param AdvertisingPacket advertising_packet
         """
-        self._broadcaster = bleio.Peripheral(name=None)
+        self._broadcaster = Peripheral()
         self._advertising_packet = advertising_packet
 
     def start(self, interval=1.0):
@@ -76,7 +76,7 @@ class LocationBeacon(Beacon):
     Example::
 
         from adafruit_ble.beacon import LocationBeacon
-        from bleio import UUID
+        from adafruit_ble.uuid import UUID
         test_uuid = UUID('12345678-1234-1234-1234-123456789abc')
         test_company = 0xFFFF
         b = LocationBeacon(test_company, test_uuid, 123, 234, -54)

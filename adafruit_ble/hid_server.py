@@ -1,4 +1,4 @@
- # The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2019 Dan Halbert for Adafruit Industries
 #
@@ -30,10 +30,43 @@ BLE HID
 """
 import struct
 
-from bleio import Attribute, Characteristic, Descriptor, Peripheral, Service, UUID
-from .advertising import ServerAdvertisement
+from micropython import const
 
-class HID:
+# for __version__
+import adafruit_ble
+
+from _bleio import Attribute, Characteristic, Descriptor, Peripheral, Service, UUID
+from .advertising import ServerAdvertisement
+from .device_information_service import DeviceInformationService
+
+_HID_SERVICE_UUID_NUM = const(0x1812)
+_REPORT_UUID_NUM = const(0x2A4D)
+_REPORT_MAP_UUID_NUM = const(0x2A4B)
+_HID_INFORMATION_UUID_NUM = const(0x2A4A)
+_HID_CONTROL_POINT_UUID_NUM = const(0x2A4C)
+_REPORT_REF_DESCR_UUID_NUM = const(0x2908)
+_PROTOCOL_MODE_UUID_NUM = const(0x2A4E)
+
+_APPEARANCE_HID_KEYBOARD = const(961)
+_APPEARANCE_HID_MOUSE = const(962)
+_APPEARANCE_HID_JOYSTICK = const(963)
+_APPEARANCE_HID_GAMEPAD = const(964)
+
+
+# Boot keyboard and mouse not currently supported.
+_BOOT_KEYBOARD_INPUT_REPORT_UUID_NUM = const(0x2A22)
+_BOOT_KEYBOARD_OUTPUT_REPORT_UUID_NUM = const(0x2A32)
+_BOOT_MOUSE_INPUT_REPORT_UUID_NUM = const(0x2A33)
+
+# Output reports not currently implemented (e.g. LEDs on keyboard)
+_REPORT_TYPE_INPUT = const(1)
+_REPORT_TYPE_OUTPUT = const(2)
+
+# Boot Protocol mode not currently implemented
+_PROTOCOL_MODE_BOOT = b'\x00'
+_PROTOCOL_MODE_REPORT = b'\x01'
+
+class HIDServer:
     """
     Provide devices for HID over BLE.
 
@@ -41,23 +74,14 @@ class HID:
 
     Example::
 
-        from adafruit_ble.hid import HID
+        from adafruit_ble.hid_server import HIDServer
 
-        hid = HID()
+        hid = HIDServer()
     """
 
-    HUMAN_INTERFACE_DEVICE_UUID = UUID(0x1812)
-    REPORT_UUID = UUID(0x2A4D)
-    REPORT_MAP_UUID = UUID(0x2A4B)
-    HID_INFORMATION_UUID = UUID(0x2A4A)
-    HID_CONTROL_POINT_UUID = UUID(0x2A4C)
-    REPORT_REF_DESCR_UUID = UUID(0x2908)
-    _REPORT_TYPE_INPUT = 1
-    # Boot keyboard and mouse not currently supported.
-    # PROTOCOL_MODE_UUID = UUID(0x2A4E)
-    # HID_BOOT_KEYBOARD_INPUT_REPORT_UUID = UUID(0x2A22)
-    # HID_BOOT_KEYBOARD_OUTPUT_REPORT_UUID = UUID(0x2A32)
-    # HID_BOOT_MOUSE_INPUT_REPORT_UUID = UUID(0x2A33)
+    # These are used multiple times, so make them class constants.
+    _REPORT_UUID = UUID(_REPORT_UUID_NUM)
+    _REPORT_REF_DESCR_UUID = UUID(_REPORT_REF_DESCR_UUID_NUM)
 
     #pylint: disable=line-too-long
     HID_DESCRIPTOR = (
@@ -138,28 +162,28 @@ class HID:
         b'\x81\x00'        #   Input (Data,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
         b'\xC0'            # End Collection
         b'\x05\x01'        # Usage Page (Generic Desktop Ctrls)
-        b'\x09\x05'        # Usage (Game Pad)
-        b'\xA1\x01'        # Collection (Application)
-        b'\x85\x05'        #   Report ID (5)
-        b'\x05\x09'        #   Usage Page (Button)
-        b'\x19\x01'        #   Usage Minimum (\x01)
-        b'\x29\x10'        #   Usage Maximum (\x10)
-        b'\x15\x00'        #   Logical Minimum (0)
-        b'\x25\x01'        #   Logical Maximum (1)
-        b'\x75\x01'        #   Report Size (1)
-        b'\x95\x10'        #   Report Count (16)
-        b'\x81\x02'        #   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-        b'\x05\x01'        #   Usage Page (Generic Desktop Ctrls)
-        b'\x15\x81'        #   Logical Minimum (-127)
-        b'\x25\x7F'        #   Logical Maximum (127)
-        b'\x09\x30'        #   Usage (X)
-        b'\x09\x31'        #   Usage (Y)
-        b'\x09\x32'        #   Usage (Z)
-        b'\x09\x35'        #   Usage (Rz)
-        b'\x75\x08'        #   Report Size (8)
-        b'\x95\x04'        #   Report Count (4)
-        b'\x81\x02'        #   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-        b'\xC0'            # End Collection
+        # b'\x09\x05'        # Usage (Game Pad)
+        # b'\xA1\x01'        # Collection (Application)
+        # b'\x85\x05'        #   Report ID (5)
+        # b'\x05\x09'        #   Usage Page (Button)
+        # b'\x19\x01'        #   Usage Minimum (\x01)
+        # b'\x29\x10'        #   Usage Maximum (\x10)
+        # b'\x15\x00'        #   Logical Minimum (0)
+        # b'\x25\x01'        #   Logical Maximum (1)
+        # b'\x75\x01'        #   Report Size (1)
+        # b'\x95\x10'        #   Report Count (16)
+        # b'\x81\x02'        #   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        # b'\x05\x01'        #   Usage Page (Generic Desktop Ctrls)
+        # b'\x15\x81'        #   Logical Minimum (-127)
+        # b'\x25\x7F'        #   Logical Maximum (127)
+        # b'\x09\x30'        #   Usage (X)
+        # b'\x09\x31'        #   Usage (Y)
+        # b'\x09\x32'        #   Usage (Z)
+        # b'\x09\x35'        #   Usage (Rz)
+        # b'\x75\x08'        #   Report Size (8)
+        # b'\x95\x04'        #   Report Count (4)
+        # b'\x81\x02'        #   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+        # b'\xC0'            # End Collection
     )
     #pylint: enable=line-too-long
 
@@ -172,51 +196,100 @@ class HID:
     REPORT_ID_GAMEPAD = 5
     """Gamepad device indicator, for use with `send_report()`."""
 
-    REPORT_SIZES = {
+    _INPUT_REPORT_SIZES = {
         REPORT_ID_KEYBOARD : 8,
         REPORT_ID_MOUSE : 4,
         REPORT_ID_CONSUMER_CONTROL : 2,
-        REPORT_ID_GAMEPAD : 6,
+        # REPORT_ID_GAMEPAD : 6,
+    }
+
+    _OUTPUT_REPORT_SIZES = {
+        REPORT_ID_KEYBOARD : 1,
     }
 
     def __init__(self, name=None, tx_power=0):
+        self._periph = Peripheral(name)
+
+        # iOS requires Device Information Service. Android does not.
+        DeviceInformationService.add_to_peripheral(
+            self._periph, software_revision=adafruit_ble.__version__,
+            manufacturer="Adafruit Industries")
+
+        hid_service = Service.add_to_peripheral(self._periph, UUID(_HID_SERVICE_UUID_NUM))
+
         self._input_chars = {}
-        for report_id in sorted(self.REPORT_SIZES.keys()):
-            desc = Descriptor(HID.REPORT_REF_DESCR_UUID,
-                              read_perm=Attribute.OPEN, write_perm=Attribute.NO_ACCESS)
-            desc.value = struct.pack('<BB', report_id, self._REPORT_TYPE_INPUT)
-            self._input_chars[report_id] = Characteristic(
-                self.REPORT_UUID, properties=Characteristic.READ,
+        for report_id in sorted(self._INPUT_REPORT_SIZES.keys()):
+            input_char = Characteristic.add_to_service(
+                hid_service, self._REPORT_UUID,
+                properties=Characteristic.READ | Characteristic.NOTIFY,
                 read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
-                max_length=self.REPORT_SIZES[report_id], fixed_length=True,
-                descriptors=(desc,))
+                max_length=self._INPUT_REPORT_SIZES[report_id], fixed_length=True)
+            Descriptor.add_to_characteristic(
+                input_char, self._REPORT_REF_DESCR_UUID,
+                read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
+                initial_value=struct.pack('<BB', report_id, _REPORT_TYPE_INPUT))
+            self._input_chars[report_id] = input_char
+
+        self._output_chars = {}
+        for report_id in sorted(self._OUTPUT_REPORT_SIZES.keys()):
+            output_char = Characteristic.add_to_service(
+                hid_service, self._REPORT_UUID,
+                properties=(Characteristic.READ | Characteristic.WRITE |
+                            Characteristic.WRITE_NO_RESPONSE),
+                read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.ENCRYPT_NO_MITM,
+                max_length=self._OUTPUT_REPORT_SIZES[report_id], fixed_length=True)
+            Descriptor.add_to_characteristic(
+                output_char, self._REPORT_REF_DESCR_UUID,
+                read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
+                initial_value=struct.pack('<BB', report_id, _REPORT_TYPE_OUTPUT))
+            self._output_chars[report_id] = output_char
+
+        # Protocol mode: boot or report. Make it read-only for now because
+        # it can't be changed
+
+        Characteristic.add_to_service(
+            hid_service, UUID(_PROTOCOL_MODE_UUID_NUM),
+            properties=Characteristic.READ | Characteristic.WRITE_NO_RESPONSE,
+            read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
+            max_length=1, fixed_length=True,
+            initial_value=_PROTOCOL_MODE_REPORT)
+
+        Characteristic.add_to_service(
+            hid_service, UUID(_BOOT_KEYBOARD_INPUT_REPORT_UUID_NUM),
+            properties=Characteristic.READ | Characteristic.NOTIFY,
+            read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
+            max_length=self._INPUT_REPORT_SIZES[self.REPORT_ID_KEYBOARD], fixed_length=True)
+
+        Characteristic.add_to_service(
+            hid_service, UUID(_BOOT_KEYBOARD_OUTPUT_REPORT_UUID_NUM),
+            properties=(Characteristic.READ | Characteristic.WRITE |
+                        Characteristic.WRITE_NO_RESPONSE),
+            read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.ENCRYPT_NO_MITM,
+            max_length=self._OUTPUT_REPORT_SIZES[self.REPORT_ID_KEYBOARD], fixed_length=True)
 
         # This is the USB HID descriptor (not to be confused with a BLE Descriptor).
-        self._report_map_char = Characteristic(
-            self.REPORT_MAP_UUID, properties=Characteristic.READ,
-            read_perm=Attribute.OPEN, write_perm=Attribute.NO_ACCESS,
-            max_length=len(self.HID_DESCRIPTOR), fixed_length=True)
-        self._report_map_char.value = self.HID_DESCRIPTOR
+        Characteristic.add_to_service(
+            hid_service, UUID(_REPORT_MAP_UUID_NUM), properties=Characteristic.READ,
+            read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
+            max_length=len(self.HID_DESCRIPTOR), fixed_length=True,
+            initial_value=self.HID_DESCRIPTOR)
 
         # bcdHID (version), bCountryCode (0 not localized), Flags: RemoteWake, NormallyConnectable
-        self._hid_information_char = Characteristic(
-            self.HID_INFORMATION_UUID, properties=Characteristic.READ,
-            read_perm=Attribute.OPEN, write_perm=Attribute.NO_ACCESS)
         # bcd1.1, country = 0, flag = normal connect
-        self._hid_information_char.value = b'\x01\x01\x00\x02'
+        Characteristic.add_to_service(
+            hid_service, UUID(_HID_INFORMATION_UUID_NUM),
+            properties=Characteristic.READ,
+            read_perm=Attribute.ENCRYPT_NO_MITM, write_perm=Attribute.NO_ACCESS,
+            initial_value=b'\x01\x01\x00\x02')
 
         # 0 = suspend; 1 = exit suspend
-        self._hid_control_point_char = Characteristic(self.HID_CONTROL_POINT_UUID,
-                                                      properties=Characteristic.WRITE_NO_RESPONSE)
+        Characteristic.add_to_service(
+            hid_service, UUID(_HID_CONTROL_POINT_UUID_NUM),
+            properties=Characteristic.WRITE_NO_RESPONSE,
+            read_perm=Attribute.NO_ACCESS, write_perm=Attribute.ENCRYPT_NO_MITM)
 
-        hid_service = Service(self.HUMAN_INTERFACE_DEVICE_UUID,
-                              tuple(self._input_chars.values()) +
-                              (self._report_map_char,
-                               self._hid_information_char,
-                               self._hid_control_point_char,
-                              ))
-        self._periph = Peripheral((hid_service,), name=name)
-        self._advertisement = ServerAdvertisement(self._periph, tx_power=tx_power)
+        self._advertisement = ServerAdvertisement(self._periph, tx_power=tx_power,
+                                                  appearance=_APPEARANCE_HID_KEYBOARD)
 
     def start_advertising(self):
         """Start advertising the service. When a client connects, advertising will stop.
@@ -242,14 +315,13 @@ class HID:
         if not self.connected:
             raise OSError("Not connected")
 
-    def pair(self):
-        """Pair with the connected central."""
-        self._check_connected()
-        self._periph.pair()
-
     def send_report(self, report_id, report):
         """Send a report to the specified device"""
-        self._input_chars[report_id].value = report
+        try:
+            self._input_chars[report_id].value = report
+        except OSError:
+            self._check_connected()
+            raise
 
 
 class HIDDevice:

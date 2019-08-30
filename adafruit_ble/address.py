@@ -20,29 +20,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble`
+`adafruit_ble.address`
 ====================================================
 
-This module provides higher-level BLE (Bluetooth Low Energy) functionality,
-building on the native `_bleio` module.
+BLE Address
 
 * Author(s): Dan Halbert for Adafruit Industries
 
-Implementation Notes
---------------------
-
-**Hardware:**
-
-   Adafruit Feather nRF52840 Express <https://www.adafruit.com/product/4062>
-
-**Software and Dependencies:**
-
-* Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
-
 """
 
-# imports
+from _bleio import UUID as _bleio_Address
 
-__version__ = "0.0.0-auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
+UUID = _bleio_Address
+"""`adafruit_ble.Address` is the same as `_bleio.Address`"""

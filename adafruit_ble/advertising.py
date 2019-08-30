@@ -179,8 +179,11 @@ class Advertisement:
     consisting of an advertising data packet and an optional scan response packet.
 
     :param int flags: advertising flags. Default is general discovery, and BLE only (not classic)
+    :param int appearance: If not None, add BLE Appearance value to advertisement.
+      An Appearance describes what kind of device is advertising (keyboard, clock,
+      glucose meter, etc.)
     """
-    def __init__(self, flags=None, tx_power=None):
+    def __init__(self, flags=None, tx_power=None, appearance=None):
         self._packet = AdvertisingPacket()
         self._scan_response_packet = None
         if flags:
@@ -190,6 +193,8 @@ class Advertisement:
 
         if tx_power is not None:
             self._packet.add_tx_power(tx_power)
+        if appearance is not None:
+            self._packet.add_appearance(appearance)
 
     def add_name(self, name):
         """Add name to advertisement. If it doesn't fit, add truncated name to packet,
@@ -246,10 +251,11 @@ class ServerAdvertisement(Advertisement):
 
     :param Peripheral peripheral: the Peripheral to advertise. Use its services and name.
     :param int tx_power: transmit power in dBm at 0 meters (8 bit signed value). Default 0 dBm
+    :param int appearance: If not None, add appearance value to advertisement.
     """
 
-    def __init__(self, peripheral, *, tx_power=0):
-        super().__init__()
+    def __init__(self, peripheral, *, tx_power=0, appearance=None):
+        super().__init__(tx_power=tx_power, appearance=appearance)
         uuids = [service.uuid for service in peripheral.services if not service.secondary]
         self.add_uuids(uuids,
                        AdvertisingPacket.ALL_16_BIT_SERVICE_UUIDS,
