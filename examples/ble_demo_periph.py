@@ -6,12 +6,13 @@ and updates a NeoPixel FeatherWing to show the history of the received packets.
 import board
 import neopixel
 
-from adafruit_ble.uart_server import UARTServer
+import adafruit_ble
+from adafruit_ble.services.nordic import UARTService
 from adafruit_bluefruit_connect.packet import Packet
 # Only the packet classes that are imported will be known to Packet.
 from adafruit_bluefruit_connect.color_packet import ColorPacket
 
-uart_server = UARTServer()
+# This hasn't been updated.
 
 NUM_PIXELS = 32
 np = neopixel.NeoPixel(board.D10, NUM_PIXELS, brightness=0.1)
@@ -21,14 +22,11 @@ def mod(i):
     """Wrap i to modulus NUM_PIXELS."""
     return i % NUM_PIXELS
 
+adafruit_ble.add_local_service(UARTService)
+adafruit_ble.advertise(UARTService)
 while True:
-    # Advertise when not connected.
-    uart_server.start_advertising()
-    while not uart_server.connected:
-        pass
-
-    while uart_server.connected:
-        packet = Packet.from_stream(uart_server)
+    for peer in adafruit_ble.peers:
+        packet = Packet.from_stream(peer.local.uart)
         if isinstance(packet, ColorPacket):
             print(packet.color)
             np[next_pixel] = packet.color

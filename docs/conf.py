@@ -3,6 +3,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
 
@@ -20,10 +21,15 @@ extensions = [
 # Uncomment the below if you use native CircuitPython modules such as
 # digitalio, micropython and busio. List the modules you use. Without it, the
 # autodoc module docs will fail to generate with a warning.
-autodoc_mock_imports = ["_bleio"]
+autodoc_mock_imports = ["board"]
+autodoc_member_order = "bysource"
+add_module_names = False
 
+import bleio_mock
+sys.modules["_bleio"] = bleio_mock
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None),'CircuitPython': ('https://circuitpython.readthedocs.io/en/latest/', None)}
+intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None),
+                       'CircuitPython': ('https://circuitpython.readthedocs.io/en/latest/', None)}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

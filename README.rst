@@ -31,16 +31,18 @@ Usage Example
 
 .. code-block:: python
 
-    from adafruit_ble.uart import UARTServer
+    from adafruit_ble import SmartAdapter
 
-    uart_server = UARTServer()
-    uart_server.start_advertising()
+    adapter = SmartAdapter()
+    print("scanning")
+    found = set()
+    for entry in adapter.start_scan(timeout=60, minimum_rssi=-80):
+        addr = entry.address
+        if addr not in found:
+            print(entry)
+        found.add(addr)
 
-    # Wait for a connection.
-    while not uart_server.connected:
-        pass
-
-    uart_server.write('abc')
+    print("scan done")
 
 
 Contributing

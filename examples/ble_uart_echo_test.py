@@ -1,19 +1,22 @@
-from adafruit_ble.uart_server import UARTServer
+import adafruit_ble
 
-uart = UARTServer()
+from adafruit_ble import SmartAdapter
+from adafruit_ble.advertising.standard import ProvideServiceAdvertisement
+from adafruit_ble.services.nordic import UARTService
+
+# This should work.
+
+adapter = SmartAdapter()
+uart = UARTService()
+advertisement = ProvideServiceAdvertisement(uart)
 
 while True:
-    uart.start_advertising()
-
-    # Wait for a connection
-    while not uart.connected:
+    adapter.start_advertising(advertisement)
+    while not adapter.connected:
         pass
-
-    while uart.connected:
+    while adapter.connected:
         # Returns b'' if nothing was read.
         one_byte = uart.read(1)
         if one_byte:
+            print(one_byte)
             uart.write(one_byte)
-
-    # When disconnected, arrive here. Go back to the top
-    # and start advertising again.

@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2019 Dan Halbert for Adafruit Industries
+# Copyright (c) 2019 Scott Shawcroft for Adafruit Industries
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,16 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble.address`
+`sphero`
 ====================================================
 
-BLE Address
-
-* Author(s): Dan Halbert for Adafruit Industries
+This module provides Services used by Sphero robots.
 
 """
 
-from _bleio import UUID as _bleio_Address
+from .core import Service
+from ..uuid import VendorUUID
 
-UUID = _bleio_Address
-"""`adafruit_ble.Address` is the same as `_bleio.Address`"""
+__version__ = "0.0.0-auto.0"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
+
+class SpheroService(Service):
+    """Core Sphero Service. Unimplemented."""
+    uuid = VendorUUID("!!orehpS OOW\x01\x00\x01\x00")

@@ -4,14 +4,10 @@
 .. If your library file(s) are nested in a directory (e.g. /adafruit_foo/foo.py)
 .. use this format as the module name: "adafruit_foo.foo"
 
-.. automodule:: adafruit_ble
-   :members:
+.. toctree::
 
-.. automodule:: adafruit_ble.advertising
-   :members:
-
-.. automodule:: adafruit_ble.beacon
-   :members:
-
-.. automodule:: adafruit_ble.uart
-   :members:
+   top_level
+   advertising
+   characteristics
+   services
+   uuid
