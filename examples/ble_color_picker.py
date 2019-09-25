@@ -8,7 +8,7 @@ from adafruit_bluefruit_connect.color_packet import ColorPacket
 
 uart_server = UARTServer()
 
-pixels = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.1)
+pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1)
 
 while True:
     # Advertise when not connected.
