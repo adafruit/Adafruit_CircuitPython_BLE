@@ -17,7 +17,10 @@ while True:
         pass
 
     while uart_server.connected:
-        packet = Packet.from_stream(uart_server)
+        try:
+            packet = Packet.from_stream(uart_server)
+        except (ValueError, OSError):
+            pass
         if isinstance(packet, ColorPacket):
             print(packet.color)
             pixels.fill(packet.color)
