@@ -19,8 +19,9 @@ while True:
     while uart_server.connected:
         try:
             packet = Packet.from_stream(uart_server)
-        except (ValueError, OSError):
-            pass
+        except ValueError:
+            print("Caught a bad packet with a ValueError, discarding and trying again")
+            continue
         if isinstance(packet, ColorPacket):
             print(packet.color)
             pixels.fill(packet.color)
