@@ -90,7 +90,7 @@ def encode_data(data_dict, *, key_encoding="B"):
     return data
 
 class AdvertisingDataField:
-    """Top level class for any descriptor classes that live in Advertisement or it's subclasses."""
+    """Top level class for any descriptor classes that live in Advertisement or its subclasses."""
 
 class AdvertisingFlag:
     """A single bit flag within an AdvertisingFlags object."""
