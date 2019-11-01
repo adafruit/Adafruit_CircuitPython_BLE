@@ -155,7 +155,7 @@ class ProvideServicesAdvertisement(Advertisement):
     def matches(cls, entry):
         return entry.matches(cls.prefix, all=False)
 
-class ServicesSolicitationAdvertisement(Advertisement):
+class SolicitServicesAdvertisement(Advertisement):
     """Advertise what services the device would like to use over a connection."""
     # This is two prefixes, one for each ADT that can carry solicited service UUIDs.
     prefix = b"\x01\x14\x01\x15"

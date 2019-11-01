@@ -43,8 +43,8 @@ Implementation Notes
 
 """
 
-import _bleio
 import board
+import _bleio
 
 from .services import Service
 from .advertising import Advertisement

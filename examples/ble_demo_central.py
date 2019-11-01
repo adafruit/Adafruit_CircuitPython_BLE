@@ -6,10 +6,10 @@ peripheral.
 
 import time
 
-import adafruit_lis3dh
 import board
 import busio
 import digitalio
+import adafruit_lis3dh
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.nordic import UARTService
