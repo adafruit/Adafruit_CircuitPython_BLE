@@ -27,7 +27,7 @@ This module provides Services used by Sphero robots.
 
 """
 
-from .core import Service
+from . import Service
 from ..uuid import VendorUUID
 
 __version__ = "0.0.0-auto.0"

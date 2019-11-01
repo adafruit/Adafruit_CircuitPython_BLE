@@ -29,9 +29,9 @@ This module provides Services defined by the MIDI group.
 
 import _bleio
 
-from .core import Service
+from . import Service
 from ..uuid import VendorUUID
-from ..characteristics.core import Characteristic
+from ..characteristics import Characteristic
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"

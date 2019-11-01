@@ -27,7 +27,7 @@ This module provides integer characteristics that are usable directly as attribu
 
 """
 
-from .core import StructCharacteristic
+from . import StructCharacteristic
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"

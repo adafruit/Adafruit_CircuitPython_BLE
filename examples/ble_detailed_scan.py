@@ -1,13 +1,18 @@
 # This example scans for any BLE advertisements and prints one advertisement and one scan response
-# from every device found.
+# from every device found. This scan is more detailed than the simple test because it includes
+# specialty advertising types.
 
 from adafruit_ble import BLERadio
+
+from adafruit_ble.advertising import Advertisement
+from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 
 ble = BLERadio()
 print("scanning")
 found = set()
 scan_responses = set()
-for advertisement in ble.start_scan():
+# By providing Advertisement as well we include everything, not just specific advertisements.
+for advertisement in ble.start_scan(ProvideServicesAdvertisement, Advertisement):
     addr = advertisement.address
     if advertisement.scan_response and addr not in scan_responses:
         scan_responses.add(addr)

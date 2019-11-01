@@ -1,7 +1,7 @@
 ``adafruit_ble.services``
 ===========================
 
-.. automodule:: adafruit_ble.services.core
+.. automodule:: adafruit_ble.services
   :members:
 
 .. automodule:: adafruit_ble.services.apple

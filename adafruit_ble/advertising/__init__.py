@@ -24,7 +24,6 @@ Advertising is the first phase of BLE where devices can broadcast
 """
 
 import struct
-import gc
 
 def to_hex(b):
     """Pretty prints a byte sequence as hex values."""
@@ -41,9 +40,6 @@ def decode_data(data, *, key_encoding="B"):
        encoding."""
     i = 0
     data_dict = {}
-    if len(data) > 255:
-        print("original", data)
-        raise RuntimeError()
     key_size = struct.calcsize(key_encoding)
     while i < len(data):
         item_length = data[i]
@@ -128,6 +124,9 @@ class AdvertisingFlags(AdvertisingDataField):
         else:
             self.flags = 0
 
+    def __len__(self):
+        return 1
+
     def __bytes__(self):
         encoded = bytearray(1)
         encoded[0] = self.flags
@@ -185,7 +184,6 @@ class LazyField(AdvertisingDataField):
         # Return None if our object is immutable and the data is not present.
         if not obj.mutable and self._adt not in obj.data_dict:
             return None
-        print(self._adt, self._cls, repr(obj))
         bound_class = self._cls(obj, advertising_data_type=self._adt, **self._kwargs)
         setattr(obj, self._attribute_name, bound_class)
         obj.data_dict[self._adt] = bound_class
@@ -196,7 +194,7 @@ class LazyField(AdvertisingDataField):
 
 class Advertisement:
     """Core Advertisement type"""
-    prefix = b"\x00"
+    prefix = b"\x00" # This is an empty prefix and will match everything.
     flags = LazyField(AdvertisingFlags, "flags", advertising_data_type=0x01)
     short_name = String(advertising_data_type=0x08)
     """Short local device name (shortened to fit)."""
@@ -240,7 +238,7 @@ class Advertisement:
     @classmethod
     def from_entry(cls, entry):
         """Create an Advertisement based on the given ScanEntry. This is done automatically by
-           `SmartAdapter` for all scan results."""
+           `BLERadio` for all scan results."""
         self = cls()
         self.data_dict = decode_data(entry.advertisement_bytes)
         self.address = entry.address
@@ -258,10 +256,10 @@ class Advertisement:
 
     @classmethod
     def matches(cls, entry):
-        """Returns true if the given `_bleio.ScanEntry` matches all portions of the Advertisement type's
-           prefix."""
+        """Returns true if the given `_bleio.ScanEntry` matches all portions of the Advertisement
+           type's prefix."""
         if not hasattr(cls, "prefix"):
-            return False
+            return True
 
         return entry.matches(cls.prefix)
 

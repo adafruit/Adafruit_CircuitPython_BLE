@@ -3,13 +3,13 @@ Used with ble_demo_central.py. Receives Bluefruit LE ColorPackets from a central
 and updates a NeoPixel FeatherWing to show the history of the received packets.
 """
 
-import adafruit_ble
-import board
-import sys
+# import board
+# import sys
 import time
-from adafruit_ble import SmartAdapter
+
+import adafruit_ble
 from adafruit_ble.advertising import to_hex
-from adafruit_ble.advertising.standard import ProvideServiceAdvertisement
+from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.standard.hid import HIDService
 from adafruit_ble.services.standard.device_info import DeviceInfoService
 from adafruit_hid.keyboard import Keyboard
@@ -125,29 +125,29 @@ hid = HIDService(HID_DESCRIPTOR)
 device_info = DeviceInfoService(software_revision=adafruit_ble.__version__,
                                 manufacturer="Adafruit Industries")
 print(device_info.manufacturer)
-advertisement = ProvideServiceAdvertisement(hid)
+advertisement = ProvideServicesAdvertisement(hid)
 advertisement.appearance = 961
 
-adapter = SmartAdapter()
+ble = adafruit_ble.BLERadio()
 print(to_hex(bytes(advertisement)))
-if not adapter.connected:
+if not ble.connected:
     print("advertising")
-    adapter.start_advertising(advertisement)
+    ble.start_advertising(advertisement)
 else:
     print("already connected")
-    print(adapter.connections)
+    print(ble.connections)
 
 k = Keyboard(hid.devices)
 kl = KeyboardLayoutUS(k)
 while True:
-    while not adapter.connected:
+    while not ble.connected:
         pass
     #print("Start typing:")
-    while adapter.connected:
+    while ble.connected:
         # c = sys.stdin.read(1)
         # sys.stdout.write(c)
         #kl.write(c)
         kl.write("h")
         # print("sleeping")
         time.sleep(0.1)
-    adapter.start_advertising(advertisement)
+    ble.start_advertising(advertisement)

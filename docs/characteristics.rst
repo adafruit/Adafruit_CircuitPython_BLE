@@ -1,7 +1,7 @@
 ``adafruit_ble.characteristics``
 ======================================
 
-.. automodule:: adafruit_ble.characteristics.core
+.. automodule:: adafruit_ble.characteristics
    :members:
 
 .. automodule:: adafruit_ble.characteristics.int

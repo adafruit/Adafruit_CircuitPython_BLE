@@ -39,32 +39,32 @@ class UUID:
     # TODO: Make subclassing _bleio.UUID work so we can just use it directly.
     # pylint: disable=no-member
     def __hash__(self):
-        return hash(self._uuid)
+        return hash(self.bleio_uuid)
 
     def __eq__(self, other):
         if isinstance(other, _bleio.UUID):
-            return self._uuid == other
+            return self.bleio_uuid == other
         if isinstance(other, UUID):
-            return self._uuid == other._uuid
-        return self == other
+            return self.bleio_uuid == other.bleio_uuid
+        return False
 
     def __str__(self):
-        return str(self._uuid)
+        return str(self.bleio_uuid)
 
     def pack_into(self, buffer, offset=0):
         """Packs the UUID into the buffer at the given offset."""
-        self._uuid.pack_into(buffer, offset=offset)
+        self.bleio_uuid.pack_into(buffer, offset=offset)
 
 class StandardUUID(UUID):
     """Bluetooth defined, 16-bit UUID."""
     def __init__(self, uuid16):
         if not isinstance(uuid16, int):
             uuid16 = struct.unpack("<H", uuid16)[0]
-        self._uuid = _bleio.UUID(uuid16)
+        self.bleio_uuid = _bleio.UUID(uuid16)
         self.size = 16
 
 class VendorUUID(UUID):
     """Vendor defined, 128-bit UUID."""
     def __init__(self, uuid128):
-        self._uuid = _bleio.UUID(uuid128)
+        self.bleio_uuid = _bleio.UUID(uuid128)
         self.size = 128

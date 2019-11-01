@@ -1,20 +1,20 @@
-import adafruit_ble
+"""
+Used with ble_uart_echo_client.py. Receives characters from the UARTService and transmits them back.
+"""
 
-from adafruit_ble import SmartAdapter
-from adafruit_ble.advertising.standard import ProvideServiceAdvertisement
+from adafruit_ble import BLERadio
+from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.nordic import UARTService
 
-# This should work.
-
-adapter = SmartAdapter()
+ble = BLERadio()
 uart = UARTService()
-advertisement = ProvideServiceAdvertisement(uart)
+advertisement = ProvideServicesAdvertisement(uart)
 
 while True:
-    adapter.start_advertising(advertisement)
-    while not adapter.connected:
+    ble.start_advertising(advertisement)
+    while not ble.connected:
         pass
-    while adapter.connected:
+    while ble.connected:
         # Returns b'' if nothing was read.
         one_byte = uart.read(1)
         if one_byte:

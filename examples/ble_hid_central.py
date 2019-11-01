@@ -2,30 +2,30 @@
 Demonstration of a Bluefruit BLE Central. Connects to the first BLE HID peripheral it finds.
 """
 
-import time
+# import time
 
-import board
+# import board
 
-import adafruit_ble
-from adafruit_ble.services.standard.hid import HIDService
-from adafruit_ble.core.scanner import Scanner
+# import adafruit_ble
+# from adafruit_ble.services.standard.hid import HIDService
+# from adafruit_ble.core.scanner import Scanner
 
-# This hasn't been updated.
+# # This hasn't been updated.
 
-adafruit_ble.detect_service(HIDService)
+# adafruit_ble.detect_service(HIDService)
 
-scanner = Scanner()
+# scanner = Scanner()
 
-while True:
-    print("scanning")
-    results = []
-    while not results:
-        results = scanner.scan(HIDService, timeout=4)
+# while True:
+#     print("scanning")
+#     results = []
+#     while not results:
+#         results = scanner.scan(HIDService, timeout=4)
 
-    peer = results[0].connect(timeout=10, pair=True)
-    print(peer)
-    print(peer.hid.protocol_mode)
-    print(peer.hid.report_map)
-    print(peer.hid.devices)
+#     peer = results[0].connect(timeout=10, pair=True)
+#     print(peer)
+#     print(peer.hid.protocol_mode)
+#     print(peer.hid.report_map)
+#     print(peer.hid.devices)
 
-    time.sleep(0.2)
+#     time.sleep(0.2)

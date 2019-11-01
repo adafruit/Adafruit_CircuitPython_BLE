@@ -28,7 +28,7 @@ This module provides string characteristics.
 """
 
 import _bleio
-from .core import Characteristic
+from . import Characteristic
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -43,19 +43,12 @@ class StringCharacteristic(Characteristic):
                          uuid=uuid)
 
     def __get__(self, obj, cls=None):
-        if hasattr(obj, "_bound_characteristics"):
-            bound_characteristic = obj._bound_characteristics[self.field_name]
-            raw_data = self.read_raw_data(bound_characteristic)
-        else:
-            raw_data = self.initial_value
+        raw_data = super().__get__(obj, cls)
         return str(raw_data, "utf-8")
 
     def __set__(self, obj, value):
-        if hasattr(obj, "_bound_characteristics"):
-            bound_characteristic = obj._bound_characteristics[self.field_name]
-            self.write_raw_data(bound_characteristic, value.encode("utf-8"))
-        else:
-            self.initial_value = value.encode("utf-8")
+        encoded_value = value.encode("utf-8")
+        super().__set__(obj, encoded_value)
 
 class FixedStringCharacteristic(Characteristic):
     """Fixed strings are set once when bound and unchanged after."""
@@ -67,9 +60,5 @@ class FixedStringCharacteristic(Characteristic):
                          uuid=uuid)
 
     def __get__(self, obj, cls=None):
-        if hasattr(obj, "_bound_characteristics"):
-            bound_characteristic = obj._bound_characteristics[self.field_name]
-            raw_data = self.read_raw_data(bound_characteristic)
-        else:
-            raw_data = self.initial_value
+        raw_data = super().__get__(obj, cls)
         return str(raw_data, "utf-8")

@@ -29,15 +29,14 @@ object they are on.
 """
 
 import _bleio
-from .core import ComplexCharacteristic
+from . import ComplexCharacteristic
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
 class BoundWriteStream:
     """Writes data out to the peer."""
-    def __init__(self, stream_out, bound_characteristic):
-        self.stream_out = stream_out
+    def __init__(self, bound_characteristic):
         self.bound_characteristic = bound_characteristic
 
     def write(self, buf):
@@ -45,7 +44,7 @@ class BoundWriteStream:
         # We can only write 20 bytes at a time.
         offset = 0
         while offset < len(buf):
-            self.stream_out.write_raw_data(self.bound_characteristic, buf[offset:offset+20])
+            self.bound_characteristic.value = buf[offset:offset+20]
             offset += 20
 
 class StreamOut(ComplexCharacteristic):
@@ -57,16 +56,16 @@ class StreamOut(ComplexCharacteristic):
                          read_perm=_bleio.Attribute.OPEN,
                          **kwargs)
 
-    def bind(self, obj, *, initial_value=None):
-        """Binds the characteristic to the local Service or remote Characteristic object given."""
-        # If we're given a characteristic then we're the client and need to buffer in.
-        if isinstance(obj, _bleio.Characteristic):
-            obj.set_cccd(notify=True)
-            return _bleio.CharacteristicBuffer(obj,
+    def bind(self, service):
+        """Binds the characteristic to the given Service."""
+        bound_characteristic = super().bind(service)
+        # If we're given a remote service then we're the client and need to buffer in.
+        if service.remote:
+            bound_characteristic.set_cccd(notify=True)
+            return _bleio.CharacteristicBuffer(bound_characteristic,
                                                timeout=self._timeout,
                                                buffer_size=self._buffer_size)
-        bound_characteristic = super().bind(obj, initial_value=initial_value)
-        return BoundWriteStream(self, bound_characteristic)
+        return BoundWriteStream(bound_characteristic)
 
 class StreamIn(ComplexCharacteristic):
     """Input stream into the Service server."""
@@ -79,13 +78,13 @@ class StreamIn(ComplexCharacteristic):
                          write_perm=_bleio.Attribute.OPEN,
                          **kwargs)
 
-    def bind(self, obj, *, initial_value=None):
-        """Binds the characteristic to the local Service or remote Characteristic object given."""
-        # If we're given a characteristic then we're the client and need to write out.
-        if isinstance(obj, _bleio.Characteristic):
-            return BoundWriteStream(self, obj)
+    def bind(self, service):
+        """Binds the characteristic to the given Service."""
+        bound_characteristic = super().bind(service)
+        # If the service is remote need to write out.
+        if service.remote:
+            return BoundWriteStream(bound_characteristic)
         # We're the server so buffer incoming writes.
-        bound_characteristic = super().bind(obj, initial_value=initial_value)
         return _bleio.CharacteristicBuffer(bound_characteristic,
                                            timeout=self._timeout,
                                            buffer_size=self._buffer_size)

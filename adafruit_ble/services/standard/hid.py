@@ -33,7 +33,7 @@ import struct
 from micropython import const
 
 import _bleio
-from adafruit_ble.characteristics.core import BytesCharacteristic
+from adafruit_ble.characteristics import Characteristic
 from adafruit_ble.characteristics.int import Uint8Characteristic
 from adafruit_ble.uuid import StandardUUID
 
@@ -75,8 +75,8 @@ class ReportIn:
     uuid = StandardUUID(0x24ad)
     def __init__(self, service, report_id, usage_page, usage, *, max_length):
         self._characteristic = _bleio.Characteristic.add_to_service(
-            service._service,
-            self.uuid._uuid,
+            service.bleio_service,
+            self.uuid.bleio_uuid,
             properties=_bleio.Characteristic.READ | _bleio.Characteristic.NOTIFY,
             read_perm=_bleio.Attribute.ENCRYPT_NO_MITM, write_perm=_bleio.Attribute.NO_ACCESS,
             max_length=max_length, fixed_length=True)
@@ -98,8 +98,8 @@ class ReportOut:
     uuid = StandardUUID(0x24ad)
     def __init__(self, service, report_id, usage_page, usage, *, max_length):
         self._characteristic = _bleio.Characteristic.add_to_service(
-            service._service,
-            self.uuid._uuid,
+            service.bleio_service,
+            self.uuid.bleio_uuid,
             max_length=max_length,
             fixed_length=True,
             properties=(_bleio.Characteristic.READ | _bleio.Characteristic.WRITE |
@@ -141,20 +141,20 @@ class HIDService(Service):
     uuid = StandardUUID(0x1812)
     default_field_name = "hid"
 
-    boot_keyboard_in = BytesCharacteristic(uuid=StandardUUID(0x2A22),
-                                           properties=(_bleio.Characteristic.READ |
-                                                       _bleio.Characteristic.NOTIFY),
-                                           read_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
-                                           write_perm=_bleio.Attribute.NO_ACCESS,
-                                           max_length=8, fixed_length=True)
+    boot_keyboard_in = Characteristic(uuid=StandardUUID(0x2A22),
+                                      properties=(_bleio.Characteristic.READ |
+                                                  _bleio.Characteristic.NOTIFY),
+                                      read_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
+                                      write_perm=_bleio.Attribute.NO_ACCESS,
+                                      max_length=8, fixed_length=True)
 
-    boot_keyboard_out = BytesCharacteristic(uuid=StandardUUID(0x2A32),
-                                            properties=(_bleio.Characteristic.READ |
-                                                        _bleio.Characteristic.WRITE |
-                                                        _bleio.Characteristic.WRITE_NO_RESPONSE),
-                                            read_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
-                                            write_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
-                                            max_length=1, fixed_length=True)
+    boot_keyboard_out = Characteristic(uuid=StandardUUID(0x2A32),
+                                       properties=(_bleio.Characteristic.READ |
+                                                   _bleio.Characteristic.WRITE |
+                                                   _bleio.Characteristic.WRITE_NO_RESPONSE),
+                                       read_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
+                                       write_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
+                                       max_length=1, fixed_length=True)
 
     protocol_mode = Uint8Characteristic(uuid=StandardUUID(0x2A4E),
                                         properties=(_bleio.Characteristic.READ |
@@ -168,18 +168,18 @@ class HIDService(Service):
     # bcdHID (version), bCountryCode (0 not localized), Flags: RemoteWake, NormallyConnectable
     # bcd1.1, country = 0, flag = normal connect
     # TODO: Make this a struct.
-    hid_information = BytesCharacteristic(uuid=StandardUUID(0x2A4A),
-                                          properties=_bleio.Characteristic.READ,
-                                          read_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
-                                          write_perm=_bleio.Attribute.NO_ACCESS,
-                                          initial_value=b'\x01\x01\x00\x02')
-    """Hid information including version, country code and flags."""
-
-    report_map = BytesCharacteristic(uuid=StandardUUID(0x2A4B),
+    hid_information = Characteristic(uuid=StandardUUID(0x2A4A),
                                      properties=_bleio.Characteristic.READ,
                                      read_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
                                      write_perm=_bleio.Attribute.NO_ACCESS,
-                                     fixed_length=True)
+                                     initial_value=b'\x01\x01\x00\x02')
+    """Hid information including version, country code and flags."""
+
+    report_map = Characteristic(uuid=StandardUUID(0x2A4B),
+                                properties=_bleio.Characteristic.READ,
+                                read_perm=_bleio.Attribute.ENCRYPT_NO_MITM,
+                                write_perm=_bleio.Attribute.NO_ACCESS,
+                                fixed_length=True)
     """This is the USB HID descriptor (not to be confused with a BLE Descriptor). It describes
        which report characteristic are what."""
 
@@ -198,7 +198,6 @@ class HIDService(Service):
         # pylint: disable=too-many-branches,too-many-statements,too-many-locals
         self.devices = []
         hid_descriptor = self.report_map
-        print(hid_descriptor, len(hid_descriptor))
 
         global_table = [None] * 10
         local_table = [None] * 3

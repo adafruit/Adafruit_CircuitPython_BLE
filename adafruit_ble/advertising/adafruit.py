@@ -31,21 +31,35 @@ Adafruit customers for their own data.
 
 """
 
+import struct
+from micropython import const
+
 from . import Advertisement, LazyField
 from .standard import ManufacturerData, ManufacturerDataField
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
+_MANUFACTURING_DATA_ADT = const(0xff)
+_ADAFRUIT_COMPANY_ID = const(0x0822)
+_COLOR_DATA_ID = const(0x0000)
+
 class AdafruitColor(Advertisement):
     """Broadcast a single RGB color."""
-    prefix = b"\x06\xff\xff\xff\x06\x00\x00"
+    # This prefix matches all
+    prefix = struct.pack("<BBHBH",
+                         0x6,
+                         _MANUFACTURING_DATA_ADT,
+                         _ADAFRUIT_COMPANY_ID,
+                         struct.calcsize("<HI"),
+                         _COLOR_DATA_ID)
     manufacturer_data = LazyField(ManufacturerData,
                                   "manufacturer_data",
-                                  advertising_data_type=0xff,
-                                  company_id=0x0822,
+                                  advertising_data_type=_MANUFACTURING_DATA_ADT,
+                                  company_id=_ADAFRUIT_COMPANY_ID,
                                   key_encoding="<H")
-    color = ManufacturerDataField(0x0000, "<I")
+    color = ManufacturerDataField(_COLOR_DATA_ID, "<I")
+    """Color to broadcast as RGB integer."""
 
 # TODO: Add radio packets.
 #

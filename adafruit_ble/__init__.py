@@ -46,75 +46,61 @@ Implementation Notes
 import _bleio
 import board
 
-from .services.core import Service
+from .services import Service
 from .advertising import Advertisement
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
-# These are internal data structures used throughout the library to recognize certain Services and
-# Advertisements.
-# pylint: disable=invalid-name
-all_services_by_name = {}
-all_services_by_uuid = {}
-known_advertisements = set()
-# pylint: enable=invalid-name
-
-def recognize_services(*service_classes):
-    """Instruct the adafruit_ble library to recognize the given Services.
-
-       This will cause the Service related advertisements to show the corresponding class.
-       `SmartConnection` will automatically have attributes for any recognized service available
-       from the peer."""
-    for service_class in service_classes:
-        if not issubclass(service_class, Service):
-            raise ValueError("Can only detect subclasses of Service")
-        all_services_by_name[service_class.default_field_name] = service_class
-        all_services_by_uuid[service_class.uuid] = service_class
-
-def recognize_advertisement(*advertisements):
-    """Instruct the adafruit_ble library to recognize the given `Advertisement` types.
-
-       When an advertisement is recognized by the `SmartAdapter`, it will be returned from the
-       start_scan iterator instead of a generic `Advertisement`."""
-    known_advertisements.add(*advertisements)
-
-class SmartConnection:
+class BLEConnection:
     """This represents a connection to a peer BLE device.
 
-       Its smarts come from its ability to recognize Services available on the peer and make them
-       available as attributes on the Connection. Use `recognize_services` to register all services
-       of interest. All subsequent Connections will then recognize the service.
-
-       ``dir(connection)`` will show all attributes including recognized Services.
-       """
+       It acts as a map from a Service type to a Service instance for the connection.
+    """
     def __init__(self, connection):
         self._connection = connection
+        self._discovered_services = {}
+        """These are the bare remote services from _bleio."""
 
-    def __dir__(self):
-        discovered = []
-        results = self._connection.discover_remote_services()
-        for service in results:
-            uuid = service.uuid
-            if uuid in all_services_by_uuid:
-                service = all_services_by_uuid[uuid]
-                discovered.append(service.default_field_name)
-        super_dir = dir(super())
-        super_dir.extend(discovered)
-        return super_dir
+        self._constructed_services = {}
+        """These are the Service instances from the library that wrap the remote services."""
 
-    def __getattr__(self, name):
-        if name in self.__dict__:
-            return self.__dict__[name]
-        if name in all_services_by_name:
-            service = all_services_by_name[name]
-            uuid = service.uuid._uuid
-            results = self._connection.discover_remote_services((uuid,))
+    def _discover_remote(self, uuid):
+        remote_service = None
+        if uuid in self._discovered_services:
+            remote_service = self._discovered_services[uuid]
+        else:
+            results = self._connection.discover_remote_services((uuid.bleio_uuid,))
             if results:
-                remote_service = service(service=results[0])
-                setattr(self, name, remote_service)
-                return remote_service
-        raise AttributeError()
+                remote_service = results[0]
+                self._discovered_services[uuid] = remote_service
+        return remote_service
+
+    def __contains__(self, key):
+        uuid = key
+        if hasattr(key, "uuid"):
+            uuid = key.uuid
+        return self._discover_remote(uuid) is not None
+
+    def __getitem__(self, key):
+        uuid = key
+        maybe_service = False
+        if hasattr(key, "uuid"):
+            uuid = key.uuid
+            maybe_service = True
+
+        remote_service = self._discover_remote(uuid)
+
+        if uuid in self._constructed_services:
+            return self._constructed_services[uuid]
+        if remote_service:
+            constructed_service = None
+            if maybe_service:
+                constructed_service = key(service=remote_service)
+                self._constructed_services[uuid] = constructed_service
+            return constructed_service
+
+        raise KeyError("{!r} object has no service {}".format(self, key))
 
     @property
     def connected(self):
@@ -125,10 +111,11 @@ class SmartConnection:
         """Disconnect from peer."""
         self._connection.disconnect()
 
-class SmartAdapter:
-    """This BLE Adapter class enhances the normal `_bleio.Adapter`.
+class BLERadio:
+    """The BLERadio class enhances the normal `_bleio.Adapter`.
 
-       It uses the library's `Advertisement` classes and the `SmartConnection` class."""
+       It uses the library's `Advertisement` classes and the `BLEConnection` class."""
+
     def __init__(self, adapter=None):
         if not adapter:
             adapter = _bleio.adapter
@@ -143,7 +130,6 @@ class SmartAdapter:
         scan_response_data = None
         if scan_response:
             scan_response_data = bytes(scan_response)
-        print(advertisement.connectable)
         self._adapter.start_advertising(bytes(advertisement),
                                         scan_response=scan_response_data,
                                         connectable=advertisement.connectable,
@@ -153,21 +139,20 @@ class SmartAdapter:
         """Stops advertising."""
         self._adapter.stop_advertising()
 
-    def start_scan(self, advertisement_types=None, **kwargs):
-        """Starts scanning. Returns an iterator of Advertisements that are either recognized or
-           in advertisment_types (which will be subsequently recognized.) The iterator will block
-           until an advertisement is heard or the scan times out.
+    def start_scan(self, *advertisement_types, **kwargs):
+        """Starts scanning. Returns an iterator of advertisement objects of the types given in
+           advertisement_types. The iterator will block until an advertisement is heard or the scan
+           times out.
 
-           If a list ``advertisement_types`` is given, only Advertisements of that type are produced
-           by the returned iterator."""
+           If any ``advertisement_types`` are given, only Advertisements of those types are produced
+           by the returned iterator. If none are given then `Advertisement` objects will be
+           returned."""
         prefixes = b""
         if advertisement_types:
-            recognize_advertisement(*advertisement_types)
-            if len(advertisement_types) == 1:
-                prefixes = advertisement_types[0].prefix
+            prefixes = b"".join(adv.prefix for adv in advertisement_types)
         for entry in self._adapter.start_scan(prefixes=prefixes, **kwargs):
             adv_type = Advertisement
-            for possible_type in known_advertisements:
+            for possible_type in advertisement_types:
                 if possible_type.matches(entry) and issubclass(possible_type, adv_type):
                     adv_type = possible_type
             advertisement = adv_type.from_entry(entry)
@@ -182,9 +167,9 @@ class SmartAdapter:
         self._adapter.stop_scan()
 
     def connect(self, advertisement, *, timeout=4):
-        """Initiates a `SmartConnection` to the peer that advertised the given advertisement."""
+        """Initiates a `BLEConnection` to the peer that advertised the given advertisement."""
         connection = self._adapter.connect(advertisement.address, timeout=timeout)
-        self._connection_cache[connection] = SmartConnection(connection)
+        self._connection_cache[connection] = BLEConnection(connection)
         return self._connection_cache[connection]
 
     @property
@@ -194,12 +179,12 @@ class SmartAdapter:
 
     @property
     def connections(self):
-        """A tuple of active `SmartConnection` objects."""
+        """A tuple of active `BLEConnection` objects."""
         connections = self._adapter.connections
-        smart_connections = [None] * len(connections)
+        wrapped_connections = [None] * len(connections)
         for i, connection in enumerate(self._adapter.connections):
             if connection not in self._connection_cache:
-                self._connection_cache[connection] = SmartConnection(connection)
-            smart_connections[i] = self._connection_cache[connection]
+                self._connection_cache[connection] = BLEConnection(connection)
+            wrapped_connections[i] = self._connection_cache[connection]
 
-        return tuple(smart_connections)
+        return tuple(wrapped_connections)

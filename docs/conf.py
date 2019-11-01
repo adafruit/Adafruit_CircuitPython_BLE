@@ -26,7 +26,9 @@ autodoc_member_order = "bysource"
 add_module_names = False
 
 import bleio_mock
+import micropython_mock
 sys.modules["_bleio"] = bleio_mock
+sys.modules["micropython"] = micropython_mock
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None),
                        'CircuitPython': ('https://circuitpython.readthedocs.io/en/latest/', None)}

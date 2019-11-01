@@ -31,22 +31,13 @@ even though multiple purposes may actually be present in a single packet.
 import struct
 
 from . import Advertisement, AdvertisingDataField, encode_data, decode_data, to_hex, compute_length
-from .. import all_services_by_uuid
 from ..uuid import StandardUUID, VendorUUID
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
-class UnknownService:
-    """Container for an unknown service."""
-    def __init__(self, uuid):
-        self.uuid = uuid
-
-    def __str__(self):
-        return "<UnknownService uuid={}>".format(self.uuid)
-
 class BoundServiceList:
-    """Sequence-like object of `Service` objects."""
+    """Sequence-like object of Service UUID objects. It stores both standard and vendor UUIDs."""
     def __init__(self, advertisement, *, standard_services, vendor_services):
         self._advertisement = advertisement
         self._standard_service_fields = standard_services
@@ -58,28 +49,28 @@ class BoundServiceList:
                 data = self._advertisement.data_dict[adt]
                 for i in range(len(data) // 2):
                     uuid = StandardUUID(data[2*i:2*(i+1)])
-                    if uuid in all_services_by_uuid:
-                        self._standard_services.append(all_services_by_uuid[uuid])
-                    else:
-                        self._standard_services.append(UnknownService(uuid))
+                    self._standard_services.append(uuid)
         for adt in vendor_services:
             if adt in self._advertisement.data_dict:
                 data = self._advertisement.data_dict[adt]
                 for i in range(len(data) // 16):
                     uuid = VendorUUID(data[16*i:16*(i+1)])
-                    if uuid in all_services_by_uuid:
-                        self._vendor_services.append(all_services_by_uuid[uuid])
-                    else:
-                        self._vendor_services.append(UnknownService(uuid))
+                    self._vendor_services.append(uuid)
 
-    def _update(self, adt, service_set):
-        if len(service_set) == 0:
+    def __contains__(self, key):
+        uuid = key
+        if hasattr(key, "uuid"):
+            uuid = key.uuid
+        return uuid in self._vendor_services or uuid in self._standard_services
+
+    def _update(self, adt, uuids):
+        if len(uuids) == 0:
             del self._advertisement.data_dict[adt]
-        uuid_length = service_set[0].uuid.size // 8
-        b = bytearray(len(service_set) * uuid_length)
+        uuid_length = uuids[0].size // 8
+        b = bytearray(len(uuids) * uuid_length)
         i = 0
-        for service in service_set:
-            service.uuid.pack_into(b, i)
+        for uuid in uuids:
+            uuid.pack_into(b, i)
             i += uuid_length
         self._advertisement.data_dict[adt] = b
 
@@ -101,11 +92,12 @@ class BoundServiceList:
         standard = False
         vendor = False
         for service in services:
-            if isinstance(service.uuid, StandardUUID) and service not in self._standard_services:
-                self._standard_services.append(service)
+            if (isinstance(service.uuid, StandardUUID) and
+                    service.uuid not in self._standard_services):
+                self._standard_services.append(service.uuid)
                 standard = True
-            elif isinstance(service.uuid, VendorUUID) and service not in self._vendor_services:
-                self._vendor_services.append(service)
+            elif isinstance(service.uuid, VendorUUID) and service.uuid not in self._vendor_services:
+                self._vendor_services.append(service.uuid)
                 vendor = True
 
         if standard:
@@ -115,10 +107,10 @@ class BoundServiceList:
 
     def __str__(self):
         data = []
-        for service in self._standard_services:
-            data.append(str(service))
-        for service in self._vendor_services:
-            data.append(str(service))
+        for service_uuid in self._standard_services:
+            data.append(str(service_uuid))
+        for service_uuid in self._vendor_services:
+            data.append(str(service_uuid))
         return " ".join(data)
 
 class ServiceList(AdvertisingDataField):
@@ -146,8 +138,9 @@ class ServiceList(AdvertisingDataField):
             obj._service_lists[first_adt] = BoundServiceList(obj, **self.__dict__)
         return obj._service_lists[first_adt]
 
-class ProvideServiceAdvertisement(Advertisement):
+class ProvideServicesAdvertisement(Advertisement):
     """Advertise what services that the device makes available upon connection."""
+    # This is four prefixes, one for each ADT that can carry service UUIDs.
     prefix = b"\x01\x02\x01\x03\x01\x06\x01\x07"
     services = ServiceList(standard_services=[0x02, 0x03], vendor_services=[0x06, 0x07])
     """List of services the device can provide."""
@@ -162,8 +155,10 @@ class ProvideServiceAdvertisement(Advertisement):
     def matches(cls, entry):
         return entry.matches(cls.prefix, all=False)
 
-class SolicitServiceAdvertisement(Advertisement):
+class ServicesSolicitationAdvertisement(Advertisement):
     """Advertise what services the device would like to use over a connection."""
+    # This is two prefixes, one for each ADT that can carry solicited service UUIDs.
+    prefix = b"\x01\x14\x01\x15"
 
     solicited_services = ServiceList(standard_services=[0x14], vendor_services=[0x15])
     """List of services the device would like to use."""
