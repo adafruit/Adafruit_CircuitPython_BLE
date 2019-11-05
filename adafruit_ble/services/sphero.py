@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2019 Dan Halbert for Adafruit Industries
+# Copyright (c) 2019 Scott Shawcroft for Adafruit Industries
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,19 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble.uart`
+`sphero`
 ====================================================
 
-BLE UART-style communication. Common definitions.
-
-* Author(s): Dan Halbert for Adafruit Industries
+This module provides Services used by Sphero robots.
 
 """
-from _bleio import UUID
 
-NUS_SERVICE_UUID = UUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
-"""Nordic UART Service UUID"""
-NUS_RX_CHAR_UUID = UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
-"""Nordic UART Service RX Characteristic UUID"""
-NUS_TX_CHAR_UUID = UUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
-"""Nordic UART Service TX Characteristic UUID"""
+from . import Service
+from ..uuid import VendorUUID
+
+__version__ = "0.0.0-auto.0"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
+
+class SpheroService(Service):
+    """Core Sphero Service. Unimplemented."""
+    uuid = VendorUUID("!!orehpS OOW\x01\x00\x01\x00")

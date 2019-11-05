@@ -1,48 +1,68 @@
 """
-Demonstration of a Bluefruit BLE Central. Connects to the first BLE UART peripheral it finds.
-Sends Bluefruit ColorPackets, read from three potentiometers, to the peripheral.
+Demonstration of a Bluefruit BLE Central for Circuit Playground Bluefruit. Connects to the first BLE
+UART peripheral it finds. Sends Bluefruit ColorPackets, read from three accelerometer axis, to the
+peripheral.
 """
 
 import time
 
 import board
-from analogio import AnalogIn
+import busio
+import digitalio
+import adafruit_lis3dh
+from adafruit_ble import BLERadio
+from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
+from adafruit_ble.services.nordic import UARTService
+import neopixel
 
-#from adafruit_bluefruit_connect.packet import Packet
-# Only the packet classes that are imported will be known to Packet.
 from adafruit_bluefruit_connect.color_packet import ColorPacket
 
-from adafruit_ble.scanner import Scanner
-from adafruit_ble.uart_client import UARTClient
-
 def scale(value):
-    """Scale an value from 0-65535 (AnalogIn range) to 0-255 (RGB range)"""
-    return int(value / 65535 * 255)
+    """Scale an value from  (acceleration range) to 0-255 (RGB range)"""
+    value = abs(value)
+    value = max(min(19.6, value), 0)
+    return int(value / 19.6 * 255)
 
-scanner = Scanner()
-uart_client = UARTClient()
+i2c = busio.I2C(board.ACCELEROMETER_SCL, board.ACCELEROMETER_SDA)
+int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
+accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
+accelerometer.range = adafruit_lis3dh.RANGE_8_G
 
-a3 = AnalogIn(board.A3)
-a4 = AnalogIn(board.A4)
-a5 = AnalogIn(board.A5)
+neopixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1)
+
+ble = BLERadio()
+
+uart_connection = None
+# See if any existing connections are providing UARTService.
+if ble.connected:
+    for connection in ble.connections:
+        if UARTService in connection:
+            uart_connection = connection
+        break
 
 while True:
-    uart_addresses = []
-    # Keep trying to find a UART peripheral
-    while not uart_addresses:
-        uart_addresses = uart_client.scan(scanner)
-    uart_client.connect(uart_addresses[0], 5)
+    if not uart_connection:
+        print("Scanning...")
+        for adv in ble.start_scan(ProvideServicesAdvertisement, timeout=5):
+            if UARTService in adv.services:
+                print("found a UARTService advertisement")
+                uart_connection = ble.connect(adv)
+                break
+        # Stop scanning whether or not we are connected.
+        ble.stop_scan()
 
-    while uart_client.connected:
-        r = scale(a3.value)
-        g = scale(a4.value)
-        b = scale(a5.value)
+    while uart_connection and uart_connection.connected:
+        r, g, b = map(scale, accelerometer.acceleration)
 
         color = (r, g, b)
-        print(color)
+        neopixels.fill(color)
         color_packet = ColorPacket(color)
         try:
-            uart_client.write(color_packet.to_bytes())
+            uart_connection[UARTService].write(color_packet.to_bytes())
         except OSError:
-            pass
+            try:
+                uart_connection.disconnect()
+            except: # pylint: disable=bare-except
+                pass
+            uart_connection = None
         time.sleep(0.3)

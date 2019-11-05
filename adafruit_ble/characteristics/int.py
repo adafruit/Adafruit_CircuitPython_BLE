@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2019 Dan Halbert for Adafruit Industries
+# Copyright (c) 2019 Scott Shawcroft for Adafruit Industries
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,16 +20,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble.address`
+`int`
 ====================================================
 
-BLE Address
-
-* Author(s): Dan Halbert for Adafruit Industries
+This module provides integer characteristics that are usable directly as attributes.
 
 """
 
-from _bleio import UUID as _bleio_Address
+from . import StructCharacteristic
 
-UUID = _bleio_Address
-"""`adafruit_ble.Address` is the same as `_bleio.Address`"""
+__version__ = "0.0.0-auto.0"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
+
+class Uint8Characteristic(StructCharacteristic):
+    """Uint8 number."""
+    # TODO: Valid set values as within range.
+    def __init__(self, *, min_value=0, max_value=255, **kwargs):
+        self._min_value = min_value
+        self._max_value = max_value
+        if "initial_value" in kwargs:
+            kwargs["initial_value"] = (kwargs["initial_value"],)
+        super().__init__("<B", **kwargs)
+
+    def __get__(self, obj, cls=None):
+        return super().__get__(obj)[0]
+
+    def __set__(self, obj, value):
+        if not self._min_value <= value <= self._max_value:
+            raise ValueError("out of range")
+        super().__set__(obj, (value,))

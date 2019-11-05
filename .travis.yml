@@ -17,10 +17,10 @@ deploy:
 install:
 - pip install -r requirements.txt
 - pip install circuitpython-build-tools Sphinx sphinx-rtd-theme
-- pip install --force-reinstall pylint==1.9.2
+- pip install --force-reinstall "pylint<3"
 
 script:
-- pylint adafruit_ble/*.py
+- pylint --disable=too-few-public-methods adafruit_ble/**/*.py adafruit_ble/*.py
 - ([[ ! -d "examples" ]] || pylint --disable=missing-docstring,invalid-name,bad-whitespace
   examples/*.py)
 - circuitpython-build-bundles --filename_prefix adafruit-circuitpython-ble
