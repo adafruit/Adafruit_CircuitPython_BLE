@@ -74,7 +74,7 @@ class Characteristic:
         if max_length is None:
             max_length = len(initial_value)
         return _bleio.Characteristic.add_to_service(
-            service,
+            service.bleio_service,
             self.uuid.bleio_uuid,
             initial_value=initial_value,
             max_length=max_length,
@@ -138,4 +138,4 @@ class StructCharacteristic(Characteristic):
 
     def __set__(self, obj, value):
         encoded = struct.pack(self._struct_format, *value)
-        super.__set__(obj, encoded)
+        super().__set__(obj, encoded)
