@@ -25,15 +25,13 @@ Advertising is the first phase of BLE where devices can broadcast
 
 import struct
 
-def to_hex(b):
+def to_hex(seq):
     """Pretty prints a byte sequence as hex values."""
-    # pylint: disable=invalid-name
-    return " ".join(["{:02x}".format(v) for v in b])
+    return " ".join("{:02x}".format(v) for v in seq)
 
-def to_bytes_literal(b):
+def to_bytes_literal(seq):
     """Prints a byte sequence as a Python bytes literal that only uses hex encoding."""
-    # pylint: disable=invalid-name
-    return "b\"" + "".join(["\\x{:02x}".format(v) for v in b]) + "\""
+    return "b\"" + "".join("\\x{:02x}".format(v) for v in seq) + "\""
 
 def decode_data(data, *, key_encoding="B"):
     """Helper which decodes length encoded structures into a dictionary with the given key

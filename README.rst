@@ -31,12 +31,12 @@ Usage Example
 
 .. code-block:: python
 
-    from adafruit_ble import SmartAdapter
+    from adafruit_ble import BLERadio
 
-    adapter = SmartAdapter()
+    radio = BLERadio()
     print("scanning")
     found = set()
-    for entry in adapter.start_scan(timeout=60, minimum_rssi=-80):
+    for entry in radio.start_scan(timeout=60, minimum_rssi=-80):
         addr = entry.address
         if addr not in found:
             print(entry)

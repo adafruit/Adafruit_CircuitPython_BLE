@@ -27,8 +27,6 @@ This module provides Services defined by the MIDI group.
 
 """
 
-import _bleio
-
 from . import Service
 from ..uuid import VendorUUID
 from ..characteristics import Characteristic
@@ -40,10 +38,10 @@ class MidiIOCharacteristic(Characteristic):
     """Workhorse MIDI Characteristic that carries midi messages both directions. Unimplemented."""
     uuid = VendorUUID("7772E5DB-3868-4112-A1A9-F2669D106BF3")
     def __init__(self, **kwargs):
-        super().__init__(properties=(_bleio.Characteristic.NOTIFY |
-                                     _bleio.Characteristic.READ |
-                                     _bleio.Characteristic.WRITE |
-                                     _bleio.Characteristic.WRITE_NO_RESPONSE), **kwargs)
+        super().__init__(properties=(Characteristic.NOTIFY |
+                                     Characteristic.READ |
+                                     Characteristic.WRITE |
+                                     Characteristic.WRITE_NO_RESPONSE), **kwargs)
 
 class MidiService(Service):
     """BLE Service that transports MIDI messages. Unimplemented."""

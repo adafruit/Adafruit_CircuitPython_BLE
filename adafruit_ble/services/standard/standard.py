@@ -83,6 +83,6 @@ class CurrentTimeService(Service):
         """The current time as a `time.struct_time`. Day of year and whether DST is in effect
         are always -1.
         """
-        _, month, day, hour, minute, second, weekday, _, _ = self.current_time
+        year, month, day, hour, minute, second, weekday, _, _ = self.current_time
         # Bluetooth weekdays count from 1. struct_time counts from 0.
-        return time.struct_time((month, day, hour, minute, second, weekday - 1, -1))
+        return time.struct_time((year, month, day, hour, minute, second, weekday - 1, -1, -1))

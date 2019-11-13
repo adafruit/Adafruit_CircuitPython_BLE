@@ -70,6 +70,7 @@ class Service:
             if (not isinstance(value, Characteristic) and
                     not isinstance(value, ComplexCharacteristic)):
                 continue
+
             value.field_name = class_attr
 
             # Get or set every attribute to ensure that they are all bound up front. We could lazily

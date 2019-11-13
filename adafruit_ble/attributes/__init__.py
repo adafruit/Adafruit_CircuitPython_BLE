@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2019 Scott Shawcroft for Adafruit Industries
+# Copyright (c) 2019 Dan Halbert for Adafruit Industries
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,34 +20,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`circuitpython`
+:py:mod:`~adafruit_ble.attributes`
 ====================================================
 
-This module provides Services defined by CircuitPython. **Out of date.**
+This module provides definitions common to all kinds of BLE attributes,
+specifically characteristics and descriptors.
 
 """
-
-from . import Service
-from ..characteristics import Characteristic
-from ..characteristics.stream import StreamOut
-from ..characteristics.string import StringCharacteristic
-from ..uuid import VendorUUID
+import _bleio
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
-class CircuitPythonUUID(VendorUUID):
-    """UUIDs with the CircuitPython base UUID."""
-    def __init__(self, uuid16):
-        uuid128 = bytearray("nhtyPtiucriC".encode("utf-8") + b"\x00\x00\xaf\xad")
-        uuid128[-3] = uuid16 >> 8
-        uuid128[-4] = uuid16 & 0xff
-        super().__init__(uuid128)
-
-class CircuitPythonService(Service):
-    """Core CircuitPython service that allows for file modification and REPL access.
-       Unimplemented."""
-    uuid = CircuitPythonUUID(0x0100)
-    filename = StringCharacteristic(uuid=CircuitPythonUUID(0x0200),
-                                    properties=(Characteristic.READ | Characteristic.WRITE))
-    contents = StreamOut(uuid=CircuitPythonUUID(0x0201))
+class Attribute:
+    """Constants describing security levels."""
+    NO_ACCESS = _bleio.Attribute.NO_ACCESS
+    OPEN = _bleio.Attribute.OPEN
+    ENCRYPT_NO_MITM = _bleio.Attribute.ENCRYPT_NO_MITM
+    ENCRYPT_WITH_MITM = _bleio.Attribute.ENCRYPT_WITH_MITM
+    LESC_ENCRYPT_WITH_MITM = _bleio.Attribute.LESC_ENCRYPT_WITH_MITM
+    SIGNED_NO_MITM = _bleio.Attribute.SIGNED_NO_MITM
+    SIGNED_WITH_MITM = _bleio.Attribute.SIGNED_NO_MITM

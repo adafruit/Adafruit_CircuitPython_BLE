@@ -27,8 +27,10 @@ This module provides stream characteristics that bind readable or writable objec
 object they are on.
 
 """
-
 import _bleio
+
+from . import Attribute
+from . import Characteristic
 from . import ComplexCharacteristic
 
 __version__ = "0.0.0-auto.0"
@@ -49,12 +51,13 @@ class BoundWriteStream:
 
 class StreamOut(ComplexCharacteristic):
     """Output stream from the Service server."""
-    def __init__(self, *, timeout=1.0, buffer_size=64, **kwargs):
+    def __init__(self, *, uuid=None, timeout=1.0, buffer_size=64,
+                 properties=Characteristic.NOTIFY,
+                 read_perm=Attribute.OPEN, write_perm=Attribute.OPEN):
         self._timeout = timeout
         self._buffer_size = buffer_size
-        super().__init__(properties=_bleio.Characteristic.NOTIFY,
-                         read_perm=_bleio.Attribute.OPEN,
-                         **kwargs)
+        super().__init__(uuid=uuid, properties=properties,
+                         read_perm=read_perm, write_perm=write_perm)
 
     def bind(self, service):
         """Binds the characteristic to the given Service."""
@@ -69,14 +72,14 @@ class StreamOut(ComplexCharacteristic):
 
 class StreamIn(ComplexCharacteristic):
     """Input stream into the Service server."""
-    def __init__(self, *, timeout=1.0, buffer_size=64, **kwargs):
+    def __init__(self, *, uuid=None, timeout=1.0, buffer_size=64,
+                 properties=(Characteristic.WRITE | Characteristic.WRITE_NO_RESPONSE),
+                 write_perm=Attribute.OPEN):
         self._timeout = timeout
         self._buffer_size = buffer_size
-        super().__init__(properties=(_bleio.Characteristic.WRITE |
-                                     _bleio.Characteristic.WRITE_NO_RESPONSE),
-                         read_perm=_bleio.Attribute.NO_ACCESS,
-                         write_perm=_bleio.Attribute.OPEN,
-                         **kwargs)
+        super().__init__(uuid=uuid, properties=properties,
+                         read_perm=Attribute.NO_ACCESS,
+                         write_perm=write_perm)
 
     def bind(self, service):
         """Binds the characteristic to the given Service."""

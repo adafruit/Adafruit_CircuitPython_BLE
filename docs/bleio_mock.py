@@ -1,5 +1,6 @@
 class Attribute:
     OPEN = 0
+    NO_ACCESS = 0
 
 class UUID:
     def __init__(self, uuid):
