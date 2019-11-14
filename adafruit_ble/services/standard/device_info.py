@@ -48,8 +48,8 @@ import os
 import sys
 import microcontroller
 
-from ..core import Service
-from ...core.uuid import StandardUUID
+from .. import Service
+from ...uuid import StandardUUID
 from ...characteristics.string import FixedStringCharacteristic
 
 __version__ = "0.0.0-auto.0"

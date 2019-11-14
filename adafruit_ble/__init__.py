@@ -58,11 +58,12 @@ class BLEConnection:
     Represents a connection to a peer BLE device.
     It acts as a map from a `Service` type to a `Service` instance for the connection.
 
-    :param bleio_connection _bleio.connection
+    :param bleio_connection _bleio.Connection
+      Wrap the native `_bleio.Connection` object.
     """
     def __init__(self, bleio_connection):
         self._bleio_connection = bleio_connection
-        # _bleio.Service objects representing services found during discoery.
+        # _bleio.Service objects representing services found during discovery.
         self._discovered_bleio_services = {}
         # Service objects that wrap remote services.
         self._constructed_services = {}
@@ -186,9 +187,10 @@ class BLERadio:
              window must be <= interval.
         :param int minimum_rssi: the minimum rssi of entries to return.
         :param bool active: request and retrieve scan responses for scannable advertisements.
-        :returns: iterable: If any ``advertisement_types`` are given,
+        :return: If any ``advertisement_types`` are given,
            only Advertisements of those types are produced by the returned iterator.
            If none are given then `Advertisement` objects will be returned.
+        :rtype: iterable
         """
         prefixes = b""
         if advertisement_types:
@@ -218,8 +220,8 @@ class BLERadio:
 
         :param advertisement Advertisement: An `Advertisement` or a subclass of `Advertisement`
         :param timeout float: how long to wait for a connection
-        :returns the connection to the peer
-        :rtype BLEConnection
+        :return: the connection to the peer
+        :rtype: BLEConnection
         """
         connection = self._adapter.connect(advertisement.address, timeout=timeout)
         self._connection_cache[connection] = BLEConnection(connection)

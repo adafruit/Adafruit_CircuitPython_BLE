@@ -29,10 +29,10 @@ This module provides Service classes for BLE defined standard services.
 
 import time
 
-from ..core import Service
-from ...core.uuid import StandardUUID
+from .. import Service
+from ...uuid import StandardUUID
 from ..characteristics.string import StringCharacteristic
-from ..characteristics.core import StructCharacteristic
+from ..characteristics import StructCharacteristic
 from ..characteristics.int import Uint8Characteristic
 
 __version__ = "0.0.0-auto.0"

@@ -39,6 +39,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class Characteristic:
     """
     Top level Characteristic class that does basic binding.
+
     :param UUID uuid: The uuid of the characteristic
     :param int properties: The properties of the characteristic,
        specified as a bitmask of these values bitwise-or'd together:
@@ -57,24 +58,37 @@ class Characteristic:
     :param bool fixed_length: True if the characteristic value is of fixed length.
     :param buf initial_value: The initial value for this characteristic. If not given, will be
        filled with zeros.
-    :return: the new Characteristic.
 
+    .. data:: BROADCAST
+
+       property: allowed in advertising packets
+
+    .. data:: INDICATE
+
+         property: server will indicate to the client when the value is set and wait for a response
+
+    .. data:: NOTIFY
+
+       property: server will notify the client when the value is set
+
+    .. data:: READ
+
+       property: clients may read this characteristic
+
+    .. data:: WRITE
+
+       property: clients may write this characteristic; a response will be sent back
+
+    .. data:: WRITE_NO_RESPONSE
+
+       property: clients may write this characteristic; no response will be sent back
 """
     BROADCAST = _bleio.Characteristic.BROADCAST
-    """Property: allowed in advertising packets."""
     INDICATE = _bleio.Characteristic.INDICATE
-    """Property: server will indicate to the client when the value is set
-    and wait for a response.
-    """
     NOTIFY = _bleio.Characteristic.NOTIFY
-    """Property: lServer will notify the client when the value is set."""
     READ = _bleio.Characteristic.READ
-    """Property: clients may read this characteristic."""
     WRITE = _bleio.Characteristic.WRITE
-    """Property: clients may write this characteristic; a response will be sent back."""
     WRITE_NO_RESPONSE = _bleio.Characteristic.WRITE_NO_RESPONSE
-    """Property: clients may write this characteristic; no response will be sent back."""
-
 
     def __init__(self, *, uuid=None, properties=0,
                  read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
