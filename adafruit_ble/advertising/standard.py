@@ -64,7 +64,8 @@ class BoundServiceList:
         return uuid in self._vendor_services or uuid in self._standard_services
 
     def _update(self, adt, uuids):
-        if len(uuids) == 0:
+        if not uuids:
+            # uuids is empty
             del self._advertisement.data_dict[adt]
         uuid_length = uuids[0].size // 8
         b = bytearray(len(uuids) * uuid_length)
@@ -131,12 +132,12 @@ class ServiceList(AdvertisingDataField):
     def __get__(self, obj, cls):
         if not self._present(obj) and not obj.mutable:
             return None
-        if not hasattr(obj, "_service_lists"):
-            obj._service_lists = {}
+        if not hasattr(obj, "adv_service_lists"):
+            obj.adv_service_lists = {}
         first_adt = self.standard_services[0]
-        if first_adt not in obj._service_lists:
-            obj._service_lists[first_adt] = BoundServiceList(obj, **self.__dict__)
-        return obj._service_lists[first_adt]
+        if first_adt not in obj.adv_service_lists:
+            obj.adv_service_lists[first_adt] = BoundServiceList(obj, **self.__dict__)
+        return obj.adv_service_lists[first_adt]
 
 class ProvideServicesAdvertisement(Advertisement):
     """Advertise what services that the device makes available upon connection."""

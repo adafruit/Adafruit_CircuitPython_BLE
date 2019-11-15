@@ -27,11 +27,10 @@ This module provides Services defined by CircuitPython. **Out of date.**
 
 """
 
-import _bleio
-
 from . import Service
-from ..characteristics.string import StringCharacteristic
+from ..characteristics import Characteristic
 from ..characteristics.stream import StreamOut
+from ..characteristics.string import StringCharacteristic
 from ..uuid import VendorUUID
 
 __version__ = "0.0.0-auto.0"
@@ -50,6 +49,5 @@ class CircuitPythonService(Service):
        Unimplemented."""
     uuid = CircuitPythonUUID(0x0100)
     filename = StringCharacteristic(uuid=CircuitPythonUUID(0x0200),
-                                    properties=(_bleio.Characteristic.READ |
-                                                _bleio.Characteristic.WRITE))
+                                    properties=(Characteristic.READ | Characteristic.WRITE))
     contents = StreamOut(uuid=CircuitPythonUUID(0x0201))

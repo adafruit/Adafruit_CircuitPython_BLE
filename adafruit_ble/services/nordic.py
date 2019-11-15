@@ -44,19 +44,7 @@ class UARTService(Service):
     :param int buffer_size: buffer up to this many bytes.
       If more bytes are received, older bytes will be discarded.
 
-    Example::
-
-        from adafruit_ble.uart_client import UARTClient
-
-        uart_client = UARTClient()
-        uart_addresses = uart_client.scan()
-        if uart_addresses:
-            uart_client.connect(uarts[0].address, 5,
-                                service_uuids_whitelist=(UART.NUS_SERVICE_UUID,))
-        else:
-            raise Error("No UART servers found.")
-
-        uart_client.write('abc')
+    See ``examples/ble_uart_echo_test.py`` for a usage example.
     """
     # pylint: disable=no-member
     uuid = VendorUUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
@@ -102,7 +90,7 @@ class UARTService(Service):
         Read a line, ending in a newline character.
 
         :return: the line read
-        :rtype: int or None
+        :rtype: bytes or None
         """
         return self._rx.readline()
 

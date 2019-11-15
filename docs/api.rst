@@ -8,6 +8,7 @@
 
    top_level
    advertising
+   attributes
    characteristics
    services
    uuid

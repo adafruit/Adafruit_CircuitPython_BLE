@@ -56,7 +56,7 @@ class UUID:
         self.bleio_uuid.pack_into(buffer, offset=offset)
 
 class StandardUUID(UUID):
-    """Bluetooth defined, 16-bit UUID."""
+    """Standard 16-bit UUID defined by the Bluetooth SIG."""
     def __init__(self, uuid16):
         if not isinstance(uuid16, int):
             uuid16 = struct.unpack("<H", uuid16)[0]
