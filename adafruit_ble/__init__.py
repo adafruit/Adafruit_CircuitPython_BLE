@@ -58,8 +58,8 @@ class BLEConnection:
     Represents a connection to a peer BLE device.
     It acts as a map from a `Service` type to a `Service` instance for the connection.
 
-    :param bleio_connection _bleio.Connection
-      Wrap the native `_bleio.Connection` object.
+    :param bleio_connection _bleio.Connection: the native `_bleio.Connection` object to wrap
+
     """
     def __init__(self, bleio_connection):
         self._bleio_connection = bleio_connection
