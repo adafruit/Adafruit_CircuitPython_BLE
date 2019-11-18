@@ -69,7 +69,7 @@ class AdafruitRadio(Advertisement):
                          0x6,
                          _MANUFACTURING_DATA_ADT,
                          _ADAFRUIT_COMPANY_ID,
-                         struct.calcsize("<HI"),
+                         struct.calcsize("<H24s"),
                          _RADIO_DATA_ID)
     manufacturer_data = LazyField(ManufacturerData,
                                   "manufacturer_data",
