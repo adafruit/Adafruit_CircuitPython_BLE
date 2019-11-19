@@ -43,6 +43,12 @@ Implementation Notes
   https://github.com/adafruit/circuitpython/releases
 
 """
+#pylint: disable=wrong-import-position
+import sys
+if sys.implementation.name == 'circuitpython' and sys.implementation.version[0] <= 4:
+    raise ImportError(
+        "This release is not compatible with CircuitPython 4.x; use library release 1.x.x")
+#pylint: enable=wrong-import-position
 
 import board
 import _bleio
