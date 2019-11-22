@@ -1,21 +1,18 @@
 """
-Used with ble_demo_central.py. Receives Bluefruit LE ColorPackets from a central,
-and updates a NeoPixel FeatherWing to show the history of the received packets.
+This example acts as a keyboard to peer devices.
 """
 
 # import board
-# import sys
+import sys
 import time
 
 import adafruit_ble
-from adafruit_ble.advertising import to_hex
+from adafruit_ble.advertising import to_hex, Advertisement
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.standard.hid import HIDService
 from adafruit_ble.services.standard.device_info import DeviceInfoService
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
-
-# This has been updated but isn't working.
 
 #pylint: disable=line-too-long
 HID_DESCRIPTOR = (
@@ -127,12 +124,15 @@ device_info = DeviceInfoService(software_revision=adafruit_ble.__version__,
 print(device_info.manufacturer)
 advertisement = ProvideServicesAdvertisement(hid)
 advertisement.appearance = 961
+scan_response = Advertisement()
+scan_response.complete_name = "CircuitPython HID"
 
 ble = adafruit_ble.BLERadio()
+print(advertisement)
 print(to_hex(bytes(advertisement)))
 if not ble.connected:
     print("advertising")
-    ble.start_advertising(advertisement)
+    ble.start_advertising(advertisement, scan_response)
 else:
     print("already connected")
     print(ble.connections)
@@ -142,12 +142,11 @@ kl = KeyboardLayoutUS(k)
 while True:
     while not ble.connected:
         pass
-    #print("Start typing:")
+    print("Start typing:")
     while ble.connected:
-        # c = sys.stdin.read(1)
-        # sys.stdout.write(c)
-        #kl.write(c)
-        kl.write("h")
+        c = sys.stdin.read(1)
+        sys.stdout.write(c)
+        kl.write(c)
         # print("sleeping")
         time.sleep(0.1)
     ble.start_advertising(advertisement)

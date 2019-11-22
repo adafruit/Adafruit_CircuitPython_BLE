@@ -209,8 +209,8 @@ class Advertisement:
     # RANDOM_TARGET_ADDRESS = 0x18
     # """Random target address (chosen randomly)."""
     # APPEARANCE = 0x19
-    # # self.add_field(AdvertisingPacket.APPEARANCE, struct.pack("<H", appearance))
-    # """Appearance."""
+    appearance = Struct("<H", advertising_data_type=0x19)
+    """Appearance."""
     # DEVICE_ADDRESS = 0x1B
     # """LE Bluetooth device address."""
     # ROLE = 0x1C

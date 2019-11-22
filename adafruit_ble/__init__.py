@@ -21,26 +21,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble`
-====================================================
 
 This module provides higher-level BLE (Bluetooth Low Energy) functionality,
 building on the native `_bleio` module.
-
-* Author(s): Dan Halbert and Scott Shawcroft for Adafruit Industries
-
-Implementation Notes
---------------------
-
-**Hardware:**
-
-   Adafruit Feather nRF52840 Express <https://www.adafruit.com/product/4062>
-   Adafruit Circuit Playground Bluefruit <https://www.adafruit.com/product/4333>
-
-**Software and Dependencies:**
-
-* Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
 
 """
 #pylint: disable=wrong-import-position
@@ -128,6 +111,15 @@ class BLEConnection:
     def connected(self):
         """True if the connection to the peer is still active."""
         return self._bleio_connection.connected
+
+    @property
+    def paired(self):
+        """True if the paired to the peer."""
+        return self._bleio_connection.paired
+
+    def pair(self, *, bond=True):
+        """Pair to the peer to increase security of the connection."""
+        return self._bleio_connection.pair(bond=bond)
 
     def disconnect(self):
         """Disconnect from peer."""

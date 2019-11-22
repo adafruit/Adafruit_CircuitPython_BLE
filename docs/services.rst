@@ -1,8 +1,13 @@
-``adafruit_ble.services``
-===========================
+:py:mod:`~adafruit_ble.services`
+=================================
 
 .. automodule:: adafruit_ble.services
   :members:
+
+.. toctree::
+  :hidden:
+
+  standard_services
 
 .. automodule:: adafruit_ble.services.apple
   :members:

@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble.services.standard.hid`
-====================================================
+:py:mod:`~adafruit_ble.services.standard.hid`
+=======================================================
 
 BLE Human Interface Device (HID)
 
@@ -38,7 +38,7 @@ from adafruit_ble.characteristics import Characteristic
 from adafruit_ble.characteristics.int import Uint8Characteristic
 from adafruit_ble.uuid import StandardUUID
 
-from ..core import Service
+from .. import Service
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -73,7 +73,7 @@ _PROTOCOL_MODE_REPORT = b'\x01'
 
 class ReportIn:
     """A single HID report that transmits HID data into a client."""
-    uuid = StandardUUID(0x24ad)
+    uuid = StandardUUID(_REPORT_UUID_NUM)
     def __init__(self, service, report_id, usage_page, usage, *, max_length):
         self._characteristic = _bleio.Characteristic.add_to_service(
             service.bleio_service,
@@ -96,9 +96,9 @@ class ReportIn:
 
 class ReportOut:
     """A single HID report that receives HID data from a client."""
-    uuid = StandardUUID(0x24ad)
+    uuid = StandardUUID(_REPORT_UUID_NUM)
     def __init__(self, service, report_id, usage_page, usage, *, max_length):
-        self._characteristic = Characteristic.add_to_service(
+        self._characteristic = _bleio.Characteristic.add_to_service(
             service.bleio_service,
             self.uuid.bleio_uuid,
             max_length=max_length,

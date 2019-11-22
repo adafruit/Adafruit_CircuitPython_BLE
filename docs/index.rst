@@ -27,6 +27,7 @@ Table of Contents
     :caption: Related Products
 
     Adafruit Feather nRF52840 Express <https://www.adafruit.com/product/4062>
+    Adafruit Circuit Playground Bluefruit <https://www.adafruit.com/product/4333>
 
 .. toctree::
     :caption: Other Links

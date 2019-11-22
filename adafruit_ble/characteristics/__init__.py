@@ -20,8 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-:py:mod:`~adafruit_ble.characteristics`
-====================================================
 
 This module provides core BLE characteristic classes that are used within Services.
 
@@ -92,7 +90,7 @@ class Characteristic:
 
     def __init__(self, *, uuid=None, properties=0,
                  read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
-                 max_length=20, fixed_length=False, initial_value=None):
+                 max_length=None, fixed_length=False, initial_value=None):
         self.field_name = None # Set by Service during basic binding
 
         if uuid:
@@ -201,7 +199,7 @@ class StructCharacteristic(Characteristic):
         self._struct_format = struct_format
         self._expected_size = struct.calcsize(struct_format)
         if initial_value:
-            initial_value = struct.pack(self._struct_format, initial_value)
+            initial_value = struct.pack(self._struct_format, *initial_value)
         super().__init__(uuid=uuid, initial_value=initial_value,
                          max_length=self._expected_size, fixed_length=True,
                          properties=properties, read_perm=read_perm, write_perm=write_perm)

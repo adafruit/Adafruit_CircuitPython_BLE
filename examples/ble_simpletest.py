@@ -1,5 +1,7 @@
-# This example scans for any BLE advertisements and prints one advertisement and one scan response
-# from every device found.
+"""
+This example scans for any BLE advertisements and prints one advertisement and one scan response
+from every device found.
+"""
 
 from adafruit_ble import BLERadio
 
