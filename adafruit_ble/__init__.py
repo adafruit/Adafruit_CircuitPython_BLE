@@ -117,6 +117,22 @@ class BLEConnection:
         """True if the paired to the peer."""
         return self._bleio_connection.paired
 
+    @property
+    def connection_interval(self):
+        """Time between transmissions in milliseconds. Will be multiple of 1.25ms. Lower numbers
+           increase speed and decrease latency but increase power consumption.
+
+           When setting connection_interval, the peer may reject the new interval and
+           `connection_interval` will then remain the same.
+
+           Apple has additional guidelines that dictate should be a multiple of 15ms except if HID
+           is available. When HID is available Apple devices may accept 11.25ms intervals."""
+        return self._bleio_connection.connection_interval
+
+    @connection_interval.setter
+    def connection_interval(self, value):
+        self._bleio_connection.connection_interval = value
+
     def pair(self, *, bond=True):
         """Pair to the peer to increase security of the connection."""
         return self._bleio_connection.pair(bond=bond)
