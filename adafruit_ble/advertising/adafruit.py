@@ -69,11 +69,11 @@ class AdafruitRadio(Advertisement):
                          0x6,
                          _MANUFACTURING_DATA_ADT,
                          _ADAFRUIT_COMPANY_ID,
-                         struct.calcsize("<H24s"),
+                         struct.calcsize("<H248s"),
                          _RADIO_DATA_ID)
     manufacturer_data = LazyField(ManufacturerData,
                                   "manufacturer_data",
                                   advertising_data_type=_MANUFACTURING_DATA_ADT,
                                   company_id=_ADAFRUIT_COMPANY_ID,
                                   key_encoding="<H")
-    msg = ManufacturerDataField(_RADIO_DATA_ID, "<24s")  # 31 byte ads
+    msg = ManufacturerDataField(_RADIO_DATA_ID, "<248s")  # 255 byte ads
