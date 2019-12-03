@@ -251,7 +251,7 @@ class BLERadio:
         """A tuple of active `BLEConnection` objects."""
         connections = self._adapter.connections
         wrapped_connections = [None] * len(connections)
-        for i, connection in enumerate(self._adapter.connections):
+        for i, connection in enumerate(connections):
             if connection not in self._connection_cache:
                 self._connection_cache[connection] = BLEConnection(connection)
             wrapped_connections[i] = self._connection_cache[connection]

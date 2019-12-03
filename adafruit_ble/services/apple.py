@@ -28,6 +28,7 @@ This module provides Services defined by Apple. **Unimplemented.**
 """
 
 import struct
+import time
 
 from . import Service
 from ..uuid import VendorUUID
@@ -44,11 +45,55 @@ class UnknownApple1Service(Service):
     """Unknown service. Unimplemented."""
     uuid = VendorUUID("9fa480e0-4967-4542-9390-d343dc5d04ae")
 
+class _NotificationAttribute:
+    def __init__(self, id, *, max_length=False):
+        self._id = id
+        self._max_length = max_length
+
+    def __get__(self, notification, cls):
+        if self._id in notification._attribute_cache:
+            return notification._attribute_cache[self._id]
+
+        if self._max_length:
+            command = struct.pack("<BIBH", 0, notification.id, self._id, 255)
+        else:
+            command = struct.pack("<BIB", 0, notification.id, self._id)
+        notification.control_point.write(command)
+        while notification.data_source.in_waiting == 0:
+            pass
+
+        _, _ = struct.unpack("<BI", notification.data_source.read(5))
+        attribute_id, attribute_length = struct.unpack("<BH", notification.data_source.read(3))
+        if attribute_id != self._id:
+            raise RuntimeError("Data for other attribute")
+        value = notification.data_source.read(attribute_length)
+        value = value.decode("utf-8")
+        notification._attribute_cache[self._id] = value
+        return value
+
 class Notification:
+    app_id = _NotificationAttribute(0)
+    title = _NotificationAttribute(1, max_length=True)
+    subtitle = _NotificationAttribute(2, max_length=True)
+    message = _NotificationAttribute(3, max_length=True)
+    message_size = _NotificationAttribute(4)
+    _raw_date = _NotificationAttribute(5)
+    positive_action_label = _NotificationAttribute(6)
+    negative_action_label = _NotificationAttribute(7)
+
     def __init__(self, id, event_flags, category_id, category_count, *, control_point, data_source):
         self.id = id
-        self.category_id = category_id
         self.removed = False
+
+        self.update(event_flags, category_id, category_count)
+
+        self._attribute_cache = {}
+
+        self.control_point = control_point
+        self.data_source = data_source
+
+    def update(self, event_flags, category_id, category_count):
+        self.category_id = category_id
 
         self.silent = (event_flags & (1 << 0)) != 0
         self.important = (event_flags & (1 << 1)) != 0
@@ -56,27 +101,7 @@ class Notification:
         self.positive_action = (event_flags & (1 << 3)) != 0
         self.negative_action = (event_flags & (1 << 4)) != 0
 
-        self.subtitle = None
-        self.message = None
-
-        self.control_point = control_point
-        self.data_source = data_source
-
-    def update(self, event_flags, category_id, category_count):
-        pass
-
-    def _fetch_all(self):
-        self.control_point.write(struct.pack("<BIBBHBHBHBBBB", 0, self.id, 0, 1, 32, 2, 32, 3, 255, 4, 5, 6, 7))
-        while self.data_source.in_waiting == 0:
-            pass
-        _, _ = struct.unpack("<BI", self.data_source.read(5))
-
-        for attribute in ["app_id", "title", "subtitle", "message", "message_size", "date", "positive_action_label", "negative_action_label"]:
-            attribute_id, attribute_length = struct.unpack("<BH", self.data_source.read(3))
-            if attribute_length == 0:
-                continue
-            value = self.data_source.read(attribute_length).decode("utf-8")
-            setattr(self, attribute, value)
+        self._attribute_cache = {}
 
     @property
     def app(self):
@@ -89,7 +114,6 @@ class Notification:
 
 
     def __str__(self):
-        self._fetch_all()
         flags = []
         category = None
         if self.category_id == 0:
@@ -127,7 +151,7 @@ class Notification:
             flags.append("positive_action")
         if self.negative_action:
             flags.append("negative_action")
-        return category + " " + " ".join(flags) + " " + self.app_id + " " + self.title + " " + str(self.subtitle) + " " + str(self.message) + " " + self.date
+        return category + " " + " ".join(flags) + " " + self.app_id + " " + str(self.title) + " " + str(self.subtitle) + " " + str(self.message) + " "# + self.date
 
 class AppleNotificationService(Service):
     """Notification service."""
@@ -141,23 +165,37 @@ class AppleNotificationService(Service):
         super().__init__(service=service)
         self._active_notifications = {}
 
-    def _update_notifications(self):
+    def _update(self):
         while self.notification_source.in_waiting > 7:
             buffer = self.notification_source.read(8)
             event_id, event_flags, category_id, category_count, id = struct.unpack("<BBBBI", buffer)
             if event_id == 0:
                 self._active_notifications[id] = Notification(id, event_flags, category_id,
                     category_count, control_point=self.control_point, data_source=self.data_source)
+                yield self._active_notifications[id]
             elif event_id == 1:
                 self._active_notifications[id].update(event_flags, category_id, category_count)
+                yield None
             elif event_id == 2:
                 self._active_notifications[id].removed = True
                 del self._active_notifications[id]
+                yield None
             #print(event_id, event_flags, category_id, category_count)
 
-    def __iter__(self):
-        self._update_notifications()
-        return iter(self._active_notifications.values())
+
+    def wait_for_new_notifications(self, timeout=None):
+        start_time = time.monotonic()
+        while timeout is None or timeout > time.monotonic() - start_time:
+            new_notification = next(self._update())
+            if new_notification:
+                yield new_notification
+        return
+
+    @property
+    def active_notifications(self):
+        for _ in self._update():
+            pass
+        return self._active_notifications
 
 class AppleMediaService(Service):
     """View and control currently playing media. Unimplemented."""
