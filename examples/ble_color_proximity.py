@@ -21,9 +21,9 @@ color_options = [0x110000,
                  0x000011,
                  0x110011,
                  0x111111,
-                 0x111111,
-                 0x0,
-                 0x0]
+                 0x221111,
+                 0x112211,
+                 0x111122]
 
 ble = BLERadio()
 
@@ -37,7 +37,7 @@ button_b.pull = digitalio.Pull.DOWN
 led = digitalio.DigitalInOut(board.D13)
 led.switch_to_output()
 
-neopixels = neopixel.NeoPixel(board.NEOPIXEL, 10)
+neopixels = neopixel.NeoPixel(board.NEOPIXEL, 10, auto_write=False)
 
 i = 0
 advertisement = AdafruitColor()
@@ -71,7 +71,7 @@ while True:
         closest_last_time = 0
         print("Scanning for colors")
         while not slide_switch.value:
-            for entry in ble.start_scan(AdafruitColor, minimum_rssi=-80, timeout=1):
+            for entry in ble.start_scan(AdafruitColor, minimum_rssi=-100, timeout=1):
                 if slide_switch.value:
                     break
                 now = time.monotonic()
@@ -84,5 +84,16 @@ while True:
                     continue
                 closest_rssi = entry.rssi
                 closest_last_time = now
-                neopixels.fill(entry.color)
+                discrete_strength = min((100 + entry.rssi) // 5, 10)
+                #print(entry.rssi, discrete_strength)
+                neopixels.fill(0x000000)
+                for i in range(0, discrete_strength):
+                    neopixels[i] = entry.color
+                neopixels.show()
+
+            # Clear the pixels if we haven't heard from anything recently.
+            now = time.monotonic()
+            if now - closest_last_time > 1:
+                neopixels.fill(0x000000)
+                neopixels.show()
         ble.stop_scan()
