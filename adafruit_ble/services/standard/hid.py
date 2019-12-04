@@ -140,7 +140,6 @@ class HIDService(Service):
         hid = HIDServer()
     """
     uuid = StandardUUID(0x1812)
-    default_field_name = "hid"
 
     boot_keyboard_in = Characteristic(uuid=StandardUUID(0x2A22),
                                       properties=(Characteristic.READ |
@@ -191,7 +190,7 @@ class HIDService(Service):
                                     max_value=1)
     """Controls whether the device should be suspended (0) or not (1)."""
 
-    def __init__(self, hid_descriptor):
+    def __init__(self, hid_descriptor=None, service=None):
         super().__init__(report_map=hid_descriptor)
         self._init_devices()
 
@@ -279,10 +278,3 @@ class HIDService(Service):
             if input_size > 0:
                 self.devices.append(ReportIn(self, report_id, usage_page, usage,
                                              max_length=input_size // 8))
-
-
-    @classmethod
-    def from_remote_service(cls, remote_service):
-        """Creates a HIDService from a remote service"""
-        self = super(cls).from_remote_service(remote_service)
-        self._init_devices() # pylint: disable=protected-access

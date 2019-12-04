@@ -125,9 +125,9 @@ class Characteristic:
             initial_value = bytes(self.max_length)
         max_length = self.max_length
         if max_length is None and initial_value is None:
-            max_length = 20
-            initial_value = bytes(max_length)
-        if max_length is None:
+            max_length = 0
+            initial_value = b""
+        elif max_length is None:
             max_length = len(initial_value)
         return _bleio.Characteristic.add_to_service(
             service.bleio_service, self.uuid.bleio_uuid, initial_value=initial_value,
@@ -141,6 +141,8 @@ class Characteristic:
 
     def __set__(self, service, value):
         self._ensure_bound(service, value)
+        if value == None:
+            value = b""
         bleio_characteristic = service.bleio_characteristics[self.field_name]
         bleio_characteristic.value = value
 
