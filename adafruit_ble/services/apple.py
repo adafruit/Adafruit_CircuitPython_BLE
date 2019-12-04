@@ -46,8 +46,8 @@ class UnknownApple1Service(Service):
     uuid = VendorUUID("9fa480e0-4967-4542-9390-d343dc5d04ae")
 
 class _NotificationAttribute:
-    def __init__(self, id, *, max_length=False):
-        self._id = id
+    def __init__(self, attribute_id, *, max_length=False):
+        self._id = attribute_id
         self._max_length = max_length
 
     def __get__(self, notification, cls):
@@ -72,18 +72,56 @@ class _NotificationAttribute:
         return value
 
 class Notification:
+    """One notification that appears in the iOS notification center."""
+    # pylint: disable=too-many-instance-attributes
+
     app_id = _NotificationAttribute(0)
+    """String id of the app that generated the notification. It is not the name of the app. For
+       example, Slack is "com.tinyspeck.chatlyio" and Twitter is "com.atebits.Tweetie2"."""
+
     title = _NotificationAttribute(1, max_length=True)
+    """Title of the notification. Varies per app."""
+
     subtitle = _NotificationAttribute(2, max_length=True)
+    """Subtitle of the notification. Varies per app."""
+
     message = _NotificationAttribute(3, max_length=True)
+    """Message body of the notification. Varies per app."""
+
     message_size = _NotificationAttribute(4)
+    """Total length of the message string."""
+
     _raw_date = _NotificationAttribute(5)
     positive_action_label = _NotificationAttribute(6)
-    negative_action_label = _NotificationAttribute(7)
+    """Human readable label of the positive action."""
 
-    def __init__(self, id, event_flags, category_id, category_count, *, control_point, data_source):
-        self.id = id
+    negative_action_label = _NotificationAttribute(7)
+    """Human readable label of the negative action."""
+
+    def __init__(self, notification_id, event_flags, category_id, category_count, *, control_point,
+                 data_source):
+        self.id = notification_id # pylint: disable=invalid-name
+        """Integer id of the notification."""
+
         self.removed = False
+        """True when the notification has been cleared on the iOS device."""
+
+
+        self.silent = False
+        self.important = False
+        self.preexisting = False
+        """True if the notification existed before we connected to the iOS device."""
+
+        self.positive_action = False
+        """True if the notification has a positive action to respond with. For example, this could
+           be answering a phone call."""
+
+        self.negative_action = False
+        """True if the notification has a negative action to respond with. For example, this could
+           be declining a phone call."""
+
+        self.category_count = 0
+        """Number of other notifications with the same category."""
 
         self.update(event_flags, category_id, category_count)
 
@@ -93,7 +131,10 @@ class Notification:
         self.data_source = data_source
 
     def update(self, event_flags, category_id, category_count):
+        """Update the notification and clear the attribute cache."""
         self.category_id = category_id
+
+        self.category_count = category_count
 
         self.silent = (event_flags & (1 << 0)) != 0
         self.important = (event_flags & (1 << 1)) != 0
@@ -103,17 +144,8 @@ class Notification:
 
         self._attribute_cache = {}
 
-    @property
-    def app(self):
-        self.control_point.write(struct.pack("<BIB", 0, self.id, 0))
-        while self.data_source.in_waiting == 0:
-            pass
-        print(self.data_source.in_waiting)
-        print(self.data_source.read())
-        return ""
-
-
     def __str__(self):
+        # pylint: disable=too-many-branches
         flags = []
         category = None
         if self.category_id == 0:
@@ -151,48 +183,62 @@ class Notification:
             flags.append("positive_action")
         if self.negative_action:
             flags.append("negative_action")
-        return category + " " + " ".join(flags) + " " + self.app_id + " " + str(self.title) + " " + str(self.subtitle) + " " + str(self.message) + " "# + self.date
+        return (category + " " +
+                " ".join(flags) + " " +
+                self.app_id + " " +
+                str(self.title) + " " +
+                str(self.subtitle) + " " +
+                str(self.message))
 
 class AppleNotificationService(Service):
     """Notification service."""
     uuid = VendorUUID("7905F431-B5CE-4E99-A40F-4B1E122D00D0")
 
     control_point = StreamIn(uuid=VendorUUID("69D1D8F3-45E1-49A8-9821-9BBDFDAAD9D9"))
-    data_source = StreamOut(uuid=VendorUUID("22EAC6E9-24D6-4BB5-BE44-B36ACE7C7BFB"), buffer_size=1024)
-    notification_source = StreamOut(uuid=VendorUUID("9FBF120D-6301-42D9-8C58-25E699A21DBD"), buffer_size=8*100)
+    data_source = StreamOut(uuid=VendorUUID("22EAC6E9-24D6-4BB5-BE44-B36ACE7C7BFB"),
+                            buffer_size=1024)
+    notification_source = StreamOut(uuid=VendorUUID("9FBF120D-6301-42D9-8C58-25E699A21DBD"),
+                                    buffer_size=8*100)
 
     def __init__(self, service=None):
         super().__init__(service=service)
         self._active_notifications = {}
 
     def _update(self):
-        while self.notification_source.in_waiting > 7:
-            buffer = self.notification_source.read(8)
-            event_id, event_flags, category_id, category_count, id = struct.unpack("<BBBBI", buffer)
+        # Pylint is incorrectly inferring the type of self.notification_source so disable no-member.
+        while self.notification_source.in_waiting > 7: # pylint: disable=no-member
+            buffer = self.notification_source.read(8) # pylint: disable=no-member
+            event_id, event_flags, category_id, category_count, nid = struct.unpack("<BBBBI",
+                                                                                    buffer)
             if event_id == 0:
-                self._active_notifications[id] = Notification(id, event_flags, category_id,
-                    category_count, control_point=self.control_point, data_source=self.data_source)
-                yield self._active_notifications[id]
+                self._active_notifications[nid] = Notification(nid, event_flags, category_id,
+                                                               category_count,
+                                                               control_point=self.control_point,
+                                                               data_source=self.data_source)
+                yield self._active_notifications[nid]
             elif event_id == 1:
-                self._active_notifications[id].update(event_flags, category_id, category_count)
+                self._active_notifications[nid].update(event_flags, category_id, category_count)
                 yield None
             elif event_id == 2:
-                self._active_notifications[id].removed = True
-                del self._active_notifications[id]
+                self._active_notifications[nid].removed = True
+                del self._active_notifications[nid]
                 yield None
-            #print(event_id, event_flags, category_id, category_count)
-
 
     def wait_for_new_notifications(self, timeout=None):
+        """Waits for new notifications and yields them. Returns on timeout, update, disconnect or
+           clear."""
         start_time = time.monotonic()
         while timeout is None or timeout > time.monotonic() - start_time:
-            new_notification = next(self._update())
+            try:
+                new_notification = next(self._update())
+            except StopIteration:
+                return
             if new_notification:
                 yield new_notification
-        return
 
     @property
     def active_notifications(self):
+        """A dictionary of active notifications keyed by id."""
         for _ in self._update():
             pass
         return self._active_notifications

@@ -3,12 +3,10 @@ This example solicits that apple devices that provide notifications connect to i
 pairing, prints existing notifications and then prints any new ones as they arrive.
 """
 
-# TODO: Add support for accessing individual fields.
-
+import time
 import adafruit_ble
 from adafruit_ble.advertising.standard import SolicitServicesAdvertisement
 from adafruit_ble.services.apple import AppleNotificationService
-import time
 
 radio = adafruit_ble.BLERadio()
 a = SolicitServicesAdvertisement()

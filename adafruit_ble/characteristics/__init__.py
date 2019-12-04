@@ -141,7 +141,7 @@ class Characteristic:
 
     def __set__(self, service, value):
         self._ensure_bound(service, value)
-        if value == None:
+        if value is None:
             value = b""
         bleio_characteristic = service.bleio_characteristics[self.field_name]
         bleio_characteristic.value = value

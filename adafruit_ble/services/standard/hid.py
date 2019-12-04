@@ -192,6 +192,9 @@ class HIDService(Service):
 
     def __init__(self, hid_descriptor=None, service=None):
         super().__init__(report_map=hid_descriptor)
+        if service:
+            # TODO: Add support for connecting to a remote hid server.
+            pass
         self._init_devices()
 
     def _init_devices(self):
