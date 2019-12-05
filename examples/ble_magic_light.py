@@ -1,7 +1,7 @@
 """This demo connects to a magic light and has it do a color wheel."""
 import adafruit_ble
 import _bleio
-import time
+
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.magic_light import MagicLightService
 

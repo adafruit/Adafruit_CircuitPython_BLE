@@ -34,6 +34,8 @@ from ..characteristics import Characteristic
 __version__ = "0.0.0-auto.0"
 
 class MagicLightService(Service):
+    """Service for controlling a Magic Light RGB bulb."""
+
     # These UUIDs actually use the standard base UUID even though they aren't standard.
     uuid = VendorUUID("0000ffe5-0000-1000-8000-00805f9b34fb")
 
