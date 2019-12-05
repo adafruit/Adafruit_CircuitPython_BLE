@@ -21,26 +21,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble`
-====================================================
 
 This module provides higher-level BLE (Bluetooth Low Energy) functionality,
 building on the native `_bleio` module.
-
-* Author(s): Dan Halbert and Scott Shawcroft for Adafruit Industries
-
-Implementation Notes
---------------------
-
-**Hardware:**
-
-   Adafruit Feather nRF52840 Express <https://www.adafruit.com/product/4062>
-   Adafruit Circuit Playground Bluefruit <https://www.adafruit.com/product/4333>
-
-**Software and Dependencies:**
-
-* Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
 
 """
 #pylint: disable=wrong-import-position
@@ -128,6 +111,31 @@ class BLEConnection:
     def connected(self):
         """True if the connection to the peer is still active."""
         return self._bleio_connection.connected
+
+    @property
+    def paired(self):
+        """True if the paired to the peer."""
+        return self._bleio_connection.paired
+
+    @property
+    def connection_interval(self):
+        """Time between transmissions in milliseconds. Will be multiple of 1.25ms. Lower numbers
+           increase speed and decrease latency but increase power consumption.
+
+           When setting connection_interval, the peer may reject the new interval and
+           `connection_interval` will then remain the same.
+
+           Apple has additional guidelines that dictate should be a multiple of 15ms except if HID
+           is available. When HID is available Apple devices may accept 11.25ms intervals."""
+        return self._bleio_connection.connection_interval
+
+    @connection_interval.setter
+    def connection_interval(self, value):
+        self._bleio_connection.connection_interval = value
+
+    def pair(self, *, bond=True):
+        """Pair to the peer to increase security of the connection."""
+        return self._bleio_connection.pair(bond=bond)
 
     def disconnect(self):
         """Disconnect from peer."""
@@ -243,7 +251,7 @@ class BLERadio:
         """A tuple of active `BLEConnection` objects."""
         connections = self._adapter.connections
         wrapped_connections = [None] * len(connections)
-        for i, connection in enumerate(self._adapter.connections):
+        for i, connection in enumerate(connections):
             if connection not in self._connection_cache:
                 self._connection_cache[connection] = BLEConnection(connection)
             wrapped_connections[i] = self._connection_cache[connection]

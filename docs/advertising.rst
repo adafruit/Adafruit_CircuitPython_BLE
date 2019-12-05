@@ -1,4 +1,4 @@
-`adafruit_ble.advertising`
+:py:mod:`~adafruit_ble.advertising`
 ====================================================
 
 .. automodule:: adafruit_ble.advertising

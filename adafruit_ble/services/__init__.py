@@ -20,8 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-:py:mod:`~adafruit_ble.services`
-====================================================
 
 This module provides the top level Service definition.
 

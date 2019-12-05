@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`standard`
+:py:mod:`~adafruit_ble.advertising.standard`
 ====================================================
 
 This module provides BLE standard defined advertisements. The Advertisements are single purpose
@@ -84,8 +84,11 @@ class BoundServiceList:
     def append(self, service):
         """Append a service to the list."""
         if isinstance(service.uuid, StandardUUID) and service not in self._standard_services:
-            self._standard_services.append(service)
+            self._standard_services.append(service.uuid)
             self._update(self._standard_service_fields[0], self._standard_services)
+        elif isinstance(service.uuid, VendorUUID) and service not in self._vendor_services:
+            self._vendor_services.append(service.uuid)
+            self._update(self._vendor_service_fields[0], self._vendor_services)
 
     # TODO: Differentiate between complete and incomplete lists.
     def extend(self, services):

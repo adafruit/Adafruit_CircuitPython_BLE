@@ -21,25 +21,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble`
-====================================================
-
-This module provides higher-level BLE (Bluetooth Low Energy) functionality,
-building on the native `_bleio` module.
-
-* Author(s): Dan Halbert for Adafruit Industries
-
-Implementation Notes
---------------------
-
-**Hardware:**
-
-   Adafruit Feather nRF52840 Express <https://www.adafruit.com/product/4062>
-
-**Software and Dependencies:**
-
-* Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
+:py:mod:`~adafruit_ble.services.standard.device_info`
+=======================================================
 
 """
 
@@ -70,7 +53,8 @@ class DeviceInfoService(Service):
                  software_revision,
                  model_number=None,
                  serial_number=None,
-                 firmware_revision=None):
+                 firmware_revision=None,
+                 hardware_revision=None):
         if model_number is None:
             model_number = sys.platform
         if serial_number is None:
@@ -82,4 +66,5 @@ class DeviceInfoService(Service):
                          software_revision=software_revision,
                          model_number=model_number,
                          serial_number=serial_number,
-                         firmware_revision=firmware_revision)
+                         firmware_revision=firmware_revision,
+                         hardware_revision=hardware_revision)

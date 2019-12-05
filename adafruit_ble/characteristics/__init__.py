@@ -20,8 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-:py:mod:`~adafruit_ble.characteristics`
-====================================================
 
 This module provides core BLE characteristic classes that are used within Services.
 
@@ -92,7 +90,7 @@ class Characteristic:
 
     def __init__(self, *, uuid=None, properties=0,
                  read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
-                 max_length=20, fixed_length=False, initial_value=None):
+                 max_length=None, fixed_length=False, initial_value=None):
         self.field_name = None # Set by Service during basic binding
 
         if uuid:
@@ -127,9 +125,9 @@ class Characteristic:
             initial_value = bytes(self.max_length)
         max_length = self.max_length
         if max_length is None and initial_value is None:
-            max_length = 20
-            initial_value = bytes(max_length)
-        if max_length is None:
+            max_length = 0
+            initial_value = b""
+        elif max_length is None:
             max_length = len(initial_value)
         return _bleio.Characteristic.add_to_service(
             service.bleio_service, self.uuid.bleio_uuid, initial_value=initial_value,
@@ -143,6 +141,8 @@ class Characteristic:
 
     def __set__(self, service, value):
         self._ensure_bound(service, value)
+        if value is None:
+            value = b""
         bleio_characteristic = service.bleio_characteristics[self.field_name]
         bleio_characteristic.value = value
 
@@ -201,7 +201,7 @@ class StructCharacteristic(Characteristic):
         self._struct_format = struct_format
         self._expected_size = struct.calcsize(struct_format)
         if initial_value:
-            initial_value = struct.pack(self._struct_format, initial_value)
+            initial_value = struct.pack(self._struct_format, *initial_value)
         super().__init__(uuid=uuid, initial_value=initial_value,
                          max_length=self._expected_size, fixed_length=True,
                          properties=properties, read_perm=read_perm, write_perm=write_perm)

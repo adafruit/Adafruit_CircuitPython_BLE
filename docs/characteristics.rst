@@ -1,5 +1,5 @@
-``adafruit_ble.characteristics``
-======================================
+:py:mod:`~adafruit_ble.characteristics`
+=======================================
 
 .. automodule:: adafruit_ble.characteristics
    :members:

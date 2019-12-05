@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_ble.services.standard.hid`
-====================================================
+:py:mod:`~adafruit_ble.services.standard.hid`
+=======================================================
 
 BLE Human Interface Device (HID)
 
@@ -38,7 +38,7 @@ from adafruit_ble.characteristics import Characteristic
 from adafruit_ble.characteristics.int import Uint8Characteristic
 from adafruit_ble.uuid import StandardUUID
 
-from ..core import Service
+from .. import Service
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -73,7 +73,7 @@ _PROTOCOL_MODE_REPORT = b'\x01'
 
 class ReportIn:
     """A single HID report that transmits HID data into a client."""
-    uuid = StandardUUID(0x24ad)
+    uuid = StandardUUID(_REPORT_UUID_NUM)
     def __init__(self, service, report_id, usage_page, usage, *, max_length):
         self._characteristic = _bleio.Characteristic.add_to_service(
             service.bleio_service,
@@ -96,9 +96,9 @@ class ReportIn:
 
 class ReportOut:
     """A single HID report that receives HID data from a client."""
-    uuid = StandardUUID(0x24ad)
+    uuid = StandardUUID(_REPORT_UUID_NUM)
     def __init__(self, service, report_id, usage_page, usage, *, max_length):
-        self._characteristic = Characteristic.add_to_service(
+        self._characteristic = _bleio.Characteristic.add_to_service(
             service.bleio_service,
             self.uuid.bleio_uuid,
             max_length=max_length,
@@ -140,7 +140,6 @@ class HIDService(Service):
         hid = HIDServer()
     """
     uuid = StandardUUID(0x1812)
-    default_field_name = "hid"
 
     boot_keyboard_in = Characteristic(uuid=StandardUUID(0x2A22),
                                       properties=(Characteristic.READ |
@@ -191,8 +190,11 @@ class HIDService(Service):
                                     max_value=1)
     """Controls whether the device should be suspended (0) or not (1)."""
 
-    def __init__(self, hid_descriptor):
+    def __init__(self, hid_descriptor=None, service=None):
         super().__init__(report_map=hid_descriptor)
+        if service:
+            # TODO: Add support for connecting to a remote hid server.
+            pass
         self._init_devices()
 
     def _init_devices(self):
@@ -279,10 +281,3 @@ class HIDService(Service):
             if input_size > 0:
                 self.devices.append(ReportIn(self, report_id, usage_page, usage,
                                              max_length=input_size // 8))
-
-
-    @classmethod
-    def from_remote_service(cls, remote_service):
-        """Creates a HIDService from a remote service"""
-        self = super(cls).from_remote_service(remote_service)
-        self._init_devices() # pylint: disable=protected-access
