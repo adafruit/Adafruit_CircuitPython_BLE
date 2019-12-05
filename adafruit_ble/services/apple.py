@@ -71,6 +71,21 @@ class _NotificationAttribute:
         notification._attribute_cache[self._id] = value
         return value
 
+NOTIFICATION_CATEGORIES = (
+    "Other",
+    "IncomingCall",
+    "MissedCall",
+    "Voicemail",
+    "Social",
+    "Schedule",
+    "Email",
+    "News",
+    "HealthAndFitness",
+    "BusinessAndFinance",
+    "Location",
+    "Entertainment"
+)
+
 class Notification:
     """One notification that appears in the iOS notification center."""
     # pylint: disable=too-many-instance-attributes
@@ -147,31 +162,7 @@ class Notification:
     def __str__(self):
         # pylint: disable=too-many-branches
         flags = []
-        category = None
-        if self.category_id == 0:
-            category = "Other"
-        elif self.category_id == 1:
-            category = "IncomingCall"
-        elif self.category_id == 2:
-            category = "MissedCall"
-        elif self.category_id == 3:
-            category = "Voicemail"
-        elif self.category_id == 4:
-            category = "Social"
-        elif self.category_id == 5:
-            category = "Schedule"
-        elif self.category_id == 6:
-            category = "Email"
-        elif self.category_id == 7:
-            category = "News"
-        elif self.category_id == 8:
-            category = "HealthAndFitness"
-        elif self.category_id == 9:
-            category = "BusinessAndFinance"
-        elif self.category_id == 10:
-            category = "Location"
-        elif self.category_id == 11:
-            category = "Entertainment"
+        category = NOTIFICATION_CATEGORIES[self.category_id]
 
         if self.silent:
             flags.append("silent")
