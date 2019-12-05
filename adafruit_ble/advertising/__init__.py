@@ -243,8 +243,8 @@ class Advertisement:
 
     @property
     def rssi(self):
-        """Signal strength of the scanned advertisement. Only available on Advertisements created
-           from ScanEntry objects. (read-only)"""
+        """Signal strength of the scanned advertisement. Only available on Advertisements returned
+           from `BLERadio.start_scan()`. (read-only)"""
         return self._rssi
 
     @classmethod

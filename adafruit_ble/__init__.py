@@ -254,7 +254,7 @@ class BLERadio:
 
     @property
     def name(self):
-        """The default name for this device. Used in advertisements and
+        """The name for this device. Used in advertisements and
         as the Device Name in the Generic Access Service, available to a connected peer.
         """
         return self._adapter.name
