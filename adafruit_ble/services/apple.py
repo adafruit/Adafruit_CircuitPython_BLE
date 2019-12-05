@@ -162,7 +162,9 @@ class Notification:
     def __str__(self):
         # pylint: disable=too-many-branches
         flags = []
-        category = NOTIFICATION_CATEGORIES[self.category_id]
+        category = None
+        if self.category_id < len(NOTIFICATION_CATEGORIES):
+            category = NOTIFICATION_CATEGORIES[self.category_id]
 
         if self.silent:
             flags.append("silent")
