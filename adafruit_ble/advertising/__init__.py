@@ -220,12 +220,7 @@ class Advertisement:
     # """Data size in a regular BLE packet."""
 
     def __init__(self):
-        """Create an advertising packet.
-
-        :param buf data: if not supplied (None), create an empty packet
-          if supplied, create a packet with supplied data. This is usually used
-          to parse an existing packet.
-        """
+        """Create an advertising packet."""
         self.data_dict = {}
         self.address = None
         self._rssi = None
@@ -248,8 +243,8 @@ class Advertisement:
 
     @property
     def rssi(self):
-        """Signal strength of the scanned advertisement. Only available on Advertisement's created
-           from ScanEntrys. (read-only)"""
+        """Signal strength of the scanned advertisement. Only available on Advertisements returned
+           from `BLERadio.start_scan()`. (read-only)"""
         return self._rssi
 
     @classmethod

@@ -161,14 +161,16 @@ class BLERadio:
         Starts advertising the given advertisement.
 
         :param buf scan_response: scan response data packet bytes.
-            ``None`` if no scan response is needed.
+            If ``None``, a default scan response will be generated that includes
+            `BLERadio.name` and `BLERadio.tx_power`.
         :param float interval:  advertising interval, in seconds
         """
-        scan_response_data = None
-        if scan_response:
-            scan_response_data = bytes(scan_response)
+        if not scan_response:
+            scan_response = Advertisement()
+            scan_response.complete_name = self.name
+            scan_response.tx_power = self.tx_power
         self._adapter.start_advertising(bytes(advertisement),
-                                        scan_response=scan_response_data,
+                                        scan_response=bytes(scan_response),
                                         connectable=advertisement.connectable,
                                         interval=interval)
 
@@ -243,7 +245,7 @@ class BLERadio:
 
     @property
     def connected(self):
-        """True if any peers are connected to the adapter."""
+        """True if any peers are connected."""
         return self._adapter.connected
 
     @property
@@ -257,3 +259,28 @@ class BLERadio:
             wrapped_connections[i] = self._connection_cache[connection]
 
         return tuple(wrapped_connections)
+
+    @property
+    def name(self):
+        """The name for this device. Used in advertisements and
+        as the Device Name in the Generic Access Service, available to a connected peer.
+        """
+        return self._adapter.name
+
+    @name.setter
+    def name(self, value):
+        self._adapter.name = value
+
+    @property
+    def tx_power(self):
+        """Transmit power, in dBm."""
+        return 0
+
+    @tx_power.setter
+    def tx_power(self, value):
+        raise NotImplementedError("setting tx_power not yet implemented")
+
+    @property
+    def address_bytes(self):
+        """The device address, as a ``bytes()`` object of length 6."""
+        return self._adapter.address.address_bytes
