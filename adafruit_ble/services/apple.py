@@ -165,6 +165,8 @@ class Notification:
         category = None
         if self.category_id < len(NOTIFICATION_CATEGORIES):
             category = NOTIFICATION_CATEGORIES[self.category_id]
+        else:
+            category = "Reserved"
 
         if self.silent:
             flags.append("silent")
