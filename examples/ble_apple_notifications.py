@@ -10,7 +10,6 @@ from adafruit_ble.services.apple import AppleNotificationService
 
 radio = adafruit_ble.BLERadio()
 a = SolicitServicesAdvertisement()
-a.complete_name = "NotifyPlease"
 a.solicited_services.append(AppleNotificationService)
 radio.start_advertising(a)
 
@@ -28,10 +27,8 @@ while radio.connected:
             print("paired")
 
         ans = connection[AppleNotificationService]
-        for notification in ans:
-            if notification.id not in known_notifications:
-                print(notification)
-                known_notifications.add(notification.id)
+        for notification in ans.wait_for_new_notifications():
+            print(notification)
     time.sleep(1)
 
 print("disconnected")
