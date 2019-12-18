@@ -65,11 +65,10 @@ class AdafruitColor(Advertisement):
 
 
 class AdafruitRadio(Advertisement):
-    prefix = struct.pack("<BBHBH",
+    prefix = struct.pack("<BBHH",
                          0x6,
                          _MANUFACTURING_DATA_ADT,
                          _ADAFRUIT_COMPANY_ID,
-                         struct.calcsize("<H248s"),
                          _RADIO_DATA_ID)
     manufacturer_data = LazyField(ManufacturerData,
                                   "manufacturer_data",
