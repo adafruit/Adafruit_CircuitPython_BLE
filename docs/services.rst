@@ -9,9 +9,6 @@
 
   standard_services
 
-.. automodule:: adafruit_ble.services.apple
-  :members:
-
 .. automodule:: adafruit_ble.services.circuitpython
   :members:
 
