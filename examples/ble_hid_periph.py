@@ -7,7 +7,7 @@ import sys
 import time
 
 import adafruit_ble
-from adafruit_ble.advertising import to_hex, Advertisement
+from adafruit_ble.advertising import Advertisement
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.standard.hid import HIDService
 from adafruit_ble.services.standard.device_info import DeviceInfoService
