@@ -121,15 +121,12 @@ HID_DESCRIPTOR = (
 hid = HIDService(HID_DESCRIPTOR)
 device_info = DeviceInfoService(software_revision=adafruit_ble.__version__,
                                 manufacturer="Adafruit Industries")
-print(device_info.manufacturer)
 advertisement = ProvideServicesAdvertisement(hid)
 advertisement.appearance = 961
 scan_response = Advertisement()
 scan_response.complete_name = "CircuitPython HID"
 
 ble = adafruit_ble.BLERadio()
-print(advertisement)
-print(to_hex(bytes(advertisement)))
 if not ble.connected:
     print("advertising")
     ble.start_advertising(advertisement, scan_response)
