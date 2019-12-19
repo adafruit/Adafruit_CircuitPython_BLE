@@ -65,6 +65,7 @@ class AdafruitColor(Advertisement):
 
 
 class AdafruitRadio(Advertisement):
+    """Broadcast arbitrary bytes as a radio message."""
     prefix = struct.pack("<BBHH",
                          0x6,
                          _MANUFACTURING_DATA_ADT,
