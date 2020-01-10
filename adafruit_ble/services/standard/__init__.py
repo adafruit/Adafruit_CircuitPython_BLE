@@ -38,6 +38,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
 class AppearanceCharacteristic(StructCharacteristic):
     """What type of device it is"""
+    # pylint: disable=too-few-public-methods
     uuid = StandardUUID(0x2a01)
 
     def __init__(self, **kwargs):

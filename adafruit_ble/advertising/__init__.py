@@ -85,6 +85,8 @@ def encode_data(data_dict, *, key_encoding="B"):
 
 class AdvertisingDataField:
     """Top level class for any descriptor classes that live in Advertisement or its subclasses."""
+    # pylint: disable=too-few-public-methods
+    pass
 
 class AdvertisingFlag:
     """A single bit flag within an AdvertisingFlags object."""

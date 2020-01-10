@@ -60,30 +60,36 @@ class IntCharacteristic(StructCharacteristic):
 
 class Int8Characteristic(IntCharacteristic):
     """Int8 number."""
+    # pylint: disable=too-few-public-methods
     def __init__(self, *, min_value=-128, max_value=127, **kwargs):
         super().__init__("<b", min_value, max_value, **kwargs)
 
 class Uint8Characteristic(IntCharacteristic):
     """Uint8 number."""
+    # pylint: disable=too-few-public-methods
     def __init__(self, *, min_value=0, max_value=0xff, **kwargs):
         super().__init__("<B", min_value, max_value, **kwargs)
 
 class Int16Characteristic(IntCharacteristic):
     """Int16 number."""
+    # pylint: disable=too-few-public-methods
     def __init__(self, *, min_value=-32768, max_value=32767, **kwargs):
         super().__init__("<h", min_value, max_value, **kwargs)
 
 class Uint16Characteristic(IntCharacteristic):
     """Uint16 number."""
+    # pylint: disable=too-few-public-methods
     def __init__(self, *, min_value=0, max_value=0xffff, **kwargs):
         super().__init__("<H", min_value, max_value, **kwargs)
 
 class Int32Characteristic(IntCharacteristic):
     """Int32 number."""
+    # pylint: disable=too-few-public-methods
     def __init__(self, *, min_value=-2147483648, max_value=2147483647, **kwargs):
         super().__init__("<i", min_value, max_value, **kwargs)
 
 class Uint32Characteristic(IntCharacteristic):
     """Uint32 number."""
+    # pylint: disable=too-few-public-methods
     def __init__(self, *, min_value=0, max_value=0xffffffff, **kwargs):
         super().__init__("<I", min_value, max_value, **kwargs)
