@@ -41,7 +41,7 @@ jobs:
       run: git describe --dirty --always --tags
     - name: PyLint
       run: |
-        pylint $( find . -path './adafruit*.py' )
+        pylint --disable=too-few-public-methods $( find . -path './adafruit*.py' )
         ([[ ! -d "examples" ]] || pylint --disable=missing-docstring,invalid-name,bad-whitespace examples/*.py)
     - name: Build assets
       run: circuitpython-build-bundles --filename_prefix ${{ steps.repo-name.outputs.repo-name }} --library_location .
