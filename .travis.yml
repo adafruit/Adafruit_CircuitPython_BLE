@@ -20,7 +20,7 @@ install:
 - pip install --force-reinstall "pylint<3"
 
 script:
-- pylint --disable=too-few-public-methods adafruit_ble/**/*.py adafruit_ble/*.py
+- pylint adafruit_ble/**/*.py adafruit_ble/*.py
 - ([[ ! -d "examples" ]] || pylint --disable=missing-docstring,invalid-name,bad-whitespace
   examples/*.py)
 - circuitpython-build-bundles --filename_prefix adafruit-circuitpython-ble
