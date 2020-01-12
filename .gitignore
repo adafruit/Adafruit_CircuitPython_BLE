@@ -2,6 +2,5 @@ __pycache__
 _build
 *.pyc
 .env
-build*
 bundles
 .DS_Store

@@ -9,8 +9,8 @@ Introduction
     :target: https://discord.gg/nBQh6qu
     :alt: Discord
 
-.. image:: https://travis-ci.com/adafruit/Adafruit_CircuitPython_ble.svg?branch=master
-    :target: https://travis-ci.com/adafruit/Adafruit_CircuitPython_ble
+.. image:: https://github.com/adafruit/Adafruit_CircuitPython_ble/workflows/Build%20CI/badge.svg
+    :target: https://github.com/adafruit/Adafruit_CircuitPython_ble
     :alt: Build Status
 
 This module provides higher-level BLE (Bluetooth Low Energy) functionality,
