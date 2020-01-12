@@ -96,6 +96,7 @@ class ReportIn:
 
 class ReportOut:
     """A single HID report that receives HID data from a client."""
+    # pylint: disable=too-few-public-methods
     uuid = StandardUUID(_REPORT_UUID_NUM)
     def __init__(self, service, report_id, usage_page, usage, *, max_length):
         self._characteristic = _bleio.Characteristic.add_to_service(
@@ -270,7 +271,7 @@ class HIDService(Service):
             reports = {}
             get_report_info(collection, reports)
             if len(reports) > 1:
-                raise NotImplementedError("Only on report id per Application collection supported")
+                raise NotImplementedError("Only one report id per Application collection supported")
 
             report_id, report = list(reports.items())[0]
             output_size = report["output_size"]

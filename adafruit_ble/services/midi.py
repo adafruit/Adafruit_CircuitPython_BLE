@@ -36,6 +36,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
 class MidiIOCharacteristic(Characteristic):
     """Workhorse MIDI Characteristic that carries midi messages both directions. Unimplemented."""
+    # pylint: disable=too-few-public-methods
     uuid = VendorUUID("7772E5DB-3868-4112-A1A9-F2669D106BF3")
     def __init__(self, **kwargs):
         super().__init__(properties=(Characteristic.NOTIFY |
