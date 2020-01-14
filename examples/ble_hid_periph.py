@@ -124,15 +124,14 @@ device_info = DeviceInfoService(software_revision=adafruit_ble.__version__,
 advertisement = ProvideServicesAdvertisement(hid)
 advertisement.appearance = 961
 scan_response = Advertisement()
-scan_response.complete_name = "CircuitPython HID"
 
 ble = adafruit_ble.BLERadio()
-if not ble.connected:
-    print("advertising")
-    ble.start_advertising(advertisement, scan_response)
-else:
-    print("already connected")
-    print(ble.connections)
+if ble.connected:
+    for c in ble.connections:
+        c.disconnect()
+
+print("advertising")
+ble.start_advertising(advertisement, scan_response)
 
 k = Keyboard(hid.devices)
 kl = KeyboardLayoutUS(k)
