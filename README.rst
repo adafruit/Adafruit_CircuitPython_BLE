@@ -29,7 +29,7 @@ This is easily achieved by downloading
 Installing from PyPI
 ====================
 
-Warning: This will _not_ work with BLE on Linux
+Warning: This will **not** work with BLE on Linux
 
 On supported GNU/Linux systems like the Raspberry Pi, you can install the driver locally `from
 PyPI <https://pypi.org/project/adafruit-circuitpython-ble/>`_. To install for current user:
