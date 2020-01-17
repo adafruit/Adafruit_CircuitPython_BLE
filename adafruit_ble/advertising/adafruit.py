@@ -34,7 +34,7 @@ Adafruit customers for their own data.
 import struct
 from micropython import const
 
-from . import Advertisement, LazyField
+from . import Advertisement, LazyObjectField
 from .standard import ManufacturerData, ManufacturerDataField
 
 __version__ = "0.0.0-auto.0"

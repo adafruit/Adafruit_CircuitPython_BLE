@@ -265,9 +265,9 @@ class Advertisement:
         parts = []
         for attr in dir(self.__class__):
             attribute_instance = getattr(self.__class__, attr)
-            if (issubclass(attribute_instance.__class__, AdvertisingDataField)):
+            if issubclass(attribute_instance.__class__, AdvertisingDataField):
                 if (issubclass(attribute_instance.__class__, LazyObjectField) and
-                    not attribute_instance.advertising_data_type in self.data_dict):
+                        not attribute_instance.advertising_data_type in self.data_dict):
                     # Skip uninstantiated lazy objects; if we get
                     # their value, they will be be instantiated.
                     continue
