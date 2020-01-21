@@ -116,31 +116,24 @@ class AdvertisingFlags(AdvertisingDataField):
     def __init__(self, advertisement, advertising_data_type):
         self._advertisement = advertisement
         self._adt = advertising_data_type
-        self.flags = None
+        self.flags = 0
         if self._adt in self._advertisement.data_dict:
             self.flags = self._advertisement.data_dict[self._adt][0]
-        elif self._advertisement.mutable:
-            self.flags = 0b110 # Default to General discovery and LE Only
-        else:
-            self.flags = 0
 
     def __len__(self):
         return 1
 
     def __bytes__(self):
-        encoded = bytearray(1)
-        encoded[0] = self.flags
-        return encoded
+        return bytes([self.flags])
 
     def __str__(self):
-        parts = ["<AdvertisingFlags"]
+        parts = []
         for attr in dir(self.__class__):
             attribute_instance = getattr(self.__class__, attr)
             if issubclass(attribute_instance.__class__, AdvertisingFlag):
                 if getattr(self, attr):
                     parts.append(attr)
-        parts.append(">")
-        return " ".join(parts)
+        return "<AdvertisingFlags {} >".format(" ".join(parts))
 
 class String(AdvertisingDataField):
     """UTF-8 encoded string in an Advertisement.
@@ -172,7 +165,7 @@ class Struct(AdvertisingDataField):
         obj.data_dict[self._adt] = struct.pack(self._format, value)
 
 
-class LazyField(AdvertisingDataField):
+class LazyObjectField(AdvertisingDataField):
     """Non-data descriptor useful for lazily binding a complex object to an advertisement object."""
     def __init__(self, cls, attribute_name, *, advertising_data_type, **kwargs):
         self._cls = cls
@@ -184,10 +177,16 @@ class LazyField(AdvertisingDataField):
         # Return None if our object is immutable and the data is not present.
         if not obj.mutable and self._adt not in obj.data_dict:
             return None
-        bound_class = self._cls(obj, advertising_data_type=self._adt, **self._kwargs)
-        setattr(obj, self._attribute_name, bound_class)
-        obj.data_dict[self._adt] = bound_class
-        return bound_class
+        # Instantiate the object.
+        bound_obj = self._cls(obj, advertising_data_type=self._adt, **self._kwargs)
+        setattr(obj, self._attribute_name, bound_obj)
+        obj.data_dict[self._adt] = bound_obj
+        return bound_obj
+
+    @property
+    def advertising_data_type(self):
+        """Return the data type value used to indicate this field."""
+        return self._adt
 
     # TODO: Add __set_name__ support to CircuitPython so that we automatically tell the descriptor
     # instance the attribute name it has and the class it is on.
@@ -195,7 +194,7 @@ class LazyField(AdvertisingDataField):
 class Advertisement:
     """Core Advertisement type"""
     prefix = b"\x00" # This is an empty prefix and will match everything.
-    flags = LazyField(AdvertisingFlags, "flags", advertising_data_type=0x01)
+    flags = LazyObjectField(AdvertisingFlags, "flags", advertising_data_type=0x01)
     short_name = String(advertising_data_type=0x08)
     """Short local device name (shortened to fit)."""
     complete_name = String(advertising_data_type=0x09)
@@ -263,15 +262,19 @@ class Advertisement:
         return encode_data(self.data_dict)
 
     def __str__(self):
-        parts = ["<" + self.__class__.__name__]
+        parts = []
         for attr in dir(self.__class__):
             attribute_instance = getattr(self.__class__, attr)
             if issubclass(attribute_instance.__class__, AdvertisingDataField):
+                if (issubclass(attribute_instance.__class__, LazyObjectField) and
+                        not attribute_instance.advertising_data_type in self.data_dict):
+                    # Skip uninstantiated lazy objects; if we get
+                    # their value, they will be be instantiated.
+                    continue
                 value = getattr(self, attr)
                 if value is not None:
-                    parts.append(attr + "=" + str(value))
-        parts.append(">")
-        return " ".join(parts)
+                    parts.append("{}={}".format(attr, str(value)))
+        return "<{} {} >".format(self.__class__.__name__, " ".join(parts))
 
     def __len__(self):
         return compute_length(self.data_dict)

@@ -154,6 +154,8 @@ class ProvideServicesAdvertisement(Advertisement):
         if services:
             self.services.extend(services)
         self.connectable = True
+        self.flags.general_discovery = True
+        self.flags.le_only = True
 
     @classmethod
     def matches(cls, entry):
@@ -171,9 +173,11 @@ class SolicitServicesAdvertisement(Advertisement):
         super().__init__()
         self.solicited_services.extend(services)
         self.connectable = True
+        self.flags.general_discovery = True
+        self.flags.le_only = True
 
 
-class ManufacturerData:
+class ManufacturerData(AdvertisingDataField):
     """Encapsulates manufacturer specific keyed data bytes. The manufacturer is identified by the
        company_id and the data is structured like an advertisement with a configurable key
        format."""

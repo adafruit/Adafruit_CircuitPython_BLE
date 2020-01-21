@@ -34,7 +34,7 @@ Adafruit customers for their own data.
 import struct
 from micropython import const
 
-from . import Advertisement, LazyField
+from . import Advertisement, LazyObjectField
 from .standard import ManufacturerData, ManufacturerDataField
 
 __version__ = "0.0.0-auto.0"
@@ -55,11 +55,11 @@ class AdafruitColor(Advertisement):
                          _ADAFRUIT_COMPANY_ID,
                          struct.calcsize("<HI"),
                          _COLOR_DATA_ID)
-    manufacturer_data = LazyField(ManufacturerData,
-                                  "manufacturer_data",
-                                  advertising_data_type=_MANUFACTURING_DATA_ADT,
-                                  company_id=_ADAFRUIT_COMPANY_ID,
-                                  key_encoding="<H")
+    manufacturer_data = LazyObjectField(ManufacturerData,
+                                        "manufacturer_data",
+                                        advertising_data_type=_MANUFACTURING_DATA_ADT,
+                                        company_id=_ADAFRUIT_COMPANY_ID,
+                                        key_encoding="<H")
     color = ManufacturerDataField(_COLOR_DATA_ID, "<I")
     """Color to broadcast as RGB integer."""
 
@@ -71,9 +71,9 @@ class AdafruitRadio(Advertisement):
                          _MANUFACTURING_DATA_ADT,
                          _ADAFRUIT_COMPANY_ID,
                          _RADIO_DATA_ID)
-    manufacturer_data = LazyField(ManufacturerData,
-                                  "manufacturer_data",
-                                  advertising_data_type=_MANUFACTURING_DATA_ADT,
-                                  company_id=_ADAFRUIT_COMPANY_ID,
-                                  key_encoding="<H")
+    manufacturer_data = LazyObjectField(ManufacturerData,
+                                        "manufacturer_data",
+                                        advertising_data_type=_MANUFACTURING_DATA_ADT,
+                                        company_id=_ADAFRUIT_COMPANY_ID,
+                                        key_encoding="<H")
     msg = ManufacturerDataField(_RADIO_DATA_ID, "<248s")  # 255 byte ads
