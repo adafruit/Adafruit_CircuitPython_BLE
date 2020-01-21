@@ -33,7 +33,6 @@ if sys.implementation.name == 'circuitpython' and sys.implementation.version[0] 
         "This release is not compatible with CircuitPython 4.x; use library release 1.x.x")
 #pylint: enable=wrong-import-position
 
-import board
 import _bleio
 
 from .services import Service

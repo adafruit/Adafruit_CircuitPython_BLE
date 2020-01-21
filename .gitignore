@@ -4,3 +4,7 @@ _build
 .env
 bundles
 .DS_Store
+.eggs
+*.egg-info
+build
+dist

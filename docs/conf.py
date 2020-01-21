@@ -3,7 +3,6 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('mocks'))
 
 # -- General configuration ------------------------------------------------
 
@@ -21,7 +20,7 @@ extensions = [
 # Uncomment the below if you use native CircuitPython modules such as
 # digitalio, micropython and busio. List the modules you use. Without it, the
 # autodoc module docs will fail to generate with a warning.
-autodoc_mock_imports = ["board"]
+autodoc_mock_imports = ["board", "microcontroller"]
 autodoc_member_order = "bysource"
 add_module_names = False
 
