@@ -1,5 +1,6 @@
 # CircuitPython Bluefruit LE Connect Plotter Example
 
+import time
 import board
 import analogio
 import adafruit_thermistor
@@ -29,5 +30,6 @@ while True:
     ble.stop_advertising()
 
     while ble.connected:
-        print(scale(light.value), thermistor.temperature)
+        print((scale(light.value), thermistor.temperature))
         uart_server.write('{},{}\n'.format(scale(light.value), thermistor.temperature))
+        time.sleep(0.1)
