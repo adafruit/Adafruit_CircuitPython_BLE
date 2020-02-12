@@ -215,7 +215,9 @@ class ManufacturerDataField:
     def __init__(self, key, value_format, field_names=None):
         self._key = key
         self._format = value_format
-        self.element_count = len(value_format.strip("><!=@").replace("x", ""))
+        # TODO: Support format strings that use numbers to repeat a given type. For now, we strip
+        # numbers because Radio specifies string length with it.
+        self.element_count = len(value_format.strip("><!=@0123456789").replace("x", ""))
         if self.element_count > 1 and (not field_names or len(field_names) != self.element_count):
             raise ValueError("Provide field_names when multiple values are in the format")
         self._entry_length = struct.calcsize(value_format)
