@@ -211,18 +211,54 @@ class ManufacturerData(AdvertisingDataField):
         return "<ManufacturerData company_id={:04x} data={} >".format(self.company_id, hex_data)
 
 class ManufacturerDataField:
-    """A single piece of data within the manufacturer specific data."""
-    def __init__(self, key, key_format):
+    """A single piece of data within the manufacturer specific data. The format can be repeated."""
+    def __init__(self, key, value_format, field_names=None):
         self._key = key
-        self._format = key_format
+        self._format = value_format
+        # TODO: Support format strings that use numbers to repeat a given type. For now, we strip
+        # numbers because Radio specifies string length with it.
+        self.element_count = len(value_format.strip("><!=@0123456789").replace("x", ""))
+        if self.element_count > 1 and (not field_names or len(field_names) != self.element_count):
+            raise ValueError("Provide field_names when multiple values are in the format")
+        self._entry_length = struct.calcsize(value_format)
+        self.field_names = field_names
 
     def __get__(self, obj, cls):
-        return struct.unpack_from(self._format, obj.manufacturer_data.data[self._key])[0]
+        if self._key not in obj.manufacturer_data.data:
+            return None
+        packed = obj.manufacturer_data.data[self._key]
+        if self._entry_length == len(packed):
+            unpacked = struct.unpack_from(self._format, packed)
+            if self.element_count == 1:
+                unpacked = unpacked[0]
+            return unpacked
+        if len(packed) % self._entry_length != 0:
+            raise RuntimeError("Invalid data length")
+        entry_count = len(packed) // self._entry_length
+        unpacked = [None] * entry_count
+        for i in range(entry_count):
+            offset = i * self._entry_length
+            unpacked[i] = struct.unpack_from(self._format, packed, offset=offset)
+            if self.element_count == 1:
+                unpacked[i] = unpacked[i][0]
+        return tuple(unpacked)
 
     def __set__(self, obj, value):
         if not obj.mutable:
             raise AttributeError()
-        obj.manufacturer_data.data[self._key] = struct.pack(self._format, value)
+        if isinstance(value, tuple) and (self.element_count == 1 or isinstance(value[0], tuple)):
+            packed = bytearray(self._entry_length * len(value))
+            for i, entry in enumerate(value):
+                offset = i * self._entry_length
+                if self.element_count > 1:
+                    struct.pack_into(self._format, packed, offset, *entry)
+                else:
+                    struct.pack_into(self._format, packed, offset, entry)
+            obj.manufacturer_data.data[self._key] = bytes(packed)
+        elif self.element_count == 1:
+            obj.manufacturer_data.data[self._key] = struct.pack(self._format, value)
+        else:
+            obj.manufacturer_data.data[self._key] = struct.pack(self._format, *value)
 
 # TODO: Handle service data.
 

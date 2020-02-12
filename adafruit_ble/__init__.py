@@ -164,12 +164,16 @@ class BLERadio:
             `BLERadio.name` and `BLERadio.tx_power`.
         :param float interval:  advertising interval, in seconds
         """
-        if not scan_response:
+        advertisement_bytes = bytes(advertisement)
+        scan_response_bytes = b""
+        if not scan_response and len(advertisement_bytes) <= 31:
             scan_response = Advertisement()
             scan_response.complete_name = self.name
             scan_response.tx_power = self.tx_power
-        self._adapter.start_advertising(bytes(advertisement),
-                                        scan_response=bytes(scan_response),
+        if scan_response:
+            scan_response_bytes = bytes(scan_response)
+        self._adapter.start_advertising(advertisement_bytes,
+                                        scan_response=scan_response_bytes,
                                         connectable=advertisement.connectable,
                                         interval=interval)
 
