@@ -50,7 +50,9 @@ class UUID:
         return str(self.bleio_uuid)
 
     def __bytes__(self):
-        b = bytearray(self.bleio_uuid.size // 8)
+        if self.bleio_uuid.size == 128:
+            return self.bleio_uuid.uuid128
+        b = bytearray(2)
         self.bleio_uuid.pack_into(b)
         return bytes(b)
 
