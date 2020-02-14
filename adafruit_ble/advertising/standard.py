@@ -289,7 +289,8 @@ class ServiceData(AdvertisingDataField):
                         all_service_data[i] = service_data
                     return memoryview(service_data)[len(self._prefix):]
             if obj.mutable:
-                all_service_data.append(bytearray(self._prefix))
+                service_data = bytearray(self._prefix)
+                all_service_data.append(service_data)
                 return memoryview(service_data)[len(self._prefix):]
         # Existing data is a single set of bytes.
         elif isinstance(all_service_data, (bytes, bytearray)):
