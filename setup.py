@@ -55,5 +55,5 @@ setup(
     # What does your project relate to?
     keywords='adafruit blinka circuitpython micropython ble bluetooth',
 
-    packages=find_packages(include=["adafruit_ble.*"]),
+    packages=find_packages(include=["adafruit_ble", "adafruit_ble.*"]),
 )
