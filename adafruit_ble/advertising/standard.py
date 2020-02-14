@@ -260,10 +260,70 @@ class ManufacturerDataField:
         else:
             obj.manufacturer_data.data[self._key] = struct.pack(self._format, *value)
 
-# TODO: Handle service data.
+class ServiceData(AdvertisingDataField):
+    """Encapsulates service data. It is read as a memoryview which can be manipulated or set as a
+       bytearray to change the size."""
+    def __init__(self, service):
+        if isinstance(service.uuid, StandardUUID):
+            self._adt = 0x16
+        elif isinstance(service.uuid, VendorUUID):
+            self._adt = 0x21
+        self._prefix = bytes(service.uuid)
 
-# SERVICE_DATA_128BIT_UUID = 0x21
-# """Service data with 128 bit UUID."""
+    def __get__(self, obj, cls):
+        # If not present at all and mutable, then we init it, otherwise None.
+        if self._adt not in obj.data_dict:
+            if obj.mutable:
+                obj.data_dict[self._adt] = bytearray(self._prefix)
+            else:
+                return None
 
-# SERVICE_DATA_16_BIT_UUID = 0x16
-# """Service data with 16 bit UUID."""
+        all_service_data = obj.data_dict[self._adt]
+        # Handle a list of existing data. This doesn't support multiple service data ADTs for the
+        # same service.
+        if isinstance(all_service_data, list):
+            for i, service_data in enumerate(all_service_data):
+                if service_data.startswith(self._prefix):
+                    if not isinstance(service_data, bytearray):
+                        service_data = bytearray(service_data)
+                        all_service_data[i] = service_data
+                    return memoryview(service_data)[len(self._prefix):]
+            if obj.mutable:
+                all_service_data.append(bytearray(self._prefix))
+                return memoryview(service_data)[len(self._prefix):]
+        # Existing data is a single set of bytes.
+        elif isinstance(all_service_data, (bytes, bytearray)):
+            service_data = all_service_data
+            if not bytes(service_data).startswith(self._prefix):
+                if not obj.mutable:
+                    return None
+                # Upgrade the value to a list.
+                service_data = bytearray(self._prefix)
+                obj.data_dict[self._adt] = [service_data, service_data]
+            if not isinstance(service_data, bytearray):
+                service_data = bytearray(service_data)
+                obj.data_dict[self._adt] = service_data
+            return memoryview(service_data)[len(self._prefix):]
+
+        return None
+
+
+    def __set__(self, obj, value):
+        if not obj.mutable:
+            raise RuntimeError("Advertisement immutable")
+        if not isinstance(value, bytearray):
+            raise TypeError("Value must be bytearray")
+        full_value = bytearray(self._prefix) + value
+        if self._adt not in obj.data_dict:
+            obj.data_dict[self._adt] = full_value
+            return
+
+        all_service_data = obj.data_dict[self._adt]
+        if isinstance(all_service_data, list):
+            for i, service_data in enumerate(all_service_data):
+                if service_data.startswith(self._prefix):
+                    all_service_data[i] = full_value
+                    return
+            all_service_data.append(full_value)
+        elif isinstance(all_service_data, (bytes, bytearray)):
+            obj.data_dict[self._adt] = full_value
