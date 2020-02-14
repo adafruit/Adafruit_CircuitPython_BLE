@@ -49,6 +49,11 @@ class UUID:
     def __str__(self):
         return str(self.bleio_uuid)
 
+    def __bytes__(self):
+        b = bytearray(self.bleio_uuid.size // 8)
+        self.bleio_uuid.pack_into(b)
+        return bytes(b)
+
     def pack_into(self, buffer, offset=0):
         """Packs the UUID into the buffer at the given offset."""
         self.bleio_uuid.pack_into(buffer, offset=offset)
