@@ -30,7 +30,7 @@ Installing from PyPI
 ====================
 
 Warning: Linux support is **very** limited. See `Adafruit Blinka _bleio
-<https://github.com/adafruit/Adafruit_Blinka_bleio>_` for details.
+<https://github.com/adafruit/Adafruit_Blinka_bleio>`_ for details.
 
 On supported GNU/Linux systems like the Raspberry Pi, you can install the driver locally `from
 PyPI <https://pypi.org/project/adafruit-circuitpython-ble/>`_. To install for current user:
