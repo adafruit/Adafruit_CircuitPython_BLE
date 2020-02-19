@@ -29,7 +29,8 @@ This is easily achieved by downloading
 Installing from PyPI
 ====================
 
-Warning: This will **not** work with BLE on Linux
+Warning: Linux support is **very** limited. See `Adafruit Blinka _bleio
+<https://github.com/adafruit/Adafruit_Blinka_bleio>`_ for details.
 
 On supported GNU/Linux systems like the Raspberry Pi, you can install the driver locally `from
 PyPI <https://pypi.org/project/adafruit-circuitpython-ble/>`_. To install for current user:
@@ -52,7 +53,7 @@ To install in a virtual environment in your current project:
     python3 -m venv .env
     source .env/bin/activate
     pip3 install adafruit-circuitpython-ble
-    
+
 Usage Example
 =============
 
