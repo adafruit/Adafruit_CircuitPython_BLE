@@ -1,1 +1,1 @@
-Adafruit-Blinka
+adafruit-blinka-bleio
