@@ -143,6 +143,8 @@ class String(AdvertisingDataField):
         self._adt = advertising_data_type
 
     def __get__(self, obj, cls):
+        if obj is None:
+            return self
         if self._adt not in obj.data_dict:
             return None
         return str(obj.data_dict[self._adt], "utf-8")
@@ -157,6 +159,8 @@ class Struct(AdvertisingDataField):
         self._adt = advertising_data_type
 
     def __get__(self, obj, cls):
+        if obj is None:
+            return self
         if self._adt not in obj.data_dict:
             return None
         return struct.unpack(self._format, obj.data_dict[self._adt])[0]
@@ -174,6 +178,8 @@ class LazyObjectField(AdvertisingDataField):
         self._kwargs = kwargs
 
     def __get__(self, obj, cls):
+        if obj is None:
+            return self
         # Return None if our object is immutable and the data is not present.
         if not obj.mutable and self._adt not in obj.data_dict:
             return None

@@ -224,6 +224,8 @@ class ManufacturerDataField:
         self.field_names = field_names
 
     def __get__(self, obj, cls):
+        if obj is None:
+            return self
         if self._key not in obj.manufacturer_data.data:
             return None
         packed = obj.manufacturer_data.data[self._key]
