@@ -1,1 +1,2 @@
+adafruit-blinka
 adafruit-blinka-bleio

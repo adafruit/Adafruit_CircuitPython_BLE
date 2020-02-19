@@ -34,6 +34,7 @@ setup(
     author_email='circuitpython@adafruit.com',
 
     install_requires=[
+        'adafruit-blinka',
         'adafruit-blinka-bleio'
     ],
 
