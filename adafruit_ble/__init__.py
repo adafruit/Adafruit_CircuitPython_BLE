@@ -222,6 +222,10 @@ class BLERadio:
             for possible_type in advertisement_types:
                 if possible_type.matches(entry) and issubclass(possible_type, adv_type):
                     adv_type = possible_type
+            # Double check the adv_type is requested. We may return Advertisement accidentally
+            # otherwise.
+            if adv_type not in advertisement_types:
+                continue
             advertisement = adv_type.from_entry(entry)
             if advertisement:
                 yield advertisement
