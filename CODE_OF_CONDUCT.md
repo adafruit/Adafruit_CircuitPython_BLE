@@ -34,6 +34,8 @@ Examples of unacceptable behavior by participants include:
 * Excessive or unwelcome helping; answering outside the scope of the question
   asked
 * Trolling, insulting/derogatory comments, and personal or political attacks
+* Promoting or spreading disinformation, lies, or conspiracy theories against
+  a person, group, organisation, project, or community
 * Public or private harassment
 * Publishing others' private information, such as a physical or electronic
   address, without explicit permission
@@ -74,8 +76,8 @@ In any situation, you may send an email to <support@adafruit.com>.
 On the Adafruit Discord, you may send an open message from any channel
 to all Community Helpers by tagging @community helpers. You may also send an
 open message from any channel, or a direct message to @kattni#1507,
-@tannewt#4653, @Dan Halbert#1614, @cater#2442, @sommersoft#0222, or
-@Andon#8175.
+@tannewt#4653, @Dan Halbert#1614, @cater#2442, @sommersoft#0222,
+@Mr. Certainly#0472 or @Andon#8175.
 
 Email and direct message reports will be kept confidential.
 
