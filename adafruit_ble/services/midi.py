@@ -34,20 +34,30 @@ from ..characteristics import Characteristic
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
+
 class MidiIOCharacteristic(Characteristic):
     """Workhorse MIDI Characteristic that carries midi messages both directions. Unimplemented."""
+
     # pylint: disable=too-few-public-methods
     uuid = VendorUUID("7772E5DB-3868-4112-A1A9-F2669D106BF3")
+
     def __init__(self, **kwargs):
-        super().__init__(properties=(Characteristic.NOTIFY |
-                                     Characteristic.READ |
-                                     Characteristic.WRITE |
-                                     Characteristic.WRITE_NO_RESPONSE), **kwargs)
+        super().__init__(
+            properties=(
+                Characteristic.NOTIFY
+                | Characteristic.READ
+                | Characteristic.WRITE
+                | Characteristic.WRITE_NO_RESPONSE
+            ),
+            **kwargs
+        )
+
 
 class MidiService(Service):
     """BLE Service that transports MIDI messages. Unimplemented."""
+
     uuid = VendorUUID("03B80E5A-EDE8-4B33-A751-6CE34EC4C700")
-    io = MidiIOCharacteristic() # pylint: disable=invalid-name
+    io = MidiIOCharacteristic()  # pylint: disable=invalid-name
 
     # pylint: disable=unnecessary-pass
     def write(self):

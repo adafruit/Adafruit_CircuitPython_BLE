@@ -26,12 +26,14 @@ This module provides higher-level BLE (Bluetooth Low Energy) functionality,
 building on the native `_bleio` module.
 
 """
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 import sys
-if sys.implementation.name == 'circuitpython' and sys.implementation.version[0] <= 4:
+
+if sys.implementation.name == "circuitpython" and sys.implementation.version[0] <= 4:
     raise ImportError(
-        "This release is not compatible with CircuitPython 4.x; use library release 1.x.x")
-#pylint: enable=wrong-import-position
+        "This release is not compatible with CircuitPython 4.x; use library release 1.x.x"
+    )
+# pylint: enable=wrong-import-position
 
 import _bleio
 
@@ -41,6 +43,7 @@ from .advertising import Advertisement
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
+
 class BLEConnection:
     """
     Represents a connection to a peer BLE device.
@@ -49,6 +52,7 @@ class BLEConnection:
     :param bleio_connection _bleio.Connection: the native `_bleio.Connection` object to wrap
 
     """
+
     def __init__(self, bleio_connection):
         self._bleio_connection = bleio_connection
         # _bleio.Service objects representing services found during discovery.
@@ -61,7 +65,9 @@ class BLEConnection:
         if uuid in self._discovered_bleio_services:
             remote_service = self._discovered_bleio_services[uuid]
         else:
-            results = self._bleio_connection.discover_remote_services((uuid.bleio_uuid,))
+            results = self._bleio_connection.discover_remote_services(
+                (uuid.bleio_uuid,)
+            )
             if results:
                 remote_service = results[0]
                 self._discovered_bleio_services[uuid] = remote_service
@@ -140,6 +146,7 @@ class BLEConnection:
         """Disconnect from peer."""
         self._bleio_connection.disconnect()
 
+
 class BLERadio:
     """
     BLERadio provides the interfaces for BLE advertising,
@@ -172,17 +179,28 @@ class BLERadio:
             scan_response.tx_power = self.tx_power
         if scan_response:
             scan_response_bytes = bytes(scan_response)
-        self._adapter.start_advertising(advertisement_bytes,
-                                        scan_response=scan_response_bytes,
-                                        connectable=advertisement.connectable,
-                                        interval=interval)
+        self._adapter.start_advertising(
+            advertisement_bytes,
+            scan_response=scan_response_bytes,
+            connectable=advertisement.connectable,
+            interval=interval,
+        )
 
     def stop_advertising(self):
         """Stops advertising."""
         self._adapter.stop_advertising()
 
-    def start_scan(self, *advertisement_types, buffer_size=512, extended=False, timeout=None,
-                   interval=0.1, window=0.1, minimum_rssi=-80, active=True):
+    def start_scan(
+        self,
+        *advertisement_types,
+        buffer_size=512,
+        extended=False,
+        timeout=None,
+        interval=0.1,
+        window=0.1,
+        minimum_rssi=-80,
+        active=True
+    ):
         """
         Starts scanning. Returns an iterator of advertisement objects of the types given in
         advertisement_types. The iterator will block until an advertisement is heard or the scan
@@ -214,10 +232,16 @@ class BLERadio:
         prefixes = b""
         if advertisement_types:
             prefixes = b"".join(adv.prefix for adv in advertisement_types)
-        for entry in self._adapter.start_scan(prefixes=prefixes, buffer_size=buffer_size,
-                                              extended=extended, timeout=timeout,
-                                              interval=interval, window=window,
-                                              minimum_rssi=minimum_rssi, active=active):
+        for entry in self._adapter.start_scan(
+            prefixes=prefixes,
+            buffer_size=buffer_size,
+            extended=extended,
+            timeout=timeout,
+            interval=interval,
+            window=window,
+            minimum_rssi=minimum_rssi,
+            active=active,
+        ):
             adv_type = Advertisement
             for possible_type in advertisement_types:
                 if possible_type.matches(entry) and issubclass(possible_type, adv_type):

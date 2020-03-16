@@ -25,13 +25,16 @@ Advertising is the first phase of BLE where devices can broadcast
 
 import struct
 
+
 def to_hex(seq):
     """Pretty prints a byte sequence as hex values."""
     return " ".join("{:02x}".format(v) for v in seq)
 
+
 def to_bytes_literal(seq):
     """Prints a byte sequence as a Python bytes literal that only uses hex encoding."""
-    return "b\"" + "".join("\\x{:02x}".format(v) for v in seq) + "\""
+    return 'b"' + "".join("\\x{:02x}".format(v) for v in seq) + '"'
+
 
 def decode_data(data, *, key_encoding="B"):
     """Helper which decodes length encoded structures into a dictionary with the given key
@@ -45,7 +48,7 @@ def decode_data(data, *, key_encoding="B"):
         if item_length == 0:
             break
         key = struct.unpack_from(key_encoding, data, i)[0]
-        value = data[i + key_size:i + item_length]
+        value = data[i + key_size : i + item_length]
         if key in data_dict:
             if not isinstance(data_dict[key], list):
                 data_dict[key] = [data_dict[key]]
@@ -54,6 +57,7 @@ def decode_data(data, *, key_encoding="B"):
             data_dict[key] = value
         i += item_length
     return data_dict
+
 
 def compute_length(data_dict, *, key_encoding="B"):
     """Computes the length of the encoded data dictionary."""
@@ -65,6 +69,7 @@ def compute_length(data_dict, *, key_encoding="B"):
         else:
             value_size += len(value)
     return len(data_dict) + len(data_dict) * struct.calcsize(key_encoding) + value_size
+
 
 def encode_data(data_dict, *, key_encoding="B"):
     """Helper which encodes dictionaries into length encoded structures with the given key
@@ -79,17 +84,21 @@ def encode_data(data_dict, *, key_encoding="B"):
         item_length = key_size + len(value)
         struct.pack_into("B", data, i, item_length)
         struct.pack_into(key_encoding, data, i + 1, key)
-        data[i + 1 + key_size: i + 1 + item_length] = bytes(value)
+        data[i + 1 + key_size : i + 1 + item_length] = bytes(value)
         i += 1 + item_length
     return data
 
+
 class AdvertisingDataField:
     """Top level class for any descriptor classes that live in Advertisement or its subclasses."""
+
     # pylint: disable=too-few-public-methods,unnecessary-pass
     pass
 
+
 class AdvertisingFlag:
     """A single bit flag within an AdvertisingFlags object."""
+
     def __init__(self, bit_position):
         self._bitmask = 1 << bit_position
 
@@ -101,6 +110,7 @@ class AdvertisingFlag:
             obj.flags |= self._bitmask
         else:
             obj.flags &= ~self._bitmask
+
 
 class AdvertisingFlags(AdvertisingDataField):
     """Standard advertising flags"""
@@ -135,10 +145,12 @@ class AdvertisingFlags(AdvertisingDataField):
                     parts.append(attr)
         return "<AdvertisingFlags {} >".format(" ".join(parts))
 
+
 class String(AdvertisingDataField):
     """UTF-8 encoded string in an Advertisement.
 
        Not null terminated once encoded because length is always transmitted."""
+
     def __init__(self, *, advertising_data_type):
         self._adt = advertising_data_type
 
@@ -152,8 +164,10 @@ class String(AdvertisingDataField):
     def __set__(self, obj, value):
         obj.data_dict[self._adt] = value.encode("utf-8")
 
+
 class Struct(AdvertisingDataField):
     """`struct` encoded data in an Advertisement."""
+
     def __init__(self, struct_format, *, advertising_data_type):
         self._format = struct_format
         self._adt = advertising_data_type
@@ -171,6 +185,7 @@ class Struct(AdvertisingDataField):
 
 class LazyObjectField(AdvertisingDataField):
     """Non-data descriptor useful for lazily binding a complex object to an advertisement object."""
+
     def __init__(self, cls, attribute_name, *, advertising_data_type, **kwargs):
         self._cls = cls
         self._attribute_name = attribute_name
@@ -197,15 +212,17 @@ class LazyObjectField(AdvertisingDataField):
     # TODO: Add __set_name__ support to CircuitPython so that we automatically tell the descriptor
     # instance the attribute name it has and the class it is on.
 
+
 class Advertisement:
     """Core Advertisement type"""
-    prefix = b"\x00" # This is an empty prefix and will match everything.
+
+    prefix = b"\x00"  # This is an empty prefix and will match everything.
     flags = LazyObjectField(AdvertisingFlags, "flags", advertising_data_type=0x01)
     short_name = String(advertising_data_type=0x08)
     """Short local device name (shortened to fit)."""
     complete_name = String(advertising_data_type=0x09)
     """Complete local device name."""
-    tx_power = Struct("<b", advertising_data_type=0x0a)
+    tx_power = Struct("<b", advertising_data_type=0x0A)
     """Transmit power level"""
     # DEVICE_ID = 0x10
     # """Device identifier."""
@@ -242,7 +259,7 @@ class Advertisement:
         self = cls()
         self.data_dict = decode_data(entry.advertisement_bytes)
         self.address = entry.address
-        self._rssi = entry.rssi # pylint: disable=protected-access
+        self._rssi = entry.rssi  # pylint: disable=protected-access
         self.connectable = entry.connectable
         self.scan_response = entry.scan_response
         self.mutable = False
@@ -272,8 +289,10 @@ class Advertisement:
         for attr in dir(self.__class__):
             attribute_instance = getattr(self.__class__, attr)
             if issubclass(attribute_instance.__class__, AdvertisingDataField):
-                if (issubclass(attribute_instance.__class__, LazyObjectField) and
-                        not attribute_instance.advertising_data_type in self.data_dict):
+                if (
+                    issubclass(attribute_instance.__class__, LazyObjectField)
+                    and not attribute_instance.advertising_data_type in self.data_dict
+                ):
                     # Skip uninstantiated lazy objects; if we get
                     # their value, they will be be instantiated.
                     continue
@@ -286,4 +305,6 @@ class Advertisement:
         return compute_length(self.data_dict)
 
     def __repr__(self):
-        return "Advertisement(data={})".format(to_bytes_literal(encode_data(self.data_dict)))
+        return "Advertisement(data={})".format(
+            to_bytes_literal(encode_data(self.data_dict))
+        )

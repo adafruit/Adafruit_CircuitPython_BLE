@@ -35,6 +35,7 @@ from ..characteristics.stream import StreamOut, StreamIn
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
+
 class UARTService(Service):
     """
     Provide UART-like functionality via the Nordic NUS service.
@@ -46,12 +47,19 @@ class UARTService(Service):
 
     See ``examples/ble_uart_echo_test.py`` for a usage example.
     """
+
     # pylint: disable=no-member
     uuid = VendorUUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
-    _server_tx = StreamOut(uuid=VendorUUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"),
-                           timeout=1.0, buffer_size=64)
-    _server_rx = StreamIn(uuid=VendorUUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"),
-                          timeout=1.0, buffer_size=64)
+    _server_tx = StreamOut(
+        uuid=VendorUUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"),
+        timeout=1.0,
+        buffer_size=64,
+    )
+    _server_rx = StreamIn(
+        uuid=VendorUUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"),
+        timeout=1.0,
+        buffer_size=64,
+    )
 
     def __init__(self, service=None):
         super().__init__(service=service)

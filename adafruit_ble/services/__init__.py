@@ -32,6 +32,7 @@ from ..characteristics import Characteristic, ComplexCharacteristic
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
+
 class Service:
     """Top level Service class that handles the hard work of binding to a local or remote service.
 
@@ -44,10 +45,13 @@ class Service:
        `BLEConnection`. For example, ``connection[UartService]`` will return the UartService
        instance for the connection's peer.
     """
+
     def __init__(self, *, service=None, secondary=False, **initial_values):
         if service is None:
             # pylint: disable=no-member
-            self.bleio_service = _bleio.Service(self.uuid.bleio_uuid, secondary=secondary)
+            self.bleio_service = _bleio.Service(
+                self.uuid.bleio_uuid, secondary=secondary
+            )
         elif not service.remote:
             raise ValueError("Can only create services with a remote service or None")
         else:
@@ -65,8 +69,9 @@ class Service:
             if class_attr.startswith("__"):
                 continue
             value = getattr(self.__class__, class_attr)
-            if (not isinstance(value, Characteristic) and
-                    not isinstance(value, ComplexCharacteristic)):
+            if not isinstance(value, Characteristic) and not isinstance(
+                value, ComplexCharacteristic
+            ):
                 continue
 
             value.field_name = class_attr

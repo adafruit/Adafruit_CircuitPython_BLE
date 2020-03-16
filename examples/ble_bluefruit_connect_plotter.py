@@ -31,5 +31,5 @@ while True:
 
     while ble.connected:
         print((scale(light.value), thermistor.temperature))
-        uart_server.write('{},{}\n'.format(scale(light.value), thermistor.temperature))
+        uart_server.write("{},{}\n".format(scale(light.value), thermistor.temperature))
         time.sleep(0.1)
