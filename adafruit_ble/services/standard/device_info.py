@@ -66,10 +66,8 @@ class DeviceInfoService(Service):
                 model_number = sys.platform
             if serial_number is None:
                 serial_number = binascii.hexlify(
-                    microcontroller.cpu.uid
-                ).decode(  # pylint: disable=no-member
-                    "utf-8"
-                )
+                    microcontroller.cpu.uid  # pylint: disable=no-member
+                ).decode("utf-8")
             if firmware_revision is None:
                 firmware_revision = os.uname().version
         super().__init__(
