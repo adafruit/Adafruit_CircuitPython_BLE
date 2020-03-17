@@ -14,16 +14,18 @@ from adafruit_ble import BLERadio
 from adafruit_ble.advertising.adafruit import AdafruitColor
 
 # The color pickers will cycle through this list with buttons A and B.
-color_options = [0x110000,
-                 0x111100,
-                 0x001100,
-                 0x001111,
-                 0x000011,
-                 0x110011,
-                 0x111111,
-                 0x221111,
-                 0x112211,
-                 0x111122]
+color_options = [
+    0x110000,
+    0x111100,
+    0x001100,
+    0x001111,
+    0x000011,
+    0x110011,
+    0x111111,
+    0x221111,
+    0x112211,
+    0x111122,
+]
 
 ble = BLERadio()
 
@@ -85,7 +87,7 @@ while True:
                 closest_rssi = entry.rssi
                 closest_last_time = now
                 discrete_strength = min((100 + entry.rssi) // 5, 10)
-                #print(entry.rssi, discrete_strength)
+                # print(entry.rssi, discrete_strength)
                 neopixels.fill(0x000000)
                 for i in range(0, discrete_strength):
                     neopixels[i] = entry.color

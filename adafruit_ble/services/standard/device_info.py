@@ -38,35 +38,44 @@ from ...characteristics.string import FixedStringCharacteristic
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
+
 class DeviceInfoService(Service):
     """Device information"""
-    uuid = StandardUUID(0x180a)
-    model_number = FixedStringCharacteristic(uuid=StandardUUID(0x2a24))
-    serial_number = FixedStringCharacteristic(uuid=StandardUUID(0x2a25))
-    firmware_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2a26))
-    hardware_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2a27))
-    software_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2a28))
-    manufacturer = FixedStringCharacteristic(uuid=StandardUUID(0x2a29))
 
-    def __init__(self, *,
-                 manufacturer=None,
-                 software_revision=None,
-                 model_number=None,
-                 serial_number=None,
-                 firmware_revision=None,
-                 hardware_revision=None,
-                 service=None):
+    uuid = StandardUUID(0x180A)
+    model_number = FixedStringCharacteristic(uuid=StandardUUID(0x2A24))
+    serial_number = FixedStringCharacteristic(uuid=StandardUUID(0x2A25))
+    firmware_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2A26))
+    hardware_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2A27))
+    software_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2A28))
+    manufacturer = FixedStringCharacteristic(uuid=StandardUUID(0x2A29))
+
+    def __init__(
+        self,
+        *,
+        manufacturer=None,
+        software_revision=None,
+        model_number=None,
+        serial_number=None,
+        firmware_revision=None,
+        hardware_revision=None,
+        service=None
+    ):
         if not service:
             if model_number is None:
                 model_number = sys.platform
             if serial_number is None:
-                serial_number = binascii.hexlify(microcontroller.cpu.uid).decode('utf-8') # pylint: disable=no-member
+                serial_number = binascii.hexlify(
+                    microcontroller.cpu.uid  # pylint: disable=no-member
+                ).decode("utf-8")
             if firmware_revision is None:
                 firmware_revision = os.uname().version
-        super().__init__(manufacturer=manufacturer,
-                         software_revision=software_revision,
-                         model_number=model_number,
-                         serial_number=serial_number,
-                         firmware_revision=firmware_revision,
-                         hardware_revision=hardware_revision,
-                         service=service)
+        super().__init__(
+            manufacturer=manufacturer,
+            software_revision=software_revision,
+            model_number=model_number,
+            serial_number=serial_number,
+            firmware_revision=firmware_revision,
+            hardware_revision=hardware_revision,
+            service=service,
+        )

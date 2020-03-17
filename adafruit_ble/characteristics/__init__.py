@@ -81,6 +81,7 @@ class Characteristic:
 
        property: clients may write this characteristic; no response will be sent back
 """
+
     BROADCAST = _bleio.Characteristic.BROADCAST
     INDICATE = _bleio.Characteristic.INDICATE
     NOTIFY = _bleio.Characteristic.NOTIFY
@@ -88,10 +89,18 @@ class Characteristic:
     WRITE = _bleio.Characteristic.WRITE
     WRITE_NO_RESPONSE = _bleio.Characteristic.WRITE_NO_RESPONSE
 
-    def __init__(self, *, uuid=None, properties=0,
-                 read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
-                 max_length=None, fixed_length=False, initial_value=None):
-        self.field_name = None # Set by Service during basic binding
+    def __init__(
+        self,
+        *,
+        uuid=None,
+        properties=0,
+        read_perm=Attribute.OPEN,
+        write_perm=Attribute.OPEN,
+        max_length=None,
+        fixed_length=False,
+        initial_value=None
+    ):
+        self.field_name = None  # Set by Service during basic binding
 
         if uuid:
             self.uuid = uuid
@@ -130,9 +139,15 @@ class Characteristic:
         elif max_length is None:
             max_length = len(initial_value)
         return _bleio.Characteristic.add_to_service(
-            service.bleio_service, self.uuid.bleio_uuid, initial_value=initial_value,
-            max_length=max_length, fixed_length=self.fixed_length,
-            properties=self.properties, read_perm=self.read_perm, write_perm=self.write_perm)
+            service.bleio_service,
+            self.uuid.bleio_uuid,
+            initial_value=initial_value,
+            max_length=max_length,
+            fixed_length=self.fixed_length,
+            properties=self.properties,
+            read_perm=self.read_perm,
+            write_perm=self.write_perm,
+        )
 
     def __get__(self, service, cls=None):
         self._ensure_bound(service)
@@ -146,16 +161,26 @@ class Characteristic:
         bleio_characteristic = service.bleio_characteristics[self.field_name]
         bleio_characteristic.value = value
 
+
 class ComplexCharacteristic:
     """
     Characteristic class that does complex binding where the subclass returns a full object for
     interacting with the characteristic data. The Characteristic itself will be shadowed once it
     has been bound to the corresponding instance attribute.
     """
-    def __init__(self, *, uuid=None, properties=0,
-                 read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
-                 max_length=20, fixed_length=False, initial_value=None):
-        self.field_name = None # Set by Service during basic binding
+
+    def __init__(
+        self,
+        *,
+        uuid=None,
+        properties=0,
+        read_perm=Attribute.OPEN,
+        write_perm=Attribute.OPEN,
+        max_length=20,
+        fixed_length=False,
+        initial_value=None
+    ):
+        self.field_name = None  # Set by Service during basic binding
 
         if uuid:
             self.uuid = uuid
@@ -174,14 +199,20 @@ class ComplexCharacteristic:
                     return characteristic
             raise AttributeError("Characteristic not available on remote service")
         return _bleio.Characteristic.add_to_service(
-            service.bleio_service, self.uuid.bleio_uuid,
-            initial_value=self.initial_value, max_length=self.max_length,
-            properties=self.properties, read_perm=self.read_perm, write_perm=self.write_perm)
+            service.bleio_service,
+            self.uuid.bleio_uuid,
+            initial_value=self.initial_value,
+            max_length=self.max_length,
+            properties=self.properties,
+            read_perm=self.read_perm,
+            write_perm=self.write_perm,
+        )
 
     def __get__(self, service, cls=None):
         bound_object = self.bind(service)
         setattr(service, self.field_name, bound_object)
         return bound_object
+
 
 class StructCharacteristic(Characteristic):
     """
@@ -195,16 +226,30 @@ class StructCharacteristic(Characteristic):
     :param int write_perm: see `Characteristic`
     :param buf initial_value: see `Characteristic`
     """
-    def __init__(self, struct_format, *, uuid=None, properties=0,
-                 read_perm=Attribute.OPEN, write_perm=Attribute.OPEN,
-                 initial_value=None):
+
+    def __init__(
+        self,
+        struct_format,
+        *,
+        uuid=None,
+        properties=0,
+        read_perm=Attribute.OPEN,
+        write_perm=Attribute.OPEN,
+        initial_value=None
+    ):
         self._struct_format = struct_format
         self._expected_size = struct.calcsize(struct_format)
         if initial_value:
             initial_value = struct.pack(self._struct_format, *initial_value)
-        super().__init__(uuid=uuid, initial_value=initial_value,
-                         max_length=self._expected_size, fixed_length=True,
-                         properties=properties, read_perm=read_perm, write_perm=write_perm)
+        super().__init__(
+            uuid=uuid,
+            initial_value=initial_value,
+            max_length=self._expected_size,
+            fixed_length=True,
+            properties=properties,
+            read_perm=read_perm,
+            write_perm=write_perm,
+        )
 
     def __get__(self, obj, cls=None):
         raw_data = super().__get__(obj, cls)

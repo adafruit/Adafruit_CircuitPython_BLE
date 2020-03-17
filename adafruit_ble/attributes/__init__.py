@@ -32,6 +32,7 @@ import _bleio
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
+
 class Attribute:
     """Constants describing security levels.
 
@@ -63,6 +64,7 @@ class Attribute:
 
          security_mode: authenticated data signing, without man-in-the-middle protection
 """
+
     # pylint: disable=too-few-public-methods
     NO_ACCESS = _bleio.Attribute.NO_ACCESS
     OPEN = _bleio.Attribute.OPEN

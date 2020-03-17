@@ -16,8 +16,9 @@ from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 
 # Use default HID descriptor
 hid = HIDService()
-device_info = DeviceInfoService(software_revision=adafruit_ble.__version__,
-                                manufacturer="Adafruit Industries")
+device_info = DeviceInfoService(
+    software_revision=adafruit_ble.__version__, manufacturer="Adafruit Industries"
+)
 advertisement = ProvideServicesAdvertisement(hid)
 advertisement.appearance = 961
 scan_response = Advertisement()

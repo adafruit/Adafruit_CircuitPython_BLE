@@ -18,6 +18,7 @@ NUM_PIXELS = 10
 np = neopixel.NeoPixel(board.NEOPIXEL, NUM_PIXELS, brightness=0.1)
 next_pixel = 0
 
+
 def mod(i):
     """Wrap i to modulus NUM_PIXELS."""
     return i % NUM_PIXELS

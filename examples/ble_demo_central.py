@@ -17,11 +17,13 @@ import neopixel
 
 from adafruit_bluefruit_connect.color_packet import ColorPacket
 
+
 def scale(value):
     """Scale an value from  (acceleration range) to 0-255 (RGB range)"""
     value = abs(value)
     value = max(min(19.6, value), 0)
     return int(value / 19.6 * 255)
+
 
 i2c = busio.I2C(board.ACCELEROMETER_SCL, board.ACCELEROMETER_SDA)
 int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
@@ -62,7 +64,7 @@ while True:
         except OSError:
             try:
                 uart_connection.disconnect()
-            except: # pylint: disable=bare-except
+            except:  # pylint: disable=bare-except
                 pass
             uart_connection = None
         time.sleep(0.3)
