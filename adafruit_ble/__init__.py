@@ -229,9 +229,9 @@ class BLERadio:
            If none are given then `Advertisement` objects will be returned.
         :rtype: iterable
         """
-        prefixes = b""
-        if advertisement_types:
-            prefixes = b"".join(adv.prefix for adv in advertisement_types)
+        if not advertisement_types:
+            advertisement_types = (Advertisement,)
+        prefixes = b"".join(adv.prefix for adv in advertisement_types)
         for entry in self._adapter.start_scan(
             prefixes=prefixes,
             buffer_size=buffer_size,
