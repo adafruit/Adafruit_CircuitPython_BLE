@@ -49,7 +49,7 @@ class MidiIOCharacteristic(Characteristic):
                 | Characteristic.WRITE
                 | Characteristic.WRITE_NO_RESPONSE
             ),
-            **kwargs
+            **kwargs,
         )
 
 
