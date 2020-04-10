@@ -39,7 +39,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "Adafruit ble Library"
+project = "Adafruit BLE Library"
 copyright = "2019 Dan Halbert for Adafruit Industries"
 author = "Dan Halbert"
 
