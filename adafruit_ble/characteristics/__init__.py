@@ -239,7 +239,7 @@ class StructCharacteristic(Characteristic):
     ):
         self._struct_format = struct_format
         self._expected_size = struct.calcsize(struct_format)
-        if initial_value:
+        if initial_value is not None:
             initial_value = struct.pack(self._struct_format, *initial_value)
         super().__init__(
             uuid=uuid,
