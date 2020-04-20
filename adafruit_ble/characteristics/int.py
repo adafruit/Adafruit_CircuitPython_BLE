@@ -51,7 +51,7 @@ class IntCharacteristic(StructCharacteristic):
     ):
         self._min_value = min_value
         self._max_value = max_value
-        if initial_value:
+        if initial_value is not None:
             if not self._min_value <= initial_value <= self._max_value:
                 raise ValueError("initial_value out of range")
             initial_value = (initial_value,)

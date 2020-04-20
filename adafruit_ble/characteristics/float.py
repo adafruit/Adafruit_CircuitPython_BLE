@@ -46,7 +46,7 @@ class FloatCharacteristic(StructCharacteristic):
         write_perm=Attribute.OPEN,
         initial_value=None
     ):
-        if initial_value:
+        if initial_value is not None:
             initial_value = (initial_value,)
         super().__init__(
             "<f",
