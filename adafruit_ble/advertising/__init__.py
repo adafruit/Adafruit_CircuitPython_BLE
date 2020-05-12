@@ -86,7 +86,7 @@ def encode_data(data_dict, *, key_encoding="B"):
         struct.pack_into(key_encoding, data, i + 1, key)
         data[i + 1 + key_size : i + 1 + item_length] = bytes(value)
         i += 1 + item_length
-    return data
+    return bytes(data)
 
 
 class AdvertisingDataField:
