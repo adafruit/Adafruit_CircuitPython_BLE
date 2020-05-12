@@ -51,7 +51,8 @@ class Characteristic:
     :param int write_perm: Specifies whether the characteristic can be written by a client,
        and if so, which security mode is required. Values allowed are the same as ``read_perm``.
     :param int max_length: Maximum length in bytes of the characteristic value. The maximum allowed
-       is 512, or possibly 510 if ``fixed_length`` is False. The default, 20, is the maximum
+       by the BLE specification is 512. On nRF, if ``fixed_length`` is ``True``, the maximum
+       is 510. The default value is 20, which is the maximum
        number of data bytes that fit in a single BLE 4.x ATT packet.
     :param bool fixed_length: True if the characteristic value is of fixed length.
     :param buf initial_value: The initial value for this characteristic. If not given, will be
