@@ -51,7 +51,7 @@ class StringCharacteristic(Characteristic):
             properties=properties,
             read_perm=read_perm,
             write_perm=write_perm,
-            max_length=510,  # shorter than 512 due to fixed_length==False
+            max_length=512,
             fixed_length=False,
             initial_value=initial_value,
         )
