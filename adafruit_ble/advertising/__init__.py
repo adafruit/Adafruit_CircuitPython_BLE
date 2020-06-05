@@ -214,9 +214,17 @@ class LazyObjectField(AdvertisingDataField):
 
 
 class Advertisement:
-    """Core Advertisement type"""
+    """Core Advertisement type.
 
-    prefix = b"\x00"  # This is an empty prefix and will match everything.
+    The class attribute ``match_prefixes``, if not ``None``, is a tuple of
+    bytestring prefixes to match against the multiple data structures in the advertisement.
+    """
+
+    match_prefixes = ()
+    """For Advertisement, `matches` will always return True. Subclasses may override this value."""
+    # cached bytes of merged prefixes.
+    _prefix_bytes = None
+
     flags = LazyObjectField(AdvertisingFlags, "flags", advertising_data_type=0x01)
     short_name = String(advertising_data_type=0x08)
     """Short local device name (shortened to fit)."""
@@ -257,7 +265,11 @@ class Advertisement:
         """Create an Advertisement based on the given ScanEntry. This is done automatically by
            `BLERadio` for all scan results."""
         self = cls()
-        self.data_dict = decode_data(entry.advertisement_bytes)
+        # If data_dict is available, use it directly. Otherwise decode the bytestring.
+        if hasattr(entry, "data_dict"):
+            self.data_dict = entry.data_dict
+        else:
+            self.data_dict = decode_data(entry.advertisement_bytes)
         self.address = entry.address
         self._rssi = entry.rssi  # pylint: disable=protected-access
         self.connectable = entry.connectable
@@ -272,13 +284,32 @@ class Advertisement:
         return self._rssi
 
     @classmethod
-    def matches(cls, entry):
-        """Returns true if the given `_bleio.ScanEntry` matches all portions of the Advertisement
-           type's prefix."""
-        if not hasattr(cls, "prefix"):
-            return True
+    def get_prefix_bytes(cls):
+        """Return a merged version of match_prefixes as a single bytes object,
+        with length headers.
+        """
+        # Do merge once and memoize it.
+        if cls._prefix_bytes is None:
+            cls._prefix_bytes = (
+                b""
+                if cls.match_prefixes is None
+                else b"".join(
+                    len(prefix).to_bytes(1, "little") + prefix
+                    for prefix in cls.match_prefixes
+                )
+            )
 
-        return entry.matches(cls.prefix)
+        return cls._prefix_bytes
+
+    @classmethod
+    def matches(cls, entry, all_=True):
+        """Returns ``True`` if the given `_bleio.ScanEntry` advertisement fields
+        match any or all of the given prefixes in the `match_prefixes` tuple attribute.
+        If `all_` is ``True``, all the prefixes must match. If ``all_`` is ``False``,
+        returns ``True`` if at least one of the prefixes match.
+        """
+        # Returns True if cls.get_prefix_bytes() is empty.
+        return entry.matches(cls.get_prefix_bytes(), all=all_)
 
     def __bytes__(self):
         """The raw packet bytes."""

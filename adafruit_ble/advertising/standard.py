@@ -135,7 +135,7 @@ class BoundServiceList:
             data.append(str(service_uuid))
         for service_uuid in self._vendor_services:
             data.append(str(service_uuid))
-        return " ".join(data)
+        return "<BoundServiceList: {}>".format(", ".join(data))
 
 
 class ServiceList(AdvertisingDataField):
@@ -156,7 +156,7 @@ class ServiceList(AdvertisingDataField):
 
     def __get__(self, obj, cls):
         if not self._present(obj) and not obj.mutable:
-            return None
+            return ()
         if not hasattr(obj, "adv_service_lists"):
             obj.adv_service_lists = {}
         first_adt = self.standard_services[0]
@@ -168,8 +168,8 @@ class ServiceList(AdvertisingDataField):
 class ProvideServicesAdvertisement(Advertisement):
     """Advertise what services that the device makes available upon connection."""
 
-    # This is four prefixes, one for each ADT that can carry service UUIDs.
-    prefix = b"\x01\x02\x01\x03\x01\x06\x01\x07"
+    # Prefixes that match each ADT that can carry service UUIDs.
+    match_prefixes = (b"\x02", b"\x03", b"\x06", b"\x07")
     services = ServiceList(standard_services=[0x02, 0x03], vendor_services=[0x06, 0x07])
     """List of services the device can provide."""
 
@@ -182,15 +182,15 @@ class ProvideServicesAdvertisement(Advertisement):
         self.flags.le_only = True
 
     @classmethod
-    def matches(cls, entry):
-        return entry.matches(cls.prefix, all=False)
+    def matches(cls, entry, all_=False):
+        return super().matches(entry, all_=all_)
 
 
 class SolicitServicesAdvertisement(Advertisement):
     """Advertise what services the device would like to use over a connection."""
 
-    # This is two prefixes, one for each ADT that can carry solicited service UUIDs.
-    prefix = b"\x01\x14\x01\x15"
+    # Prefixes that match each ADT that can carry solicited service UUIDs.
+    match_prefixes = (b"\x14", b"\x15")
 
     solicited_services = ServiceList(standard_services=[0x14], vendor_services=[0x15])
     """List of services the device would like to use."""
