@@ -151,6 +151,10 @@ class Characteristic:
         )
 
     def __get__(self, service, cls=None):
+        # CircuitPython doesn't invoke descriptor protocol on obj's class,
+        # but CPython does. In the CPython case, pretend that it doesn't.
+        if service is None:
+            return self
         self._ensure_bound(service)
         bleio_characteristic = service.bleio_characteristics[self.field_name]
         return bleio_characteristic.value
@@ -210,6 +214,8 @@ class ComplexCharacteristic:
         )
 
     def __get__(self, service, cls=None):
+        if service is None:
+            return self
         bound_object = self.bind(service)
         setattr(service, self.field_name, bound_object)
         return bound_object
@@ -253,6 +259,8 @@ class StructCharacteristic(Characteristic):
         )
 
     def __get__(self, obj, cls=None):
+        if obj is None:
+            return self
         raw_data = super().__get__(obj, cls)
         if len(raw_data) < self._expected_size:
             return None

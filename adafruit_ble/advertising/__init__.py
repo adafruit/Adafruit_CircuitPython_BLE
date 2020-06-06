@@ -103,6 +103,8 @@ class AdvertisingFlag:
         self._bitmask = 1 << bit_position
 
     def __get__(self, obj, cls):
+        if obj is None:
+            return self
         return (obj.flags & self._bitmask) != 0
 
     def __set__(self, obj, value):

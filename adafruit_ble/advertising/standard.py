@@ -155,6 +155,8 @@ class ServiceList(AdvertisingDataField):
         return False
 
     def __get__(self, obj, cls):
+        if obj is None:
+            return self
         if not self._present(obj) and not obj.mutable:
             return ()
         if not hasattr(obj, "adv_service_lists"):
@@ -315,6 +317,8 @@ class ServiceData(AdvertisingDataField):
         self._prefix = bytes(service.uuid)
 
     def __get__(self, obj, cls):
+        if obj is None:
+            return self
         # If not present at all and mutable, then we init it, otherwise None.
         if self._adt not in obj.data_dict:
             if obj.mutable:

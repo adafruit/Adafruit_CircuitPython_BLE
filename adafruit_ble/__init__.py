@@ -261,7 +261,7 @@ class BLERadio:
            once empty."""
         self._adapter.stop_scan()
 
-    def connect(self, advertisement, *, timeout=4):
+    def connect(self, advertisement, *, timeout=10.0):
         """
         Initiates a `BLEConnection` to the peer that advertised the given advertisement.
 
