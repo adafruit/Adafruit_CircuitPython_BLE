@@ -65,7 +65,7 @@ class DeviceInfoService(Service):
                 model_number = sys.platform
             if serial_number is None:
                 try:
-                    import microcontroller
+                    import microcontroller  # pylint: disable=import-outside-toplevel
 
                     serial_number = binascii.hexlify(
                         microcontroller.cpu.uid  # pylint: disable=no-member

@@ -319,7 +319,9 @@ class ServiceData(AdvertisingDataField):
             self._adt = 0x21
         self._prefix = bytes(service.uuid)
 
-    def __get__(self, obj, cls):
+    def __get__(
+        self, obj, cls
+    ):  # pylint: disable=too-many-return-statements,too-many-branches
         if obj is None:
             return self
         # If not present at all and mutable, then we init it, otherwise None.

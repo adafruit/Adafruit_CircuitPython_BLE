@@ -30,8 +30,8 @@ BLE Human Interface Device (HID)
 """
 import struct
 
-import _bleio
 from micropython import const
+import _bleio
 
 from adafruit_ble.characteristics import Attribute
 from adafruit_ble.characteristics import Characteristic
