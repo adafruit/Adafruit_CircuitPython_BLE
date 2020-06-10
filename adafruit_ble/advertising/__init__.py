@@ -304,7 +304,15 @@ class Advertisement:
         return cls._prefix_bytes
 
     @classmethod
-    def matches(cls, entry, all_=True):
+    def matches(cls, entry):
+        """Returns ``True`` if the given `_bleio.ScanEntry` advertisement fields
+        matches all of the given prefixes in the `match_prefixes` tuple attribute.
+        Subclasses may override this to match any instead of all.
+        """
+        return cls.matches_prefixes(entry, all_=True)
+
+    @classmethod
+    def matches_prefixes(cls, entry, *, all_):
         """Returns ``True`` if the given `_bleio.ScanEntry` advertisement fields
         match any or all of the given prefixes in the `match_prefixes` tuple attribute.
         If `all_` is ``True``, all the prefixes must match. If ``all_`` is ``False``,

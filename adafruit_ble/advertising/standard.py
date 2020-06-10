@@ -184,8 +184,11 @@ class ProvideServicesAdvertisement(Advertisement):
         self.flags.le_only = True
 
     @classmethod
-    def matches(cls, entry, all_=False):
-        return super().matches(entry, all_=all_)
+    def matches(cls, entry):
+        """Only one kind of service list need be present in a ProvideServicesAdvertisement,
+        so override the default behavior and match any prefix, not all.
+        """
+        return cls.matches_prefixes(entry, all_=False)
 
 
 class SolicitServicesAdvertisement(Advertisement):
