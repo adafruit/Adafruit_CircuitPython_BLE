@@ -66,6 +66,7 @@ class DeviceInfoService(Service):
             if serial_number is None:
                 try:
                     import microcontroller
+
                     serial_number = binascii.hexlify(
                         microcontroller.cpu.uid  # pylint: disable=no-member
                     ).decode("utf-8")
