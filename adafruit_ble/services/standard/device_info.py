@@ -73,10 +73,7 @@ class DeviceInfoService(Service):
                 except ImportError:
                     pass
             if firmware_revision is None:
-                try:
-                    firmware_revision = os.uname().version
-                except AttributeError:
-                    pass
+                firmware_revision = getattr(os.uname(), "version", None)
         super().__init__(
             manufacturer=manufacturer,
             software_revision=software_revision,
