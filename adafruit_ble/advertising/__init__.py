@@ -290,6 +290,8 @@ class Advertisement:
         """Return a merged version of match_prefixes as a single bytes object,
         with length headers.
         """
+        # Check for deprecated `prefix` class attribute.
+        cls._prefix_bytes = getattr(cls, "prefix", None)
         # Do merge once and memoize it.
         if cls._prefix_bytes is None:
             cls._prefix_bytes = (
