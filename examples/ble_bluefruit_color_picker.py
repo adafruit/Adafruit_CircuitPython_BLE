@@ -22,7 +22,8 @@ while True:
     ble.stop_advertising()
 
     while ble.connected:
-        packet = Packet.from_stream(uart_service)
-        if isinstance(packet, ColorPacket):
-            print(packet.color)
-            pixels.fill(packet.color)
+        if uart_service.in_waiting:
+            packet = Packet.from_stream(uart_service)
+            if isinstance(packet, ColorPacket):
+                print(packet.color)
+                pixels.fill(packet.color)
