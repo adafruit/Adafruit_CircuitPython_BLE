@@ -9,8 +9,8 @@ from adafruit_bluefruit_connect.packet import Packet
 from adafruit_bluefruit_connect.color_packet import ColorPacket
 
 ble = BLERadio()
-uart_server = UARTService()
-advertisement = ProvideServicesAdvertisement(uart_server)
+uart_service = UARTService()
+advertisement = ProvideServicesAdvertisement(uart_service)
 
 pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1)
 
@@ -22,7 +22,8 @@ while True:
     ble.stop_advertising()
 
     while ble.connected:
-        packet = Packet.from_stream(uart_server)
-        if isinstance(packet, ColorPacket):
-            print(packet.color)
-            pixels.fill(packet.color)
+        if uart_service.in_waiting:
+            packet = Packet.from_stream(uart_service)
+            if isinstance(packet, ColorPacket):
+                print(packet.color)
+                pixels.fill(packet.color)
