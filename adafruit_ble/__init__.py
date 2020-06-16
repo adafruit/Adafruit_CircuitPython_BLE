@@ -231,7 +231,7 @@ class BLERadio:
         """
         if not advertisement_types:
             advertisement_types = (Advertisement,)
-        prefixes = b"".join(adv.prefix for adv in advertisement_types)
+        prefixes = b"".join(adv.get_prefix_bytes() for adv in advertisement_types)
         for entry in self._adapter.start_scan(
             prefixes=prefixes,
             buffer_size=buffer_size,
@@ -261,7 +261,7 @@ class BLERadio:
            once empty."""
         self._adapter.stop_scan()
 
-    def connect(self, advertisement, *, timeout=4):
+    def connect(self, advertisement, *, timeout=4.0):
         """
         Initiates a `BLEConnection` to the peer that advertised the given advertisement.
 

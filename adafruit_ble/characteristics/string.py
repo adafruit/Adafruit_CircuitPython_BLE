@@ -57,6 +57,8 @@ class StringCharacteristic(Characteristic):
         )
 
     def __get__(self, obj, cls=None):
+        if obj is None:
+            return self
         return str(super().__get__(obj, cls), "utf-8")
 
     def __set__(self, obj, value):
@@ -76,4 +78,6 @@ class FixedStringCharacteristic(Characteristic):
         )
 
     def __get__(self, obj, cls=None):
+        if obj is None:
+            return self
         return str(super().__get__(obj, cls), "utf-8")

@@ -48,14 +48,15 @@ _COLOR_DATA_ID = const(0x0000)
 class AdafruitColor(Advertisement):
     """Broadcast a single RGB color."""
 
-    # This prefix matches all
-    prefix = struct.pack(
-        "<BBHBH",
-        0x6,
-        _MANUFACTURING_DATA_ADT,
-        _ADAFRUIT_COMPANY_ID,
-        struct.calcsize("<HI"),
-        _COLOR_DATA_ID,
+    # This single prefix matches all color advertisements.
+    match_prefixes = (
+        struct.pack(
+            "<BHBH",
+            _MANUFACTURING_DATA_ADT,
+            _ADAFRUIT_COMPANY_ID,
+            struct.calcsize("<HI"),
+            _COLOR_DATA_ID,
+        ),
     )
     manufacturer_data = LazyObjectField(
         ManufacturerData,

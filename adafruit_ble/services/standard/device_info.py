@@ -29,7 +29,6 @@
 import binascii
 import os
 import sys
-import microcontroller
 
 from .. import Service
 from ...uuid import StandardUUID
@@ -65,11 +64,16 @@ class DeviceInfoService(Service):
             if model_number is None:
                 model_number = sys.platform
             if serial_number is None:
-                serial_number = binascii.hexlify(
-                    microcontroller.cpu.uid  # pylint: disable=no-member
-                ).decode("utf-8")
+                try:
+                    import microcontroller  # pylint: disable=import-outside-toplevel
+
+                    serial_number = binascii.hexlify(
+                        microcontroller.cpu.uid  # pylint: disable=no-member
+                    ).decode("utf-8")
+                except ImportError:
+                    pass
             if firmware_revision is None:
-                firmware_revision = os.uname().version
+                firmware_revision = getattr(os.uname(), "version", None)
         super().__init__(
             manufacturer=manufacturer,
             software_revision=software_revision,

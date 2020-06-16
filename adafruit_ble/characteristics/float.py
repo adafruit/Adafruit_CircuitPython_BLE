@@ -58,6 +58,8 @@ class FloatCharacteristic(StructCharacteristic):
         )
 
     def __get__(self, obj, cls=None):
+        if obj is None:
+            return self
         return super().__get__(obj)[0]
 
     def __set__(self, obj, value):
