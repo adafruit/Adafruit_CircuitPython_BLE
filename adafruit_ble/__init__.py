@@ -231,7 +231,13 @@ class BLERadio:
         """
         if not advertisement_types:
             advertisement_types = (Advertisement,)
-        prefixes = b"".join(adv.get_prefix_bytes() for adv in advertisement_types)
+
+        all_prefix_bytes = tuple(adv.get_prefix_bytes() for adv in advertisement_types)
+
+        # If one of the advertisement_types has no prefix restrictions, then
+        # no prefixes should be specified at all, so we match everything.
+        prefixes = b"" if b"" in all_prefix_bytes else b"".join(all_prefix_bytes)
+
         for entry in self._adapter.start_scan(
             prefixes=prefixes,
             buffer_size=buffer_size,
