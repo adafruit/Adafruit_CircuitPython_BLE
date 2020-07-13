@@ -76,6 +76,7 @@ class BatteryService(Service):
         uuid=StandardUUID(0x2A19),
     )
 
+
 class CurrentTimeService(Service):
     """Provides the current time."""
 
