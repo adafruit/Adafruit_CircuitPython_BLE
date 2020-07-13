@@ -70,8 +70,11 @@ class BatteryService(Service):
     """Provides battery level information"""
 
     uuid = StandardUUID(0x180F)
-    level = Uint8Characteristic(max_value=100, properties=Characteristic.READ | Characteristic.NOTIFY, uuid=StandardUUID(0x2A19))
-
+    level = Uint8Characteristic(
+        max_value=100,
+        properties=Characteristic.READ | Characteristic.NOTIFY,
+        uuid=StandardUUID(0x2A19),
+    )
 
 class CurrentTimeService(Service):
     """Provides the current time."""
