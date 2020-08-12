@@ -29,6 +29,7 @@ even though multiple purposes may actually be present in a single packet.
 """
 
 import struct
+from collections import OrderedDict
 
 from . import (
     Advertisement,
@@ -220,7 +221,7 @@ class ManufacturerData(AdvertisingDataField):
         self._company_id = company_id
         self._adt = advertising_data_type
 
-        self.data = {}
+        self.data = OrderedDict()  # makes field order match order they are set in
         self.company_id = company_id
         encoded_company = struct.pack("<H", company_id)
         if 0xFF in obj.data_dict:
