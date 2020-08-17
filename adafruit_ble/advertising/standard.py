@@ -29,6 +29,7 @@ even though multiple purposes may actually be present in a single packet.
 """
 
 import struct
+from collections import OrderedDict
 
 from . import (
     Advertisement,
@@ -211,7 +212,9 @@ class SolicitServicesAdvertisement(Advertisement):
 class ManufacturerData(AdvertisingDataField):
     """Encapsulates manufacturer specific keyed data bytes. The manufacturer is identified by the
        company_id and the data is structured like an advertisement with a configurable key
-       format."""
+       format. The order of the serialized data is determined by the order that the
+       `ManufacturerDataField` attributes are set in - this can be useful for
+       `match_prefixes` in an `Advertisement` sub-class."""
 
     def __init__(
         self, obj, *, advertising_data_type=0xFF, company_id, key_encoding="B"
@@ -220,7 +223,7 @@ class ManufacturerData(AdvertisingDataField):
         self._company_id = company_id
         self._adt = advertising_data_type
 
-        self.data = {}
+        self.data = OrderedDict()  # makes field order match order they are set in
         self.company_id = company_id
         encoded_company = struct.pack("<H", company_id)
         if 0xFF in obj.data_dict:
