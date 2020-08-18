@@ -158,6 +158,12 @@ class BLERadio:
     def __init__(self, adapter=None):
         if not adapter:
             adapter = _bleio.adapter
+            if hasattr(adapter, "hci_uart_init"):
+                # Set up an onboard HCI BLE adapter
+                from adafruit_ble import hci  # pylint: disable=import-outside-toplevel
+
+                hci.init()
+
         self._adapter = adapter
         self._current_advertisement = None
         self._connection_cache = {}
