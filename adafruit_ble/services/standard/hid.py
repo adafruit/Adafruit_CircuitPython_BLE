@@ -241,6 +241,11 @@ class ReportOut:
             initial_value=struct.pack("<BB", self._report_id, _REPORT_TYPE_OUTPUT),
         )
 
+    @property
+    def report(self):
+        """The HID OUT report"""
+        return self._characteristic.value
+
 
 _ITEM_TYPE_MAIN = const(0)
 _ITEM_TYPE_GLOBAL = const(1)
