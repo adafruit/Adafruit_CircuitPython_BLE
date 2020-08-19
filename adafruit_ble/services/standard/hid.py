@@ -243,6 +243,7 @@ class ReportOut:
 
     @property
     def report(self):
+        """The HID OUT report"""
         return self._characteristic.value
 
 

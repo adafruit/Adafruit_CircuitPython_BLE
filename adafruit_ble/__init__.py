@@ -162,7 +162,9 @@ class BLERadio:
         self._current_advertisement = None
         self._connection_cache = {}
 
-    def start_advertising(self, advertisement, scan_response=None, interval=0.1, timeout=0):
+    def start_advertising(
+        self, advertisement, scan_response=None, interval=0.1, timeout=None
+    ):
         """
         Starts advertising the given advertisement.
 
@@ -171,7 +173,7 @@ class BLERadio:
             `BLERadio.name` and `BLERadio.tx_power`.
         :param float interval:  advertising interval, in seconds
         :param int timeout:  advertising timeout in seconds.
-            If 0, no timeout.
+            If None, no timeout.
         """
         advertisement_bytes = bytes(advertisement)
         scan_response_bytes = b""
@@ -181,6 +183,7 @@ class BLERadio:
             scan_response.tx_power = self.tx_power
         if scan_response:
             scan_response_bytes = bytes(scan_response)
+        timeout = 0 if timeout is None else timeout
         self._adapter.start_advertising(
             advertisement_bytes,
             scan_response=scan_response_bytes,
@@ -327,5 +330,5 @@ class BLERadio:
 
     @property
     def advertising(self):
-        """The adverstising state"""
+        """The advertising state"""
         return self._adapter.advertising
