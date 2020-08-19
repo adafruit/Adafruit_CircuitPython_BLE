@@ -183,13 +183,12 @@ class BLERadio:
             scan_response.tx_power = self.tx_power
         if scan_response:
             scan_response_bytes = bytes(scan_response)
-        timeout = 0 if timeout is None else timeout
         self._adapter.start_advertising(
             advertisement_bytes,
             scan_response=scan_response_bytes,
             connectable=advertisement.connectable,
             interval=interval,
-            timeout=timeout,
+            timeout=0 if timeout is None else timeout,
         )
 
     def stop_advertising(self):
