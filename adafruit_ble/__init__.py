@@ -324,3 +324,8 @@ class BLERadio:
     def address_bytes(self):
         """The device address, as a ``bytes()`` object of length 6."""
         return self._adapter.address.address_bytes
+
+    @property
+    def advertising(self):
+        """The adverstising state"""
+        return self._adapter.advertising
