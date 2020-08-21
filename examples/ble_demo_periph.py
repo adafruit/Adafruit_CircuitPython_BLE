@@ -6,13 +6,13 @@ and updates a Circuit Playground to show the history of the received packets.
 import board
 import neopixel
 
-from adafruit_ble import BLERadio
-from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-from adafruit_ble.services.nordic import UARTService
-
 # Only the packet classes that are imported will be known to Packet.
 from adafruit_bluefruit_connect.packet import Packet
 from adafruit_bluefruit_connect.color_packet import ColorPacket
+
+from adafruit_ble import BLERadio
+from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
+from adafruit_ble.services.nordic import UARTService
 
 NUM_PIXELS = 10
 np = neopixel.NeoPixel(board.NEOPIXEL, NUM_PIXELS, brightness=0.1)
