@@ -2,11 +2,13 @@
 
 import board
 import neopixel
+
+from adafruit_bluefruit_connect.packet import Packet
+from adafruit_bluefruit_connect.color_packet import ColorPacket
+
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.nordic import UARTService
-from adafruit_bluefruit_connect.packet import Packet
-from adafruit_bluefruit_connect.color_packet import ColorPacket
 
 ble = BLERadio()
 uart_service = UARTService()
