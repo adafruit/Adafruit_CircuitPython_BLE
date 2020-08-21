@@ -44,6 +44,7 @@ def esp32_hci_init(
 ):
     """Do ESP32-specific HCI adapter initialization."""
 
+    # pylint: disable=too-many-locals
     reset = digitalio.DigitalInOut(esp_reset)
     reset.switch_to_output(not reset_high)
 
@@ -83,8 +84,8 @@ def esp32_hci_init(
     if debug:
         try:
             print(startup_message.decode("utf-8"))
-        except UnicodeError:
-            raise _bleio.BluetoothError("Garbled HCI startup message")
+        except UnicodeError as exc:
+            raise _bleio.BluetoothError("Garbled HCI startup message") from exc
 
     # pylint: disable=no-member
     _bleio.adapter.hci_uart_init(uart=uart, rts=gpio0_and_rts, cts=cts)
