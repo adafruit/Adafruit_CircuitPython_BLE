@@ -174,6 +174,8 @@ class BLERadio:
         :param float interval:  advertising interval, in seconds
         :param int timeout:  advertising timeout in seconds.
             If None, no timeout.
+
+        ``timeout`` is not available in CircuitPython 5.x and must be `None`.
         """
         advertisement_bytes = bytes(advertisement)
         scan_response_bytes = b""
@@ -183,13 +185,28 @@ class BLERadio:
             scan_response.tx_power = self.tx_power
         if scan_response:
             scan_response_bytes = bytes(scan_response)
-        self._adapter.start_advertising(
-            advertisement_bytes,
-            scan_response=scan_response_bytes,
-            connectable=advertisement.connectable,
-            interval=interval,
-            timeout=0 if timeout is None else timeout,
-        )
+
+        # Remove after 5.x is no longer supported.
+        if (
+            sys.implementation.name == "circuitpython"
+            and sys.implementation.version[0] <= 5
+        ):
+            if timeout is not None:
+                raise NotImplementedError("timeout not available for CircuitPython 5.x")
+            self._adapter.start_advertising(
+                advertisement_bytes,
+                scan_response=scan_response_bytes,
+                connectable=advertisement.connectable,
+                interval=interval,
+            )
+        else:
+            self._adapter.start_advertising(
+                advertisement_bytes,
+                scan_response=scan_response_bytes,
+                connectable=advertisement.connectable,
+                interval=interval,
+                timeout=0 if timeout is None else timeout,
+            )
 
     def stop_advertising(self):
         """Stops advertising."""
