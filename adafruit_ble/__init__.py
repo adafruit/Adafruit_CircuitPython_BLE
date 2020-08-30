@@ -156,8 +156,12 @@ class BLERadio:
     It uses this library's `Advertisement` classes and the `BLEConnection` class."""
 
     def __init__(self, adapter=None):
-        if not adapter:
-            adapter = _bleio.adapter
+        if not _bleio.adapter:
+            # Try setting up an onboard HCI BLE adapter.
+            from adafruit_ble import hci  # pylint: disable=import-outside-toplevel
+
+            adapter = hci.create_adapter()
+            _bleio.set_adapter(adapter)  # pylint: disable=no-member
         self._adapter = adapter
         self._current_advertisement = None
         self._connection_cache = {}
