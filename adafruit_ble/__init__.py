@@ -156,8 +156,8 @@ class BLERadio:
     It uses this library's `Advertisement` classes and the `BLEConnection` class."""
 
     def __init__(self, adapter=None):
-        """If no adapter is supplied, use the built-in _bleio.adapter, if available.
-        If not, see if there's an onboard HCI adapter available that could be used.
+        """If no adapter is supplied, use the built-in `_bleio.adapter`.
+        If no built-in adapter is available, raise `RuntimeError`.
         """
         if adapter is None and _bleio.adapter is None:
             raise RuntimeError("No adapter available")
