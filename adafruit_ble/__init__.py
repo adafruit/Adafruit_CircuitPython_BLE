@@ -156,9 +156,12 @@ class BLERadio:
     It uses this library's `Advertisement` classes and the `BLEConnection` class."""
 
     def __init__(self, adapter=None):
-        if not adapter:
-            adapter = _bleio.adapter
-        self._adapter = adapter
+        """If no adapter is supplied, use the built-in `_bleio.adapter`.
+        If no built-in adapter is available, raise `RuntimeError`.
+        """
+        if adapter is None and _bleio.adapter is None:
+            raise RuntimeError("No adapter available")
+        self._adapter = adapter or _bleio.adapter
         self._current_advertisement = None
         self._connection_cache = {}
 
@@ -186,6 +189,7 @@ class BLERadio:
         if scan_response:
             scan_response_bytes = bytes(scan_response)
 
+        # pylint: disable=unexpected-keyword-arg
         # Remove after 5.x is no longer supported.
         if (
             sys.implementation.name == "circuitpython"
@@ -347,4 +351,4 @@ class BLERadio:
     @property
     def advertising(self):
         """The advertising state"""
-        return self._adapter.advertising
+        return self._adapter.advertising  # pylint: disable=no-member
