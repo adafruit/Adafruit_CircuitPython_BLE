@@ -29,7 +29,7 @@ even though multiple purposes may actually be present in a single packet.
 """
 
 import struct
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 from . import (
     Advertisement,
@@ -268,6 +268,9 @@ class ManufacturerDataField:
             )
         self._entry_length = struct.calcsize(value_format)
         self.field_names = field_names
+        if field_names:
+            # Mostly, this is to raise a ValueError if the passed-in field_names has invalid entries for later use.
+            self.MDFTuple = namedtuple("MDFTuple", self.field_names)
 
     def __get__(self, obj, cls):
         if obj is None:
@@ -279,7 +282,12 @@ class ManufacturerDataField:
             unpacked = struct.unpack_from(self._format, packed)
             if self.element_count == 1:
                 unpacked = unpacked[0]
-            return unpacked
+            if self.field_names and len(self.field_names) == len(unpacked):
+                # If we have field names, use them to make a namedtuple, and we should already have that defined.
+                # Unless the element count is off, which... werid.
+                return self.MDFTuple(*unpacked)
+            else:
+                return unpacked
         if len(packed) % self._entry_length != 0:
             raise RuntimeError("Invalid data length")
         entry_count = len(packed) // self._entry_length
