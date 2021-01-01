@@ -269,8 +269,8 @@ class ManufacturerDataField:
         self._entry_length = struct.calcsize(value_format)
         self.field_names = field_names
         if field_names:
-            # Mostly, this is to raise a ValueError if the passed-in field_names has invalid entries for later use.
-            self.MDFTuple = namedtuple("MDFTuple", self.field_names)
+            # Mostly, this is to raise a ValueError if field_names has invalid entries
+            self.mdf_tuple = namedtuple("mdf_tuple", self.field_names)
 
     def __get__(self, obj, cls):
         if obj is None:
@@ -283,11 +283,10 @@ class ManufacturerDataField:
             if self.element_count == 1:
                 unpacked = unpacked[0]
             if self.field_names and len(self.field_names) == len(unpacked):
-                # If we have field names, use them to make a namedtuple, and we should already have that defined.
+                # If we have field names, we should already have a namedtuple type to use
                 # Unless the element count is off, which... werid.
-                return self.MDFTuple(*unpacked)
-            else:
-                return unpacked
+                return self.mdf_tuple(*unpacked)
+            return unpacked
         if len(packed) % self._entry_length != 0:
             raise RuntimeError("Invalid data length")
         entry_count = len(packed) // self._entry_length
