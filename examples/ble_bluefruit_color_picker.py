@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 # CircuitPython NeoPixel Color Picker Example
 
 import board

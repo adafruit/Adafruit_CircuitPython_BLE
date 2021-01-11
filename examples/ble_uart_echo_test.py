@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """
 Used with ble_uart_echo_client.py. Receives characters from the UARTService and transmits them back.
 """

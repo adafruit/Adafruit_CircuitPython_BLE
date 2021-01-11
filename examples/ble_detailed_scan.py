@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 # This example scans for any BLE advertisements and prints one advertisement and one scan response
 # from every device found. This scan is more detailed than the simple test because it includes
 # specialty advertising types.

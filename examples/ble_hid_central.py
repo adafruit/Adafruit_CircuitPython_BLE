@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """
 Demonstration of a Bluefruit BLE Central. Connects to the first BLE HID peripheral it finds.
 """

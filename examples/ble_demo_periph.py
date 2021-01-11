@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """
 Used with ble_demo_central.py. Receives Bluefruit LE ColorPackets from a central,
 and updates a Circuit Playground to show the history of the received packets.

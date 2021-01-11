@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """
 This demo uses advertising to set the color of scanning devices depending on the strongest broadcast
 signal received. Circuit Playgrounds can be switched between advertising and scanning using the

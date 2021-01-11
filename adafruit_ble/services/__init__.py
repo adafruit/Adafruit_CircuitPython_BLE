@@ -1,24 +1,7 @@
-# The MIT License (MIT)
+# SPDX-FileCopyrightText: 2019 Scott Shawcroft for Adafruit Industries
 #
-# Copyright (c) 2019 Scott Shawcroft for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# SPDX-License-Identifier: MIT
+
 """
 
 This module provides the top level Service definition.
@@ -36,14 +19,14 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class Service:
     """Top level Service class that handles the hard work of binding to a local or remote service.
 
-       Providers of a local service should instantiate their Service with service=None, the default.
-       The local Service's characteristics will be lazily made available to clients as they are used
-       locally. In other words, a characteristic won't be available to remote clients until it has
-       been read or written locally.
+    Providers of a local service should instantiate their Service with service=None, the default.
+    The local Service's characteristics will be lazily made available to clients as they are used
+    locally. In other words, a characteristic won't be available to remote clients until it has
+    been read or written locally.
 
-       To use a remote Service, get the item with the key of the Service type on the
-       `BLEConnection`. For example, ``connection[UartService]`` will return the UartService
-       instance for the connection's peer.
+    To use a remote Service, get the item with the key of the Service type on the
+    `BLEConnection`. For example, ``connection[UartService]`` will return the UartService
+    instance for the connection's peer.
     """
 
     def __init__(self, *, service=None, secondary=False, **initial_values):
