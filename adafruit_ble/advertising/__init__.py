@@ -1,24 +1,7 @@
-# The MIT License (MIT)
+# SPDX-FileCopyrightText: 2018 Dan Halbert for Adafruit Industries
 #
-# Copyright (c) 2018 Dan Halbert for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# SPDX-License-Identifier: MIT
+
 """
 Advertising is the first phase of BLE where devices can broadcast
 """
@@ -38,7 +21,7 @@ def to_bytes_literal(seq):
 
 def decode_data(data, *, key_encoding="B"):
     """Helper which decodes length encoded structures into a dictionary with the given key
-       encoding."""
+    encoding."""
     i = 0
     data_dict = {}
     key_size = struct.calcsize(key_encoding)
@@ -73,7 +56,7 @@ def compute_length(data_dict, *, key_encoding="B"):
 
 def encode_data(data_dict, *, key_encoding="B"):
     """Helper which encodes dictionaries into length encoded structures with the given key
-       encoding."""
+    encoding."""
     length = compute_length(data_dict, key_encoding=key_encoding)
     data = bytearray(length)
     key_size = struct.calcsize(key_encoding)
@@ -151,7 +134,7 @@ class AdvertisingFlags(AdvertisingDataField):
 class String(AdvertisingDataField):
     """UTF-8 encoded string in an Advertisement.
 
-       Not null terminated once encoded because length is always transmitted."""
+    Not null terminated once encoded because length is always transmitted."""
 
     def __init__(self, *, advertising_data_type):
         self._adt = advertising_data_type
@@ -265,7 +248,7 @@ class Advertisement:
     @classmethod
     def from_entry(cls, entry):
         """Create an Advertisement based on the given ScanEntry. This is done automatically by
-           `BLERadio` for all scan results."""
+        `BLERadio` for all scan results."""
         self = cls()
         # If data_dict is available, use it directly. Otherwise decode the bytestring.
         if hasattr(entry, "data_dict"):
@@ -282,7 +265,7 @@ class Advertisement:
     @property
     def rssi(self):
         """Signal strength of the scanned advertisement. Only available on Advertisements returned
-           from `BLERadio.start_scan()`. (read-only)"""
+        from `BLERadio.start_scan()`. (read-only)"""
         return self._rssi
 
     @classmethod

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """
 Demonstration of a Bluefruit BLE Central for Circuit Playground Bluefruit. Connects to the first BLE
 UART peripheral it finds. Sends Bluefruit ColorPackets, read from three accelerometer axis, to the

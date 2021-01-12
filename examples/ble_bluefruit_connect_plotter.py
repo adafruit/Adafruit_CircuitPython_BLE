@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 # CircuitPython Bluefruit LE Connect Plotter Example
 
 import time

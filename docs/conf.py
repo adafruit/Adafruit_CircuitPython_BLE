@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import sys
 

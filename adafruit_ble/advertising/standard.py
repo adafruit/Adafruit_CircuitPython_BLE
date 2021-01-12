@@ -1,24 +1,7 @@
-# The MIT License (MIT)
+# SPDX-FileCopyrightText: 2019 Scott Shawcroft for Adafruit Industries
 #
-# Copyright (c) 2019 Scott Shawcroft for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# SPDX-License-Identifier: MIT
+
 """
 :py:mod:`~adafruit_ble.advertising.standard`
 ====================================================
@@ -211,10 +194,10 @@ class SolicitServicesAdvertisement(Advertisement):
 
 class ManufacturerData(AdvertisingDataField):
     """Encapsulates manufacturer specific keyed data bytes. The manufacturer is identified by the
-       company_id and the data is structured like an advertisement with a configurable key
-       format. The order of the serialized data is determined by the order that the
-       `ManufacturerDataField` attributes are set in - this can be useful for
-       `match_prefixes` in an `Advertisement` sub-class."""
+    company_id and the data is structured like an advertisement with a configurable key
+    format. The order of the serialized data is determined by the order that the
+    `ManufacturerDataField` attributes are set in - this can be useful for
+    `match_prefixes` in an `Advertisement` sub-class."""
 
     def __init__(
         self, obj, *, advertising_data_type=0xFF, company_id, key_encoding="B"
@@ -313,7 +296,7 @@ class ManufacturerDataField:
 
 class ServiceData(AdvertisingDataField):
     """Encapsulates service data. It is read as a memoryview which can be manipulated or set as a
-       bytearray to change the size."""
+    bytearray to change the size."""
 
     def __init__(self, service):
         if isinstance(service.uuid, StandardUUID):

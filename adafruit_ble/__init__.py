@@ -1,25 +1,8 @@
-# The MIT License (MIT)
+# SPDX-FileCopyrightText: 2019 Dan Halbert for Adafruit Industries
+# SPDX-FileCopyrightText: 2019 Scott Shawcroft for Adafruit Industries
 #
-# Copyright (c) 2019 Dan Halbert for Adafruit Industries
-# Copyright (c) 2019 Scott Shawcroft for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# SPDX-License-Identifier: MIT
+
 """
 
 This module provides higher-level BLE (Bluetooth Low Energy) functionality,
@@ -125,13 +108,13 @@ class BLEConnection:
     @property
     def connection_interval(self):
         """Time between transmissions in milliseconds. Will be multiple of 1.25ms. Lower numbers
-           increase speed and decrease latency but increase power consumption.
+        increase speed and decrease latency but increase power consumption.
 
-           When setting connection_interval, the peer may reject the new interval and
-           `connection_interval` will then remain the same.
+        When setting connection_interval, the peer may reject the new interval and
+        `connection_interval` will then remain the same.
 
-           Apple has additional guidelines that dictate should be a multiple of 15ms except if HID
-           is available. When HID is available Apple devices may accept 11.25ms intervals."""
+        Apple has additional guidelines that dictate should be a multiple of 15ms except if HID
+        is available. When HID is available Apple devices may accept 11.25ms intervals."""
         return self._bleio_connection.connection_interval
 
     @connection_interval.setter
@@ -289,8 +272,8 @@ class BLERadio:
     def stop_scan(self):
         """Stops any active scan.
 
-           The scan results iterator will return any buffered results and then raise StopIteration
-           once empty."""
+        The scan results iterator will return any buffered results and then raise StopIteration
+        once empty."""
         self._adapter.stop_scan()
 
     def connect(self, advertisement, *, timeout=4.0):
