@@ -10,5 +10,3 @@
 .. automodule:: adafruit_ble.advertising.adafruit
    :members:
 
-.. automodule:: adafruit_ble.advertising.apple
-   :members:
