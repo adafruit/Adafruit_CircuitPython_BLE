@@ -9,4 +9,3 @@
 
 .. automodule:: adafruit_ble.advertising.adafruit
    :members:
-
