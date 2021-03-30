@@ -159,8 +159,8 @@ class ProvideServicesAdvertisement(Advertisement):
     services = ServiceList(standard_services=[0x02, 0x03], vendor_services=[0x06, 0x07])
     """List of services the device can provide."""
 
-    def __init__(self, *services):
-        super().__init__()
+    def __init__(self, *services, entry=None):
+        super().__init__(entry=entry)
         if services:
             self.services.extend(services)
         self.connectable = True
@@ -184,8 +184,8 @@ class SolicitServicesAdvertisement(Advertisement):
     solicited_services = ServiceList(standard_services=[0x14], vendor_services=[0x15])
     """List of services the device would like to use."""
 
-    def __init__(self, *services):
-        super().__init__()
+    def __init__(self, *services, entry=None):
+        super().__init__(entry=entry)
         self.solicited_services.extend(services)
         self.connectable = True
         self.flags.general_discovery = True
