@@ -265,7 +265,7 @@ class BLERadio:
             # otherwise.
             if adv_type not in advertisement_types:
                 continue
-            advertisement = adv_type.from_entry(entry)
+            advertisement = adv_type(entry=entry)
             if advertisement:
                 yield advertisement
 

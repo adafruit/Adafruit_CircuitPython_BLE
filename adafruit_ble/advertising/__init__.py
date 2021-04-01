@@ -236,31 +236,21 @@ class Advertisement:
     # MAX_LEGACY_DATA_SIZE = 31
     # """Data size in a regular BLE packet."""
 
-    def __init__(self):
-        """Create an advertising packet."""
+    def __init__(self, *, entry=None):
+        """Create an empty advertising packet or one from a ScanEntry."""
         self.data_dict = {}
         self.address = None
         self._rssi = None
         self.connectable = False
         self.mutable = True
         self.scan_response = False
-
-    @classmethod
-    def from_entry(cls, entry):
-        """Create an Advertisement based on the given ScanEntry. This is done automatically by
-        `BLERadio` for all scan results."""
-        self = cls()
-        # If data_dict is available, use it directly. Otherwise decode the bytestring.
-        if hasattr(entry, "data_dict"):
-            self.data_dict = entry.data_dict
-        else:
+        if entry:
             self.data_dict = decode_data(entry.advertisement_bytes)
-        self.address = entry.address
-        self._rssi = entry.rssi  # pylint: disable=protected-access
-        self.connectable = entry.connectable
-        self.scan_response = entry.scan_response
-        self.mutable = False
-        return self
+            self.address = entry.address
+            self._rssi = entry.rssi  # pylint: disable=protected-access
+            self.connectable = entry.connectable
+            self.scan_response = entry.scan_response
+            self.mutable = False
 
     @property
     def rssi(self):
