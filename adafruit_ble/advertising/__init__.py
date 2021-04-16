@@ -238,12 +238,6 @@ class Advertisement:
 
     def __init__(self, *, entry=None):
         """Create an empty advertising packet or one from a ScanEntry."""
-        self.data_dict = {}
-        self.address = None
-        self._rssi = None
-        self.connectable = False
-        self.mutable = True
-        self.scan_response = False
         if entry:
             self.data_dict = decode_data(entry.advertisement_bytes)
             self.address = entry.address
@@ -251,6 +245,13 @@ class Advertisement:
             self.connectable = entry.connectable
             self.scan_response = entry.scan_response
             self.mutable = False
+        else:
+            self.data_dict = {}
+            self.address = None
+            self._rssi = None
+            self.connectable = False
+            self.mutable = True
+            self.scan_response = False
 
     @property
     def rssi(self):

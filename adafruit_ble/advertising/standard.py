@@ -161,6 +161,11 @@ class ProvideServicesAdvertisement(Advertisement):
 
     def __init__(self, *services, entry=None):
         super().__init__(entry=entry)
+        if entry:
+            if services:
+                raise ValueError("Supply services or entry, not both")
+            # Attributes are supplied by entry.
+            return
         if services:
             self.services.extend(services)
         self.connectable = True
@@ -186,6 +191,11 @@ class SolicitServicesAdvertisement(Advertisement):
 
     def __init__(self, *services, entry=None):
         super().__init__(entry=entry)
+        if entry:
+            if services:
+                raise ValueError("Supply services or entry, not both")
+            # Attributes are supplied by entry.
+            return
         self.solicited_services.extend(services)
         self.connectable = True
         self.flags.general_discovery = True
