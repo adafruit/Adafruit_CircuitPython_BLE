@@ -32,7 +32,7 @@ class BLEConnection:
     Represents a connection to a peer BLE device.
     It acts as a map from a `Service` type to a `Service` instance for the connection.
 
-    :param bleio_connection _bleio.Connection: the native `_bleio.Connection` object to wrap
+    :param _bleio.Connection bleio_connection: the native `_bleio.Connection` object to wrap
 
     """
 
@@ -227,15 +227,15 @@ class BLERadio:
         :param float timeout: the scan timeout in seconds.
             If None, will scan until `stop_scan` is called.
         :param float interval: the interval (in seconds) between the start
-             of two consecutive scan windows
-             Must be in the range 0.0025 - 40.959375 seconds.
+            of two consecutive scan windows
+            Must be in the range 0.0025 - 40.959375 seconds.
         :param float window: the duration (in seconds) to scan a single BLE channel.
-             window must be <= interval.
+            window must be <= interval.
         :param int minimum_rssi: the minimum rssi of entries to return.
         :param bool active: request and retrieve scan responses for scannable advertisements.
         :return: If any ``advertisement_types`` are given,
-           only Advertisements of those types are produced by the returned iterator.
-           If none are given then `Advertisement` objects will be returned.
+            only Advertisements of those types are produced by the returned iterator.
+            If none are given then `Advertisement` objects will be returned.
         :rtype: iterable
         """
         if not advertisement_types:
@@ -280,7 +280,8 @@ class BLERadio:
         """
         Initiates a `BLEConnection` to the peer that advertised the given advertisement.
 
-        :param Advertisement peer: An `Advertisement`, a subclass of `Advertisement` or `Address`
+        :param Advertisement peer: An `Advertisement`, a subclass of `Advertisement`
+            or `_bleio.Address`
         :param float timeout: how long to wait for a connection
         :return: the connection to the peer
         :rtype: BLEConnection
