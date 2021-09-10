@@ -276,16 +276,18 @@ class BLERadio:
         once empty."""
         self._adapter.stop_scan()
 
-    def connect(self, advertisement, *, timeout=4.0):
+    def connect(self, peer, *, timeout=4.0):
         """
         Initiates a `BLEConnection` to the peer that advertised the given advertisement.
 
-        :param advertisement Advertisement: An `Advertisement` or a subclass of `Advertisement`
-        :param timeout float: how long to wait for a connection
+        :param Advertisement peer: An `Advertisement`, a subclass of `Advertisement` or `Address`
+        :param float timeout: how long to wait for a connection
         :return: the connection to the peer
         :rtype: BLEConnection
         """
-        connection = self._adapter.connect(advertisement.address, timeout=timeout)
+        if not isinstance(peer, _bleio.Address):
+            peer = peer.address
+        connection = self._adapter.connect(peer, timeout=timeout)
         self._connection_cache[connection] = BLEConnection(connection)
         return self._connection_cache[connection]
 

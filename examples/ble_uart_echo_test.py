@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: MIT
 
 """
-Can be used with ble_uart_echo_client.py or with the UART page on the Adafruit Bluefruit Connect app.
-Receives characters from the UARTService and transmits them back.
+Can be used with ble_uart_echo_client.py or with the UART page on the
+Adafruit Bluefruit Connect app. Receives characters from the UARTService
+and transmits them back.
 """
 
 from adafruit_ble import BLERadio
