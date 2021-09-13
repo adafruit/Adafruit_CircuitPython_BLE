@@ -280,8 +280,7 @@ class BLERadio:
         """
         Initiates a `BLEConnection` to the peer that advertised the given advertisement.
 
-        :param Advertisement peer: An `Advertisement`, a subclass of `Advertisement`
-            or `_bleio.Address`
+        :param peer: An `Advertisement`, a subclass of `Advertisement` or `_bleio.Address`
         :param float timeout: how long to wait for a connection
         :return: the connection to the peer
         :rtype: BLEConnection
