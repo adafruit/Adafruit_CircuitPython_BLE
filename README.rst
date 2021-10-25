@@ -73,6 +73,11 @@ Usage Example
     print("scan done")
 
 
+Documentation
+=============
+
+API documentation for this library can be found on `Read the Docs <https://circuitpython.readthedocs.io/projects/ble/en/latest/>`_.
+
 Contributing
 ============
 
