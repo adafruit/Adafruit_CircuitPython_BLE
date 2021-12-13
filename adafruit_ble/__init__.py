@@ -288,6 +288,7 @@ class BLERadio:
         if not isinstance(peer, _bleio.Address):
             peer = peer.address
         connection = self._adapter.connect(peer, timeout=timeout)
+        self._clean_connection_cache()
         self._connection_cache[connection] = BLEConnection(connection)
         return self._connection_cache[connection]
 
@@ -299,6 +300,7 @@ class BLERadio:
     @property
     def connections(self):
         """A tuple of active `BLEConnection` objects."""
+        self._clean_connection_cache()
         connections = self._adapter.connections
         wrapped_connections = [None] * len(connections)
         for i, connection in enumerate(connections):
@@ -337,3 +339,9 @@ class BLERadio:
     def advertising(self):
         """The advertising state"""
         return self._adapter.advertising  # pylint: disable=no-member
+
+    def _clean_connection_cache(self):
+        """Remove cached connections that have disconnected."""
+        for k, connection in list(self._connection_cache.items()):
+            if not connection.connected:
+                del self._connection_cache[k]
