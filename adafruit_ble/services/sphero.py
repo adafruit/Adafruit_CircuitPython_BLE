@@ -20,4 +20,4 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class SpheroService(Service):
     """Core Sphero Service. Unimplemented."""
 
-    uuid = VendorUUID("!!orehpS OOW\x01\x00\x01\x00")
+    uuid = VendorUUID(b"!!orehpS OOW\x01\x00\x01\x00")
