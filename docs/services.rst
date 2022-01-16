@@ -17,3 +17,6 @@
 
 .. automodule:: adafruit_ble.services.midi
   :members:
+
+.. automodule:: adafruit_ble.services.nordic
+  :members:
