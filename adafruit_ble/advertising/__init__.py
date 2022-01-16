@@ -303,7 +303,7 @@ class Advertisement:
 
     def __eq__(self, other):
         if isinstance(other, Advertisement):
-            return self.data_dict == self.data_dict
+            return self.data_dict == other.data_dict
         return False
 
     def __str__(self):
