@@ -19,7 +19,7 @@
   :members:
 
 .. automodule:: adafruit_ble.services.nordic
-  :memebers:
+  :members:
 
 .. automodule:: adafruit_ble.services.sphero
-  :memebers:
+  :members:
