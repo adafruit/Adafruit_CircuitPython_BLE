@@ -301,6 +301,11 @@ class Advertisement:
         """The raw packet bytes."""
         return encode_data(self.data_dict)
 
+    def __eq__(self, other):
+        if isinstance(other, Advertisement):
+            return self.data_dict == self.data_dict
+        return False
+
     def __str__(self):
         parts = []
         for attr in dir(self.__class__):
