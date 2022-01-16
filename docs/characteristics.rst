@@ -7,6 +7,9 @@
 .. automodule:: adafruit_ble.characteristics.int
    :members:
 
+.. automodule:: adafruit_ble.characteristics.float
+   :members:
+
 .. automodule:: adafruit_ble.characteristics.stream
    :members:
 
