@@ -20,6 +20,3 @@
 
 .. automodule:: adafruit_ble.services.nordic
   :members:
-
-.. automodule:: adafruit_ble.services.sphero
-  :members:
