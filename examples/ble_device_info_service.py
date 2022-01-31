@@ -19,7 +19,7 @@ radio.start_advertising(a)
 # Info that the other device can read about us.
 my_info = DeviceInfoService(manufacturer="CircuitPython.org", model_number="1234")
 
-print ("advertising")
+print("advertising")
 
 while not radio.connected:
     pass
