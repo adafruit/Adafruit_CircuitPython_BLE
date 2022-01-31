@@ -45,8 +45,7 @@ class AdafruitColor(Advertisement):
         ManufacturerData,
         "manufacturer_data",
         advertising_data_type=MANUFACTURING_DATA_ADT,
-        company_id=
-    ADAFRUIT_COMPANY_ID,
+        company_id=ADAFRUIT_COMPANY_ID,
         key_encoding="<H",
     )
     color = ManufacturerDataField(_COLOR_DATA_ID, "<I")
