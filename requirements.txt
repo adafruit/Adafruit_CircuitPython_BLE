@@ -2,5 +2,5 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-adafruit-blinka
+Adafruit-Blinka
 adafruit-blinka-bleio
