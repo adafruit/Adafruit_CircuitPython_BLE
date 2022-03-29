@@ -390,7 +390,7 @@ class HIDService(Service):
             i += size
 
         def get_report_info(collection, reports):
-            """ Gets info about hid reports """
+            """Gets info about hid reports"""
             for main in collection["mains"]:
                 if "type" in main:
                     get_report_info(main, reports)
