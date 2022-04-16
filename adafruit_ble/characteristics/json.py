@@ -42,10 +42,12 @@ class JsonCharacteristic(Characteristic):
 
     @staticmethod
     def pack(value):
+        """Converts a JSON serializable python value into a utf-8 encoded JSON string."""
         return json.dumps(value).encode("utf-8")
 
     @staticmethod
     def unpack(value):
+        """Converts a utf-8 encoded JSON string into a python value."""
         return json.loads(str(value, "utf-8"))
 
     def __get__(self, obj, cls=None):
