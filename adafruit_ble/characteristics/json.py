@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 Mark Raleson
+#
+# SPDX-License-Identifier: MIT
+
 """
 `json`
 ====================================================
