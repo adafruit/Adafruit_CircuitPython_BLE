@@ -19,7 +19,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
 
 class JsonCharacteristic(Characteristic):
-    """Json string characteristic."""
+    """Json string characteristic for JSON serializable values of a limited size (max_length)."""
 
     def __init__(
         self,
