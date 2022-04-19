@@ -4,9 +4,9 @@
 
 # Read sensor readings from peripheral BLE device using a JSON characteristic.
 
+from ble_json_service import SensorService
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-from ble_json_service import SensorService
 
 
 ble = BLERadio()

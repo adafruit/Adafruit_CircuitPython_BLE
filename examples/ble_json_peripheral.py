@@ -6,9 +6,9 @@
 
 import time
 import random
+from ble_json_service import SensorService
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-from ble_json_service import SensorService
 
 
 # Create BLE radio, custom service, and advertisement.
