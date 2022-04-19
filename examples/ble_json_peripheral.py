@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-# Provide readable sensor values and writable settings to connected devices via Json characteristic.
+# Provide readable sensor values and writable settings to connected devices via JSON characteristic.
 
 import time
 import random

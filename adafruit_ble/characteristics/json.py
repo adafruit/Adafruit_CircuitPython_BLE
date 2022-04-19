@@ -6,7 +6,7 @@
 `json`
 ====================================================
 
-This module provides Json characteristic.
+This module provides JSON characteristic.
 
 """
 
@@ -18,8 +18,8 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
 
-class JsonCharacteristic(Characteristic):
-    """Json string characteristic for JSON serializable values of a limited size (max_length)."""
+class JSONCharacteristic(Characteristic):
+    """JSON string characteristic for JSON serializable values of a limited size (max_length)."""
 
     def __init__(
         self,

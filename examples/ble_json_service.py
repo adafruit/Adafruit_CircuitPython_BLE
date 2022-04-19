@@ -1,18 +1,18 @@
 from adafruit_ble.uuid import VendorUUID
 from adafruit_ble.services import Service
 from adafruit_ble.characteristics import Characteristic
-from adafruit_ble.characteristics.json import JsonCharacteristic
+from adafruit_ble.characteristics.json import JSONCharacteristic
 
 
-# A custom service with two Json characteristics for this device.  The "sensors" characteristic
+# A custom service with two JSON characteristics for this device.  The "sensors" characteristic
 # provides updated sensor values for any connected device to read.  The "settings" characteristic
 # can be changed by any connected device to update the peripheral's settings.  The UUID of your
 # service can be any valid random uuid (some BLE UUID's are reserved).
-# NOTE: Json data is limited by characteristic max_length of 512 byes.
+# NOTE: JSON data is limited by characteristic max_length of 512 byes.
 class SensorService(Service):
     uuid = VendorUUID("51ad213f-e568-4e35-84e4-67af89c79ef0")
 
-    settings = JsonCharacteristic(
+    settings = JSONCharacteristic(
         uuid=VendorUUID("e077bdec-f18b-4944-9e9e-8b3a815162b4"),
         properties=Characteristic.READ | Characteristic.WRITE,
         initial_value={
@@ -20,7 +20,7 @@ class SensorService(Service):
         }
     )
 
-    sensors = JsonCharacteristic(
+    sensors = JSONCharacteristic(
         uuid=VendorUUID("528ff74b-fdb8-444c-9c64-3dd5da4135ae"),
         properties=Characteristic.READ,
     )
