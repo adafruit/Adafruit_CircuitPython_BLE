@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-# Read sensor readings from peripheral BLE device using JSON characteristic.
+# Read sensor readings from peripheral BLE device using a JSON characteristic.
 
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement

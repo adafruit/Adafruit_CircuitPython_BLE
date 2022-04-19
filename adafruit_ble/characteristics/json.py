@@ -6,7 +6,7 @@
 `json`
 ====================================================
 
-This module provides JSON characteristic.
+This module provides a JSON characteristic for reading/writing JSON serializable Python values.
 
 """
 
