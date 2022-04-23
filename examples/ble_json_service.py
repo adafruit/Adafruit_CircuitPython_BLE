@@ -10,6 +10,8 @@ from adafruit_ble.characteristics.json import JSONCharacteristic
 # service can be any valid random uuid (some BLE UUID's are reserved).
 # NOTE: JSON data is limited by characteristic max_length of 512 byes.
 class SensorService(Service):
+    # pylint: disable=too-few-public-methods
+
     uuid = VendorUUID("51ad213f-e568-4e35-84e4-67af89c79ef0")
 
     settings = JSONCharacteristic(
