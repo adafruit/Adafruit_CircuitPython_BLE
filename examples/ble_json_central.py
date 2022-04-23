@@ -25,8 +25,6 @@ while True:
 
     if connection and connection.connected:
         service = connection[SensorService]
-        service.settings = {
-            'unit': 'celsius' #  'fahrenheit'
-        }
+        service.settings = {"unit": "celsius"}  #  'fahrenheit'
         while connection.connected:
-            print('Sensors: ', service.sensors)
+            print("Sensors: ", service.sensors)

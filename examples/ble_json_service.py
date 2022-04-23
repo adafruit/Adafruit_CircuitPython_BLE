@@ -23,9 +23,7 @@ class SensorService(Service):
     settings = JSONCharacteristic(
         uuid=VendorUUID("e077bdec-f18b-4944-9e9e-8b3a815162b4"),
         properties=Characteristic.READ | Characteristic.WRITE,
-        initial_value={
-            'unit': 'celsius'
-        }
+        initial_value={"unit": "celsius"},
     )
 
     sensors = JSONCharacteristic(

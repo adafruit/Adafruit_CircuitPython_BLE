@@ -20,17 +20,15 @@ advertisement = ProvideServicesAdvertisement(service)
 def measure(unit):
     temperature = random.uniform(0.0, 10.0)
     humidity = random.uniform(0.0, 100.0)
-    if unit == 'fahrenheit':
+    if unit == "fahrenheit":
         temperature = (temperature * 9.0 / 5.0) + 32.0
-    return {
-        'temperature': temperature,
-        'humidity': humidity
-    }
+    return {"temperature": temperature, "humidity": humidity}
+
 
 # Advertise until another device connects, when a device connects, provide sensor data.
 while True:
-    print('Advertise services')
-    ble.stop_advertising() # you need to do this to stop any persistent old advertisement
+    print("Advertise services")
+    ble.stop_advertising()  # you need to do this to stop any persistent old advertisement
     ble.start_advertising(advertisement)
 
     print("Waiting for connection...")
@@ -40,10 +38,10 @@ while True:
     print("Connected")
     while ble.connected:
         settings = service.settings
-        measurement = measure(settings.get('unit', 'celsius'))
+        measurement = measure(settings.get("unit", "celsius"))
         service.sensors = measurement
-        print('Settings: ', settings)
-        print('Sensors: ', measurement)
-        time.sleep(.25)
+        print("Settings: ", settings)
+        print("Sensors: ", measurement)
+        time.sleep(0.25)
 
-    print('Disconnected')
+    print("Disconnected")
