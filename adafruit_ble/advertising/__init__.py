@@ -206,8 +206,8 @@ class Advertisement:
     """
 
     match_prefixes = ()
-    """For Advertisement, `Advertisement.matches` will always return ``True``.
-    Subclasses may override this value."""
+    """For Advertisement, :py:attr:`~adafruit_ble.advertising.Advertisement.match_prefixes`
+    will always return ``True``. Subclasses may override this value."""
     # cached bytes of merged prefixes.
     _prefix_bytes = None
 
