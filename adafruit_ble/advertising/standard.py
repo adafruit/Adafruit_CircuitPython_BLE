@@ -207,7 +207,9 @@ class ManufacturerData(AdvertisingDataField):
     company_id and the data is structured like an advertisement with a configurable key
     format. The order of the serialized data is determined by the order that the
     `ManufacturerDataField` attributes are set in - this can be useful for
-    `Advertisement.match_prefixes` in an `Advertisement` sub-class."""
+    :py:attr:`~adafruit_ble.advertising.Advertisement.match_prefixes` in an `Advertisement`
+    sub-class.
+    """
 
     def __init__(
         self, obj, *, advertising_data_type=0xFF, company_id, key_encoding="B"
