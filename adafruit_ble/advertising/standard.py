@@ -26,7 +26,6 @@ from ..uuid import StandardUUID, VendorUUID
 
 try:
     from typing import Optional, List, Tuple, Union, Type, Iterator, Iterable, Any
-    from typing_extensions import Protocol
     from adafruit_ble.uuid import UUID
     from adafruit_ble.characteristics import Characteristic
     from adafruit_ble.services import Service
