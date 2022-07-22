@@ -8,18 +8,27 @@ Advertising is the first phase of BLE where devices can broadcast
 
 import struct
 
+try:
+    from typing import Dict, Any, Union, List, Optional, Type, Literal, TypeVar
+    from _bleio import ScanEntry
 
-def to_hex(seq):
+    LazyObjectField_GivenClass = TypeVar("LazyObjectField_GivenClass")
+
+except ImportError:
+    pass
+
+
+def to_hex(seq: bytes) -> str:
     """Pretty prints a byte sequence as hex values."""
     return " ".join("{:02x}".format(v) for v in seq)
 
 
-def to_bytes_literal(seq):
+def to_bytes_literal(seq: bytes) -> str:
     """Prints a byte sequence as a Python bytes literal that only uses hex encoding."""
     return 'b"' + "".join("\\x{:02x}".format(v) for v in seq) + '"'
 
 
-def decode_data(data, *, key_encoding="B"):
+def decode_data(data: bytes, *, key_encoding: str = "B") -> Dict[Any, Union[bytes, List[bytes]]]:
     """Helper which decodes length encoded structures into a dictionary with the given key
     encoding."""
     i = 0
@@ -42,7 +51,7 @@ def decode_data(data, *, key_encoding="B"):
     return data_dict
 
 
-def compute_length(data_dict, *, key_encoding="B"):
+def compute_length(data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encoding: str = "B") -> int:
     """Computes the length of the encoded data dictionary."""
     value_size = 0
     for value in data_dict.values():
@@ -54,7 +63,7 @@ def compute_length(data_dict, *, key_encoding="B"):
     return len(data_dict) + len(data_dict) * struct.calcsize(key_encoding) + value_size
 
 
-def encode_data(data_dict, *, key_encoding="B"):
+def encode_data(data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encoding: str = "B") -> bytes:
     """Helper which encodes dictionaries into length encoded structures with the given key
     encoding."""
     length = compute_length(data_dict, key_encoding=key_encoding)
@@ -72,25 +81,23 @@ def encode_data(data_dict, *, key_encoding="B"):
     return bytes(data)
 
 
+# pylint: disable=too-few-public-methods
 class AdvertisingDataField:
     """Top level class for any descriptor classes that live in Advertisement or its subclasses."""
-
-    # pylint: disable=too-few-public-methods,unnecessary-pass
-    pass
 
 
 class AdvertisingFlag:
     """A single bit flag within an AdvertisingFlags object."""
 
-    def __init__(self, bit_position):
+    def __init__(self, bit_position: int) -> None:
         self._bitmask = 1 << bit_position
 
-    def __get__(self, obj, cls):
+    def __get__(self, obj: Optional["AdvertisingFlags"], cls: Type["AdvertisingFlags"]) -> Union[bool, "AdvertisingFlag"]:
         if obj is None:
             return self
         return (obj.flags & self._bitmask) != 0
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: "AdvertisingFlags", value: bool) -> None:
         if value:
             obj.flags |= self._bitmask
         else:
@@ -108,20 +115,20 @@ class AdvertisingFlags(AdvertisingDataField):
     """BR/EDR not supported."""
     # BR/EDR flags not included here, since we don't support BR/EDR.
 
-    def __init__(self, advertisement, advertising_data_type):
+    def __init__(self, advertisement: "Advertisement", advertising_data_type: int) -> None:
         self._advertisement = advertisement
         self._adt = advertising_data_type
         self.flags = 0
         if self._adt in self._advertisement.data_dict:
             self.flags = self._advertisement.data_dict[self._adt][0]
 
-    def __len__(self):
+    def __len__(self) -> Literal[1]:
         return 1
 
-    def __bytes__(self):
+    def __bytes__(self) -> bytes:
         return bytes([self.flags])
 
-    def __str__(self):
+    def __str__(self) -> str:
         parts = []
         for attr in dir(self.__class__):
             attribute_instance = getattr(self.__class__, attr)
@@ -136,48 +143,48 @@ class String(AdvertisingDataField):
 
     Not null terminated once encoded because length is always transmitted."""
 
-    def __init__(self, *, advertising_data_type):
+    def __init__(self, *, advertising_data_type: int) -> None:
         self._adt = advertising_data_type
 
-    def __get__(self, obj, cls):
+    def __get__(self, obj: Optional["Advertisement"], cls: Type["Advertisement"]) -> Optional[Union[str, "String"]]:
         if obj is None:
             return self
         if self._adt not in obj.data_dict:
             return None
         return str(obj.data_dict[self._adt], "utf-8")
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: "Advertisement", value: str) -> None:
         obj.data_dict[self._adt] = value.encode("utf-8")
 
 
 class Struct(AdvertisingDataField):
     """`struct` encoded data in an Advertisement."""
 
-    def __init__(self, struct_format, *, advertising_data_type):
+    def __init__(self, struct_format: str, *, advertising_data_type: int) -> None:
         self._format = struct_format
         self._adt = advertising_data_type
 
-    def __get__(self, obj, cls):
+    def __get__(self, obj: Optional["Advertisement"], cls: Type["Advertisement"]) -> Optional[Union[Any, "Struct"]]:
         if obj is None:
             return self
         if self._adt not in obj.data_dict:
             return None
         return struct.unpack(self._format, obj.data_dict[self._adt])[0]
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: "Advertisement", value: Any) -> None:
         obj.data_dict[self._adt] = struct.pack(self._format, value)
 
 
 class LazyObjectField(AdvertisingDataField):
     """Non-data descriptor useful for lazily binding a complex object to an advertisement object."""
 
-    def __init__(self, cls, attribute_name, *, advertising_data_type, **kwargs):
+    def __init__(self, cls: Any, attribute_name: str, *, advertising_data_type: int, **kwargs) -> None:
         self._cls = cls
         self._attribute_name = attribute_name
         self._adt = advertising_data_type
         self._kwargs = kwargs
 
-    def __get__(self, obj, cls):
+    def __get__(self, obj: Optional["Advertisement"], cls: Type["Advertisement"]) -> Any:
         if obj is None:
             return self
         # Return None if our object is immutable and the data is not present.
@@ -190,7 +197,7 @@ class LazyObjectField(AdvertisingDataField):
         return bound_obj
 
     @property
-    def advertising_data_type(self):
+    def advertising_data_type(self) -> int:
         """Return the data type value used to indicate this field."""
         return self._adt
 
@@ -237,7 +244,7 @@ class Advertisement:
     # MAX_LEGACY_DATA_SIZE = 31
     # """Data size in a regular BLE packet."""
 
-    def __init__(self, *, entry=None):
+    def __init__(self, *, entry: Optional[ScanEntry] = None) -> None:
         """Create an empty advertising packet or one from a ScanEntry."""
         if entry:
             self.data_dict = decode_data(entry.advertisement_bytes)
@@ -255,13 +262,13 @@ class Advertisement:
             self.scan_response = False
 
     @property
-    def rssi(self):
+    def rssi(self) -> Optional[int]:
         """Signal strength of the scanned advertisement. Only available on Advertisements returned
         from `BLERadio.start_scan()`. (read-only)"""
         return self._rssi
 
     @classmethod
-    def get_prefix_bytes(cls):
+    def get_prefix_bytes(cls) -> Optional[bytes]:
         """Return a merged version of match_prefixes as a single bytes object,
         with length headers.
         """
@@ -281,7 +288,7 @@ class Advertisement:
         return cls._prefix_bytes
 
     @classmethod
-    def matches(cls, entry):
+    def matches(cls, entry: ScanEntry) -> bool:
         """Returns ``True`` if the given `_bleio.ScanEntry` advertisement fields
         matches all of the given prefixes in the `match_prefixes` tuple attribute.
         Subclasses may override this to match any instead of all.
@@ -289,7 +296,7 @@ class Advertisement:
         return cls.matches_prefixes(entry, all_=True)
 
     @classmethod
-    def matches_prefixes(cls, entry, *, all_):
+    def matches_prefixes(cls, entry: ScanEntry, *, all_: bool) -> bool:
         """Returns ``True`` if the given `_bleio.ScanEntry` advertisement fields
         match any or all of the given prefixes in the `match_prefixes` tuple attribute.
         If ``all_`` is ``True``, all the prefixes must match. If ``all_`` is ``False``,
@@ -298,16 +305,16 @@ class Advertisement:
         # Returns True if cls.get_prefix_bytes() is empty.
         return entry.matches(cls.get_prefix_bytes(), all=all_)
 
-    def __bytes__(self):
+    def __bytes__(self) -> bytes:
         """The raw packet bytes."""
         return encode_data(self.data_dict)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Advertisement):
             return self.data_dict == other.data_dict
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         parts = []
         for attr in dir(self.__class__):
             attribute_instance = getattr(self.__class__, attr)
@@ -324,10 +331,10 @@ class Advertisement:
                     parts.append("{}={}".format(attr, str(value)))
         return "<{} {} >".format(self.__class__.__name__, " ".join(parts))
 
-    def __len__(self):
+    def __len__(self) -> int:
         return compute_length(self.data_dict)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Advertisement(data={})".format(
             to_bytes_literal(encode_data(self.data_dict))
         )
