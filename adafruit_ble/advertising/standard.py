@@ -32,8 +32,9 @@ try:
     from adafruit_ble.services import Service
     from _bleio import ScanEntry
 
-    UsesServicesAdvertisement = Union["ProvideServicesAdvertisement", "SolicitServicesAdvertisement"]
-
+    UsesServicesAdvertisement = Union[
+        "ProvideServicesAdvertisement", "SolicitServicesAdvertisement"
+    ]
 
 
 except ImportError:
@@ -46,7 +47,13 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class BoundServiceList:
     """Sequence-like object of Service UUID objects. It stores both standard and vendor UUIDs."""
 
-    def __init__(self, advertisement: UsesServicesAdvertisement, *, standard_services: List[int], vendor_services: List[int]) -> None:
+    def __init__(
+        self,
+        advertisement: UsesServicesAdvertisement,
+        *,
+        standard_services: List[int],
+        vendor_services: List[int]
+    ) -> None:
         self._advertisement = advertisement
         self._standard_service_fields = standard_services
         self._vendor_service_fields = vendor_services
@@ -140,7 +147,9 @@ class BoundServiceList:
 class ServiceList(AdvertisingDataField):
     """Descriptor for a list of Service UUIDs that lazily binds a corresponding BoundServiceList."""
 
-    def __init__(self, *, standard_services: List[int], vendor_services: List[int]) -> None:
+    def __init__(
+        self, *, standard_services: List[int], vendor_services: List[int]
+    ) -> None:
         self.standard_services = standard_services
         self.vendor_services = vendor_services
 
@@ -153,7 +162,11 @@ class ServiceList(AdvertisingDataField):
                 return True
         return False
 
-    def __get__(self, obj: Optional[UsesServicesAdvertisement], cls: Type[UsesServicesAdvertisement]) -> Union[UsesServicesAdvertisement, Tuple[()], "ServiceList"]:
+    def __get__(
+        self,
+        obj: Optional[UsesServicesAdvertisement],
+        cls: Type[UsesServicesAdvertisement],
+    ) -> Union[UsesServicesAdvertisement, Tuple[()], "ServiceList"]:
         if obj is None:
             return self
         if not self._present(obj) and not obj.mutable:
@@ -227,7 +240,12 @@ class ManufacturerData(AdvertisingDataField):
     """
 
     def __init__(
-        self, obj: UsesServicesAdvertisement, *, advertising_data_type: int = 0xFF, company_id: int, key_encoding: str = "B"
+        self,
+        obj: UsesServicesAdvertisement,
+        *,
+        advertising_data_type: int = 0xFF,
+        company_id: int,
+        key_encoding: str = "B"
     ) -> None:
         self._obj = obj
         self._company_id = company_id
@@ -264,7 +282,9 @@ class ManufacturerData(AdvertisingDataField):
 class ManufacturerDataField:
     """A single piece of data within the manufacturer specific data. The format can be repeated."""
 
-    def __init__(self, key: int, value_format: str, field_names: Optional[Iterable[str]] = None) -> None:
+    def __init__(
+        self, key: int, value_format: str, field_names: Optional[Iterable[str]] = None
+    ) -> None:
         self._key = key
         self._format = value_format
         # TODO: Support format strings that use numbers to repeat a given type. For now, we strip
@@ -282,7 +302,9 @@ class ManufacturerDataField:
             # Mostly, this is to raise a ValueError if field_names has invalid entries
             self.mdf_tuple = namedtuple("mdf_tuple", self.field_names)
 
-    def __get__(self, obj: Optional[Advertisement], cls: Type[Advertisement])-> Optional[Union["ManufacturerDataField", Tuple, namedtuple]]:
+    def __get__(
+        self, obj: Optional[Advertisement], cls: Type[Advertisement]
+    ) -> Optional[Union["ManufacturerDataField", Tuple, namedtuple]]:
         if obj is None:
             return self
         if self._key not in obj.manufacturer_data.data:
@@ -341,7 +363,9 @@ class ServiceData(AdvertisingDataField):
 
     def __get__(
         self, obj: Optional[Service], cls: Type[Service]
-    ) -> Optional[Union["ServiceData", memoryview]]:  # pylint: disable=too-many-return-statements,too-many-branches
+    ) -> Optional[
+        Union["ServiceData", memoryview]
+    ]:  # pylint: disable=too-many-return-statements,too-many-branches
         if obj is None:
             return self
         # If not present at all and mutable, then we init it, otherwise None.

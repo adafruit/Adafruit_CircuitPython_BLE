@@ -157,7 +157,11 @@ class BLERadio:
         self._connection_cache = {}
 
     def start_advertising(
-        self, advertisement: Advertisement, scan_response: Optional[ReadableBuffer] = None, interval: float = 0.1, timeout: Optional[int] = None
+        self,
+        advertisement: Advertisement,
+        scan_response: Optional[ReadableBuffer] = None,
+        interval: float = 0.1,
+        timeout: Optional[int] = None,
     ) -> None:
         """
         Starts advertising the given advertisement.
@@ -284,7 +288,9 @@ class BLERadio:
         once empty."""
         self._adapter.stop_scan()
 
-    def connect(self, peer: Union[Advertisement, _bleio.Address], *, timeout:float = 4.0) -> BLEConnection:
+    def connect(
+        self, peer: Union[Advertisement, _bleio.Address], *, timeout: float = 4.0
+    ) -> BLEConnection:
         """
         Initiates a `BLEConnection` to the peer that advertised the given advertisement.
 

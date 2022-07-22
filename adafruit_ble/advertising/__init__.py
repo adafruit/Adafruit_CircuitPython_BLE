@@ -28,7 +28,9 @@ def to_bytes_literal(seq: bytes) -> str:
     return 'b"' + "".join("\\x{:02x}".format(v) for v in seq) + '"'
 
 
-def decode_data(data: bytes, *, key_encoding: str = "B") -> Dict[Any, Union[bytes, List[bytes]]]:
+def decode_data(
+    data: bytes, *, key_encoding: str = "B"
+) -> Dict[Any, Union[bytes, List[bytes]]]:
     """Helper which decodes length encoded structures into a dictionary with the given key
     encoding."""
     i = 0
@@ -51,7 +53,9 @@ def decode_data(data: bytes, *, key_encoding: str = "B") -> Dict[Any, Union[byte
     return data_dict
 
 
-def compute_length(data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encoding: str = "B") -> int:
+def compute_length(
+    data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encoding: str = "B"
+) -> int:
     """Computes the length of the encoded data dictionary."""
     value_size = 0
     for value in data_dict.values():
@@ -63,7 +67,9 @@ def compute_length(data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encod
     return len(data_dict) + len(data_dict) * struct.calcsize(key_encoding) + value_size
 
 
-def encode_data(data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encoding: str = "B") -> bytes:
+def encode_data(
+    data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encoding: str = "B"
+) -> bytes:
     """Helper which encodes dictionaries into length encoded structures with the given key
     encoding."""
     length = compute_length(data_dict, key_encoding=key_encoding)
@@ -92,7 +98,9 @@ class AdvertisingFlag:
     def __init__(self, bit_position: int) -> None:
         self._bitmask = 1 << bit_position
 
-    def __get__(self, obj: Optional["AdvertisingFlags"], cls: Type["AdvertisingFlags"]) -> Union[bool, "AdvertisingFlag"]:
+    def __get__(
+        self, obj: Optional["AdvertisingFlags"], cls: Type["AdvertisingFlags"]
+    ) -> Union[bool, "AdvertisingFlag"]:
         if obj is None:
             return self
         return (obj.flags & self._bitmask) != 0
@@ -115,7 +123,9 @@ class AdvertisingFlags(AdvertisingDataField):
     """BR/EDR not supported."""
     # BR/EDR flags not included here, since we don't support BR/EDR.
 
-    def __init__(self, advertisement: "Advertisement", advertising_data_type: int) -> None:
+    def __init__(
+        self, advertisement: "Advertisement", advertising_data_type: int
+    ) -> None:
         self._advertisement = advertisement
         self._adt = advertising_data_type
         self.flags = 0
@@ -146,7 +156,9 @@ class String(AdvertisingDataField):
     def __init__(self, *, advertising_data_type: int) -> None:
         self._adt = advertising_data_type
 
-    def __get__(self, obj: Optional["Advertisement"], cls: Type["Advertisement"]) -> Optional[Union[str, "String"]]:
+    def __get__(
+        self, obj: Optional["Advertisement"], cls: Type["Advertisement"]
+    ) -> Optional[Union[str, "String"]]:
         if obj is None:
             return self
         if self._adt not in obj.data_dict:
@@ -164,7 +176,9 @@ class Struct(AdvertisingDataField):
         self._format = struct_format
         self._adt = advertising_data_type
 
-    def __get__(self, obj: Optional["Advertisement"], cls: Type["Advertisement"]) -> Optional[Union[Any, "Struct"]]:
+    def __get__(
+        self, obj: Optional["Advertisement"], cls: Type["Advertisement"]
+    ) -> Optional[Union[Any, "Struct"]]:
         if obj is None:
             return self
         if self._adt not in obj.data_dict:
@@ -178,13 +192,17 @@ class Struct(AdvertisingDataField):
 class LazyObjectField(AdvertisingDataField):
     """Non-data descriptor useful for lazily binding a complex object to an advertisement object."""
 
-    def __init__(self, cls: Any, attribute_name: str, *, advertising_data_type: int, **kwargs) -> None:
+    def __init__(
+        self, cls: Any, attribute_name: str, *, advertising_data_type: int, **kwargs
+    ) -> None:
         self._cls = cls
         self._attribute_name = attribute_name
         self._adt = advertising_data_type
         self._kwargs = kwargs
 
-    def __get__(self, obj: Optional["Advertisement"], cls: Type["Advertisement"]) -> Any:
+    def __get__(
+        self, obj: Optional["Advertisement"], cls: Type["Advertisement"]
+    ) -> Any:
         if obj is None:
             return self
         # Return None if our object is immutable and the data is not present.
