@@ -23,6 +23,14 @@ import _bleio
 from .services import Service
 from .advertising import Advertisement
 
+try:
+    from typing import Optional, Iterator, Union, Tuple, Literal, NoReturn
+    from circuitpython_typing import ReadableBuffer
+    from adafruit_ble.uuid import UUID
+    from adafruit_ble.characteristics import Characteristic
+except ImportError:
+    pass
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
@@ -36,14 +44,14 @@ class BLEConnection:
 
     """
 
-    def __init__(self, bleio_connection):
+    def __init__(self, bleio_connection: _bleio.Connection) -> None:
         self._bleio_connection = bleio_connection
         # _bleio.Service objects representing services found during discovery.
         self._discovered_bleio_services = {}
         # Service objects that wrap remote services.
         self._constructed_services = {}
 
-    def _discover_remote(self, uuid):
+    def _discover_remote(self, uuid: UUID) -> Optional[Service]:
         remote_service = None
         if uuid in self._discovered_bleio_services:
             remote_service = self._discovered_bleio_services[uuid]
@@ -56,7 +64,7 @@ class BLEConnection:
                 self._discovered_bleio_services[uuid] = remote_service
         return remote_service
 
-    def __contains__(self, key):
+    def __contains__(self, key: Union[UUID, Characteristic]) -> bool:
         """
         Allows easy testing for a particular Service class or a particular UUID
         associated with this connection.
@@ -74,7 +82,7 @@ class BLEConnection:
             uuid = key.uuid
         return self._discover_remote(uuid) is not None
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[UUID, Characteristic]) -> Optional[Service]:
         """Return the Service for the given Service class or uuid, if any."""
         uuid = key
         maybe_service = False
@@ -96,17 +104,17 @@ class BLEConnection:
         raise KeyError("{!r} object has no service {}".format(self, key))
 
     @property
-    def connected(self):
+    def connected(self) -> bool:
         """True if the connection to the peer is still active."""
         return self._bleio_connection.connected
 
     @property
-    def paired(self):
+    def paired(self) -> bool:
         """True if the paired to the peer."""
         return self._bleio_connection.paired
 
     @property
-    def connection_interval(self):
+    def connection_interval(self) -> float:
         """Time between transmissions in milliseconds. Will be multiple of 1.25ms. Lower numbers
         increase speed and decrease latency but increase power consumption.
 
@@ -118,14 +126,14 @@ class BLEConnection:
         return self._bleio_connection.connection_interval
 
     @connection_interval.setter
-    def connection_interval(self, value):
+    def connection_interval(self, value: float) -> None:
         self._bleio_connection.connection_interval = value
 
-    def pair(self, *, bond=True):
+    def pair(self, *, bond: bool = True) -> None:
         """Pair to the peer to increase security of the connection."""
         return self._bleio_connection.pair(bond=bond)
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """Disconnect from peer."""
         self._bleio_connection.disconnect()
 
@@ -138,7 +146,7 @@ class BLERadio:
 
     It uses this library's `Advertisement` classes and the `BLEConnection` class."""
 
-    def __init__(self, adapter=None):
+    def __init__(self, adapter: Optional[_bleio.Adapter] = None) -> None:
         """If no adapter is supplied, use the built-in `_bleio.adapter`.
         If no built-in adapter is available, raise `RuntimeError`.
         """
@@ -149,8 +157,8 @@ class BLERadio:
         self._connection_cache = {}
 
     def start_advertising(
-        self, advertisement, scan_response=None, interval=0.1, timeout=None
-    ):
+        self, advertisement: Advertisement, scan_response: Optional[ReadableBuffer] = None, interval: float = 0.1, timeout: Optional[int] = None
+    ) -> None:
         """
         Starts advertising the given advertisement.
 
@@ -195,21 +203,21 @@ class BLERadio:
                 timeout=0 if timeout is None else timeout,
             )
 
-    def stop_advertising(self):
+    def stop_advertising(self) -> None:
         """Stops advertising."""
         self._adapter.stop_advertising()
 
     def start_scan(
         self,
-        *advertisement_types,
-        buffer_size=512,
-        extended=False,
-        timeout=None,
-        interval=0.1,
-        window=0.1,
-        minimum_rssi=-80,
-        active=True
-    ):
+        *advertisement_types: Advertisement,
+        buffer_size: int = 512,
+        extended: bool = False,
+        timeout: Optional[float] = None,
+        interval: float = 0.1,
+        window: float = 0.1,
+        minimum_rssi: int = -80,
+        active: bool = True
+    ) -> Iterator[Advertisement]:
         """
         Starts scanning. Returns an iterator of advertisement objects of the types given in
         advertisement_types. The iterator will block until an advertisement is heard or the scan
@@ -269,14 +277,14 @@ class BLERadio:
             if advertisement:
                 yield advertisement
 
-    def stop_scan(self):
+    def stop_scan(self) -> None:
         """Stops any active scan.
 
         The scan results iterator will return any buffered results and then raise StopIteration
         once empty."""
         self._adapter.stop_scan()
 
-    def connect(self, peer, *, timeout=4.0):
+    def connect(self, peer: Union[Advertisement, _bleio.Address], *, timeout:float = 4.0) -> BLEConnection:
         """
         Initiates a `BLEConnection` to the peer that advertised the given advertisement.
 
@@ -293,12 +301,12 @@ class BLERadio:
         return self._connection_cache[connection]
 
     @property
-    def connected(self):
+    def connected(self) -> bool:
         """True if any peers are connected."""
         return self._adapter.connected
 
     @property
-    def connections(self):
+    def connections(self) -> Tuple[Optional[BLEConnection], ...]:
         """A tuple of active `BLEConnection` objects."""
         self._clean_connection_cache()
         connections = self._adapter.connections
@@ -311,36 +319,36 @@ class BLERadio:
         return tuple(wrapped_connections)
 
     @property
-    def name(self):
+    def name(self) -> str:
         """The name for this device. Used in advertisements and
         as the Device Name in the Generic Access Service, available to a connected peer.
         """
         return self._adapter.name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str) -> None:
         self._adapter.name = value
 
     @property
-    def tx_power(self):
+    def tx_power(self) -> Literal[0]:
         """Transmit power, in dBm."""
         return 0
 
     @tx_power.setter
-    def tx_power(self, value):
+    def tx_power(self, value) -> NoReturn:
         raise NotImplementedError("setting tx_power not yet implemented")
 
     @property
-    def address_bytes(self):
+    def address_bytes(self) -> bytes:
         """The device address, as a ``bytes()`` object of length 6."""
         return self._adapter.address.address_bytes
 
     @property
-    def advertising(self):
+    def advertising(self) -> bool:
         """The advertising state"""
         return self._adapter.advertising  # pylint: disable=no-member
 
-    def _clean_connection_cache(self):
+    def _clean_connection_cache(self) -> None:
         """Remove cached connections that have disconnected."""
         for k, connection in list(self._connection_cache.items()):
             if not connection.connected:
