@@ -24,6 +24,21 @@ from . import (
 )
 from ..uuid import StandardUUID, VendorUUID
 
+try:
+    from typing import Optional, List, Tuple, Union, Type, Iterator, Iterable, Any
+    from typing_extensions import Protocol
+    from adafruit_ble.uuid import UUID
+    from adafruit_ble.characteristics import Characteristic
+    from adafruit_ble.services import Service
+    from _bleio import ScanEntry
+
+    UsesServicesAdvertisement = Union["ProvideServicesAdvertisement", "SolicitServicesAdvertisement"]
+
+
+
+except ImportError:
+    pass
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
@@ -31,7 +46,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class BoundServiceList:
     """Sequence-like object of Service UUID objects. It stores both standard and vendor UUIDs."""
 
-    def __init__(self, advertisement, *, standard_services, vendor_services):
+    def __init__(self, advertisement: UsesServicesAdvertisement, *, standard_services: List[int], vendor_services: List[int]) -> None:
         self._advertisement = advertisement
         self._standard_service_fields = standard_services
         self._vendor_service_fields = vendor_services
@@ -50,13 +65,13 @@ class BoundServiceList:
                     uuid = VendorUUID(data[16 * i : 16 * (i + 1)])
                     self._vendor_services.append(uuid)
 
-    def __contains__(self, key):
+    def __contains__(self, key: Union[UUID, Characteristic]) -> bool:
         uuid = key
         if hasattr(key, "uuid"):
             uuid = key.uuid
         return uuid in self._vendor_services or uuid in self._standard_services
 
-    def _update(self, adt, uuids):
+    def _update(self, adt: int, uuids: List[UUID]) -> None:
         if not uuids:
             # uuids is empty
             del self._advertisement.data_dict[adt]
@@ -68,13 +83,13 @@ class BoundServiceList:
             i += uuid_length
         self._advertisement.data_dict[adt] = b
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[UUID]:
         all_services = list(self._standard_services)
         all_services.extend(self._vendor_services)
         return iter(all_services)
 
     # TODO: Differentiate between complete and incomplete lists.
-    def append(self, service):
+    def append(self, service: Service) -> None:
         """Append a service to the list."""
         if (
             isinstance(service.uuid, StandardUUID)
@@ -90,7 +105,7 @@ class BoundServiceList:
             self._update(self._vendor_service_fields[0], self._vendor_services)
 
     # TODO: Differentiate between complete and incomplete lists.
-    def extend(self, services):
+    def extend(self, services: Iterable[Service]) -> None:
         """Appends all services in the iterable to the list."""
         standard = False
         vendor = False
@@ -113,7 +128,7 @@ class BoundServiceList:
         if vendor:
             self._update(self._vendor_service_fields[0], self._vendor_services)
 
-    def __str__(self):
+    def __str__(self) -> str:
         data = []
         for service_uuid in self._standard_services:
             data.append(str(service_uuid))
@@ -125,11 +140,11 @@ class BoundServiceList:
 class ServiceList(AdvertisingDataField):
     """Descriptor for a list of Service UUIDs that lazily binds a corresponding BoundServiceList."""
 
-    def __init__(self, *, standard_services, vendor_services):
+    def __init__(self, *, standard_services: List[int], vendor_services: List[int]) -> None:
         self.standard_services = standard_services
         self.vendor_services = vendor_services
 
-    def _present(self, obj):
+    def _present(self, obj: UsesServicesAdvertisement) -> bool:
         for adt in self.standard_services:
             if adt in obj.data_dict:
                 return True
@@ -138,7 +153,7 @@ class ServiceList(AdvertisingDataField):
                 return True
         return False
 
-    def __get__(self, obj, cls):
+    def __get__(self, obj: Optional[UsesServicesAdvertisement], cls: Type[UsesServicesAdvertisement]) -> Union[UsesServicesAdvertisement, Tuple[()], "ServiceList"]:
         if obj is None:
             return self
         if not self._present(obj) and not obj.mutable:
@@ -159,7 +174,7 @@ class ProvideServicesAdvertisement(Advertisement):
     services = ServiceList(standard_services=[0x02, 0x03], vendor_services=[0x06, 0x07])
     """List of services the device can provide."""
 
-    def __init__(self, *services, entry=None):
+    def __init__(self, *services: Service, entry: Optional[ScanEntry] = None) -> None:
         super().__init__(entry=entry)
         if entry:
             if services:
@@ -173,7 +188,7 @@ class ProvideServicesAdvertisement(Advertisement):
         self.flags.le_only = True
 
     @classmethod
-    def matches(cls, entry):
+    def matches(cls, entry: ScanEntry) -> bool:
         """Only one kind of service list need be present in a ProvideServicesAdvertisement,
         so override the default behavior and match any prefix, not all.
         """
@@ -189,7 +204,7 @@ class SolicitServicesAdvertisement(Advertisement):
     solicited_services = ServiceList(standard_services=[0x14], vendor_services=[0x15])
     """List of services the device would like to use."""
 
-    def __init__(self, *services, entry=None):
+    def __init__(self, *services: Service, entry: Optional[ScanEntry] = None) -> None:
         super().__init__(entry=entry)
         if entry:
             if services:
@@ -212,8 +227,8 @@ class ManufacturerData(AdvertisingDataField):
     """
 
     def __init__(
-        self, obj, *, advertising_data_type=0xFF, company_id, key_encoding="B"
-    ):
+        self, obj: UsesServicesAdvertisement, *, advertising_data_type: int = 0xFF, company_id: int, key_encoding: str = "B"
+    ) -> None:
         self._obj = obj
         self._company_id = company_id
         self._adt = advertising_data_type
@@ -231,15 +246,15 @@ class ManufacturerData(AdvertisingDataField):
             self.data = decode_data(existing_data[2:], key_encoding=key_encoding)
         self._key_encoding = key_encoding
 
-    def __len__(self):
+    def __len__(self) -> int:
         return 2 + compute_length(self.data, key_encoding=self._key_encoding)
 
-    def __bytes__(self):
+    def __bytes__(self) -> bytes:
         return struct.pack("<H", self.company_id) + encode_data(
             self.data, key_encoding=self._key_encoding
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         hex_data = to_hex(encode_data(self.data, key_encoding=self._key_encoding))
         return "<ManufacturerData company_id={:04x} data={} >".format(
             self.company_id, hex_data
@@ -249,7 +264,7 @@ class ManufacturerData(AdvertisingDataField):
 class ManufacturerDataField:
     """A single piece of data within the manufacturer specific data. The format can be repeated."""
 
-    def __init__(self, key, value_format, field_names=None):
+    def __init__(self, key: int, value_format: str, field_names: Optional[Iterable[str]] = None) -> None:
         self._key = key
         self._format = value_format
         # TODO: Support format strings that use numbers to repeat a given type. For now, we strip
@@ -267,7 +282,7 @@ class ManufacturerDataField:
             # Mostly, this is to raise a ValueError if field_names has invalid entries
             self.mdf_tuple = namedtuple("mdf_tuple", self.field_names)
 
-    def __get__(self, obj, cls):
+    def __get__(self, obj: Optional[Advertisement], cls: Type[Advertisement])-> Optional[Union["ManufacturerDataField", Tuple, namedtuple]]:
         if obj is None:
             return self
         if self._key not in obj.manufacturer_data.data:
@@ -293,7 +308,7 @@ class ManufacturerDataField:
                 unpacked[i] = unpacked[i][0]
         return tuple(unpacked)
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: "Advertisement", value: Any) -> None:
         if not obj.mutable:
             raise AttributeError()
         if isinstance(value, tuple) and (
@@ -317,7 +332,7 @@ class ServiceData(AdvertisingDataField):
     """Encapsulates service data. It is read as a memoryview which can be manipulated or set as a
     bytearray to change the size."""
 
-    def __init__(self, service):
+    def __init__(self, service: Characteristic) -> None:
         if isinstance(service.uuid, StandardUUID):
             self._adt = 0x16
         elif isinstance(service.uuid, VendorUUID):
@@ -325,8 +340,8 @@ class ServiceData(AdvertisingDataField):
         self._prefix = bytes(service.uuid)
 
     def __get__(
-        self, obj, cls
-    ):  # pylint: disable=too-many-return-statements,too-many-branches
+        self, obj: Optional[Service], cls: Type[Service]
+    ) -> Optional[Union["ServiceData", memoryview]]:  # pylint: disable=too-many-return-statements,too-many-branches
         if obj is None:
             return self
         # If not present at all and mutable, then we init it, otherwise None.
@@ -366,7 +381,7 @@ class ServiceData(AdvertisingDataField):
 
         return None
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: Advertisement, value: bytearray) -> None:
         if not obj.mutable:
             raise RuntimeError("Advertisement immutable")
         if not isinstance(value, bytearray):
