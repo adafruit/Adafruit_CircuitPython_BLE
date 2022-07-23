@@ -9,7 +9,11 @@ This module provides higher-level BLE (Bluetooth Low Energy) functionality,
 building on the native `_bleio` module.
 
 """
+
+from __future__ import annotations
+
 # pylint: disable=wrong-import-position
+
 import sys
 
 if sys.implementation.name == "circuitpython" and sys.implementation.version[0] <= 4:
@@ -24,10 +28,14 @@ from .services import Service
 from .advertising import Advertisement
 
 try:
-    from typing import Optional, Iterator, Union, Tuple, Literal, NoReturn
-    from circuitpython_typing import ReadableBuffer
-    from adafruit_ble.uuid import UUID
-    from adafruit_ble.characteristics import Characteristic
+    from typing import Optional, Iterator, Union, Tuple, NoReturn, TYPE_CHECKING
+    from typing_extensions import Literal
+
+    if TYPE_CHECKING:
+        from circuitpython_typing import ReadableBuffer
+        from adafruit_ble.uuid import UUID
+        from adafruit_ble.characteristics import Characteristic
+
 except ImportError:
     pass
 
@@ -220,7 +228,7 @@ class BLERadio:
         interval: float = 0.1,
         window: float = 0.1,
         minimum_rssi: int = -80,
-        active: bool = True
+        active: bool = True,
     ) -> Iterator[Advertisement]:
         """
         Starts scanning. Returns an iterator of advertisement objects of the types given in

@@ -8,16 +8,21 @@ This module provides core BLE characteristic classes that are used within Servic
 
 """
 
+from __future__ import annotations
+
 import struct
 import _bleio
 
 from ..attributes import Attribute
 
 try:
-    from typing import Optional, Type, Union, Tuple, Iterable
-    from circuitpython_typing import ReadableBuffer
-    from adafruit_ble.uuid import UUID
-    from adafruit_ble.services import Service
+    from typing import Optional, Type, Union, Tuple, Iterable, TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from circuitpython_typing import ReadableBuffer
+        from adafruit_ble.uuid import UUID
+        from adafruit_ble.services import Service
+
 except ImportError:
     pass
 
@@ -89,7 +94,7 @@ class Characteristic:
         write_perm: int = Attribute.OPEN,
         max_length: Optional[int] = None,
         fixed_length: bool = False,
-        initial_value: Optional[ReadableBuffer] = None
+        initial_value: Optional[ReadableBuffer] = None,
     ) -> None:
         self.field_name = None  # Set by Service during basic binding
 
@@ -179,7 +184,7 @@ class ComplexCharacteristic:
         write_perm: int = Attribute.OPEN,
         max_length: int = 20,
         fixed_length: bool = False,
-        initial_value: Optional[ReadableBuffer] = None
+        initial_value: Optional[ReadableBuffer] = None,
     ) -> None:
         self.field_name = None  # Set by Service during basic binding
 
@@ -240,7 +245,7 @@ class StructCharacteristic(Characteristic):
         properties: int = 0,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,
-        initial_value: Optional[ReadableBuffer] = None
+        initial_value: Optional[ReadableBuffer] = None,
     ) -> None:
         self._struct_format = struct_format
         self._expected_size = struct.calcsize(struct_format)

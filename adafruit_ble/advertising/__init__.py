@@ -6,13 +6,18 @@
 Advertising is the first phase of BLE where devices can broadcast
 """
 
+from __future__ import annotations
+
 import struct
 
 try:
-    from typing import Dict, Any, Union, List, Optional, Type, Literal, TypeVar
-    from _bleio import ScanEntry
+    from typing import Dict, Any, Union, List, Optional, Type, TypeVar, TYPE_CHECKING
+    from typing_extensions import Literal
 
-    LazyObjectField_GivenClass = TypeVar("LazyObjectField_GivenClass")
+    if TYPE_CHECKING:
+        from _bleio import ScanEntry
+
+        LazyObjectField_GivenClass = TypeVar("LazyObjectField_GivenClass")
 
 except ImportError:
     pass
