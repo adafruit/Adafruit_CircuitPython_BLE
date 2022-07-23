@@ -14,11 +14,6 @@ from . import Service
 from ..uuid import VendorUUID
 from ..characteristics import Characteristic
 
-try:
-    from typing import Optional
-except ImportError:
-    pass
-
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
