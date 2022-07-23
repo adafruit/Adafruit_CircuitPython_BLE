@@ -8,6 +8,8 @@ This module provides Service classes for BLE defined standard services.
 
 """
 
+from __future__ import annotations
+
 import time
 
 from .. import Service
