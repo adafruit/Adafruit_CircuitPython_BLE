@@ -16,7 +16,7 @@ from . import Attribute
 from . import StructCharacteristic
 
 try:
-    from typing import Optional, Type, TYPE_CHECKING
+    from typing import Optional, Type, Union, TYPE_CHECKING
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
@@ -55,7 +55,7 @@ class FloatCharacteristic(StructCharacteristic):
 
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> float:
+    ) -> Union[float, "FloatCharacteristic"]:
         if obj is None:
             return self
         return super().__get__(obj)[0]
