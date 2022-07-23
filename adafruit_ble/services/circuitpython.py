@@ -23,7 +23,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class CircuitPythonUUID(VendorUUID):
     """UUIDs with the CircuitPython base UUID."""
 
-    def __init__(self, uuid16):
+    def __init__(self, uuid16: int) -> None:
         uuid128 = bytearray("nhtyPtiucriC".encode("utf-8") + b"\x00\x00\xaf\xad")
         uuid128[-3] = uuid16 >> 8
         uuid128[-4] = uuid16 & 0xFF
