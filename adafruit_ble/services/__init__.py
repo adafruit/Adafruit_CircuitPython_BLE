@@ -8,9 +8,16 @@ This module provides the top level Service definition.
 
 """
 
+from __future__ import annotations
+
 import _bleio
 
 from ..characteristics import Characteristic, ComplexCharacteristic
+
+try:
+    from typing import Optional
+except ImportError:
+    pass
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -29,7 +36,13 @@ class Service:
     instance for the connection's peer.
     """
 
-    def __init__(self, *, service=None, secondary=False, **initial_values):
+    def __init__(
+        self,
+        *,
+        service: Optional[_bleio.Service] = None,
+        secondary: bool = False,
+        **initial_values,
+    ) -> None:
         if service is None:
             # pylint: disable=no-member
             self.bleio_service = _bleio.Service(
@@ -70,6 +83,6 @@ class Service:
                     getattr(self, class_attr)
 
     @property
-    def remote(self):
+    def remote(self) -> bool:
         """True if the service is provided by a peer and accessed remotely."""
         return self.bleio_service.remote
