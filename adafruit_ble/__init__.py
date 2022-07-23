@@ -59,7 +59,7 @@ class BLEConnection:
         # Service objects that wrap remote services.
         self._constructed_services = {}
 
-    def _discover_remote(self, uuid: UUID) -> Optional[Service]:
+    def _discover_remote(self, uuid: UUID) -> Optional[_bleio.Service]:
         remote_service = None
         if uuid in self._discovered_bleio_services:
             remote_service = self._discovered_bleio_services[uuid]
@@ -72,7 +72,7 @@ class BLEConnection:
                 self._discovered_bleio_services[uuid] = remote_service
         return remote_service
 
-    def __contains__(self, key: Union[UUID, Characteristic]) -> bool:
+    def __contains__(self, key: Union[UUID, Service]) -> bool:
         """
         Allows easy testing for a particular Service class or a particular UUID
         associated with this connection.
@@ -90,7 +90,7 @@ class BLEConnection:
             uuid = key.uuid
         return self._discover_remote(uuid) is not None
 
-    def __getitem__(self, key: Union[UUID, Characteristic]) -> Optional[Service]:
+    def __getitem__(self, key: Union[UUID, Service]) -> Optional[Service]:
         """Return the Service for the given Service class or uuid, if any."""
         uuid = key
         maybe_service = False

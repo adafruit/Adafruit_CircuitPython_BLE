@@ -216,7 +216,7 @@ class ComplexCharacteristic:
 
     def __get__(
         self, service: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Characteristic:
+    ) -> _bleio.Characteristic:
         if service is None:
             return self
         bound_object = self.bind(service)
