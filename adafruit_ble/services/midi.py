@@ -24,7 +24,7 @@ class MidiIOCharacteristic(Characteristic):
     # pylint: disable=too-few-public-methods
     uuid = VendorUUID("7772E5DB-3868-4112-A1A9-F2669D106BF3")
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(
             properties=(
                 Characteristic.NOTIFY
@@ -43,7 +43,7 @@ class MidiService(Service):
     io = MidiIOCharacteristic()  # pylint: disable=invalid-name
 
     # pylint: disable=unnecessary-pass
-    def write(self):
+    def write(self) -> None:
         """Placeholder for transmitting midi bytes to the other device."""
         pass
         # add timestamp to writes 13-bit millisecond resolution
@@ -59,6 +59,6 @@ class MidiService(Service):
         # high timestamp header byte. Low timestamp packets may wrap around and the decoder is
         # responsible for incrementing the high bits
 
-    def read(self):
+    def read(self) -> None:
         """Placeholder for receiving midi bytes from the other device."""
         pass

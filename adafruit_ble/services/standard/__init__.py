@@ -8,6 +8,8 @@ This module provides Service classes for BLE defined standard services.
 
 """
 
+from __future__ import annotations
+
 import time
 
 from .. import Service
@@ -27,7 +29,7 @@ class AppearanceCharacteristic(StructCharacteristic):
     # pylint: disable=too-few-public-methods
     uuid = StandardUUID(0x2A01)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__("<H", **kwargs)
 
 
@@ -72,7 +74,7 @@ class CurrentTimeService(Service):
     """A tuple of location information: (timezone, dst_offset)"""
 
     @property
-    def struct_time(self):
+    def struct_time(self) -> time.struct_time:
         """The current time as a `time.struct_time`. Day of year and whether DST is in effect
         are always -1.
         """

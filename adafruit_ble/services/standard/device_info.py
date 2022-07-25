@@ -9,6 +9,8 @@
 
 """
 
+from __future__ import annotations
+
 import binascii
 import os
 import sys
@@ -16,6 +18,15 @@ import sys
 from .. import Service
 from ...uuid import StandardUUID
 from ...characteristics.string import FixedStringCharacteristic
+
+try:
+    from typing import Optional, TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        import _bleio
+
+except ImportError:
+    pass
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -35,14 +46,14 @@ class DeviceInfoService(Service):
     def __init__(
         self,
         *,
-        manufacturer=None,
-        software_revision=None,
-        model_number=None,
-        serial_number=None,
-        firmware_revision=None,
-        hardware_revision=None,
-        service=None
-    ):
+        manufacturer: Optional[str] = None,
+        software_revision: Optional[str] = None,
+        model_number: Optional[str] = None,
+        serial_number: Optional[str] = None,
+        firmware_revision: Optional[str] = None,
+        hardware_revision: Optional[str] = None,
+        service: Optional[_bleio.Service] = None,
+    ) -> None:
         if not service:
             if model_number is None:
                 model_number = sys.platform

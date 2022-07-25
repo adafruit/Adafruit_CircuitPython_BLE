@@ -8,10 +8,23 @@ This module provides core BLE characteristic classes that are used within Servic
 
 """
 
+from __future__ import annotations
+
 import struct
 import _bleio
 
 from ..attributes import Attribute
+
+try:
+    from typing import Optional, Type, Union, Tuple, Iterable, TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from circuitpython_typing import ReadableBuffer
+        from adafruit_ble.uuid import UUID
+        from adafruit_ble.services import Service
+
+except ImportError:
+    pass
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -75,14 +88,14 @@ class Characteristic:
     def __init__(
         self,
         *,
-        uuid=None,
-        properties=0,
-        read_perm=Attribute.OPEN,
-        write_perm=Attribute.OPEN,
-        max_length=None,
-        fixed_length=False,
-        initial_value=None
-    ):
+        uuid: Optional[UUID] = None,
+        properties: int = 0,
+        read_perm: int = Attribute.OPEN,
+        write_perm: int = Attribute.OPEN,
+        max_length: Optional[int] = None,
+        fixed_length: bool = False,
+        initial_value: Optional[ReadableBuffer] = None,
+    ) -> None:
         self.field_name = None  # Set by Service during basic binding
 
         if uuid:
@@ -94,7 +107,9 @@ class Characteristic:
         self.fixed_length = fixed_length
         self.initial_value = initial_value
 
-    def _ensure_bound(self, service, initial_value=None):
+    def _ensure_bound(
+        self, service: Service, initial_value: Optional[bytes] = None
+    ) -> None:
         """Binds the characteristic to the local Service or remote Characteristic object given."""
         if self.field_name in service.bleio_characteristics:
             return
@@ -110,7 +125,9 @@ class Characteristic:
 
         service.bleio_characteristics[self.field_name] = bleio_characteristic
 
-    def __bind_locally(self, service, initial_value):
+    def __bind_locally(
+        self, service: Service, initial_value: Optional[bytes]
+    ) -> _bleio.Characteristic:
         if initial_value is None:
             initial_value = self.initial_value
         if initial_value is None and self.max_length:
@@ -132,7 +149,9 @@ class Characteristic:
             write_perm=self.write_perm,
         )
 
-    def __get__(self, service, cls=None):
+    def __get__(
+        self, service: Optional[Service], cls: Optional[Type[Service]] = None
+    ) -> ReadableBuffer:
         # CircuitPython doesn't invoke descriptor protocol on obj's class,
         # but CPython does. In the CPython case, pretend that it doesn't.
         if service is None:
@@ -141,7 +160,7 @@ class Characteristic:
         bleio_characteristic = service.bleio_characteristics[self.field_name]
         return bleio_characteristic.value
 
-    def __set__(self, service, value):
+    def __set__(self, service: Service, value: ReadableBuffer) -> None:
         self._ensure_bound(service, value)
         if value is None:
             value = b""
@@ -159,14 +178,14 @@ class ComplexCharacteristic:
     def __init__(
         self,
         *,
-        uuid=None,
-        properties=0,
-        read_perm=Attribute.OPEN,
-        write_perm=Attribute.OPEN,
-        max_length=20,
-        fixed_length=False,
-        initial_value=None
-    ):
+        uuid: Optional[UUID] = None,
+        properties: int = 0,
+        read_perm: int = Attribute.OPEN,
+        write_perm: int = Attribute.OPEN,
+        max_length: int = 20,
+        fixed_length: bool = False,
+        initial_value: Optional[ReadableBuffer] = None,
+    ) -> None:
         self.field_name = None  # Set by Service during basic binding
 
         if uuid:
@@ -178,7 +197,7 @@ class ComplexCharacteristic:
         self.fixed_length = fixed_length
         self.initial_value = initial_value
 
-    def bind(self, service):
+    def bind(self, service: Service) -> _bleio.Characteristic:
         """Binds the characteristic to the local Service or remote Characteristic object given."""
         if service.remote:
             for characteristic in service.bleio_service.characteristics:
@@ -195,7 +214,9 @@ class ComplexCharacteristic:
             write_perm=self.write_perm,
         )
 
-    def __get__(self, service, cls=None):
+    def __get__(
+        self, service: Optional[Service], cls: Optional[Type[Service]] = None
+    ) -> _bleio.Characteristic:
         if service is None:
             return self
         bound_object = self.bind(service)
@@ -220,12 +241,12 @@ class StructCharacteristic(Characteristic):
         self,
         struct_format,
         *,
-        uuid=None,
-        properties=0,
-        read_perm=Attribute.OPEN,
-        write_perm=Attribute.OPEN,
-        initial_value=None
-    ):
+        uuid: Optional[UUID] = None,
+        properties: int = 0,
+        read_perm: int = Attribute.OPEN,
+        write_perm: int = Attribute.OPEN,
+        initial_value: Optional[ReadableBuffer] = None,
+    ) -> None:
         self._struct_format = struct_format
         self._expected_size = struct.calcsize(struct_format)
         if initial_value is not None:
@@ -240,7 +261,9 @@ class StructCharacteristic(Characteristic):
             write_perm=write_perm,
         )
 
-    def __get__(self, obj, cls=None):
+    def __get__(
+        self, obj: Optional[Service], cls: Optional[Type[Service]] = None
+    ) -> Optional[Union[Tuple, "StructCharacteristic"]]:
         if obj is None:
             return self
         raw_data = super().__get__(obj, cls)
@@ -248,6 +271,6 @@ class StructCharacteristic(Characteristic):
             return None
         return struct.unpack(self._struct_format, raw_data)
 
-    def __set__(self, obj, value):
+    def __set__(self, obj: Service, value: Iterable) -> None:
         encoded = struct.pack(self._struct_format, *value)
         super().__set__(obj, encoded)

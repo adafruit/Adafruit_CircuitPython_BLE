@@ -11,6 +11,9 @@ BLE Human Interface Device (HID)
 * Author(s): Dan Halbert for Adafruit Industries
 
 """
+
+from __future__ import annotations
+
 import struct
 
 from micropython import const
@@ -22,6 +25,11 @@ from adafruit_ble.characteristics.int import Uint8Characteristic
 from adafruit_ble.uuid import StandardUUID
 
 from .. import Service
+
+try:
+    from typing import Dict, Optional
+except ImportError:
+    pass
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -165,7 +173,15 @@ class ReportIn:
 
     uuid = StandardUUID(_REPORT_UUID_NUM)
 
-    def __init__(self, service, report_id, usage_page, usage, *, max_length):
+    def __init__(
+        self,
+        service: Service,
+        report_id: int,
+        usage_page: bytes,
+        usage: bytes,
+        *,
+        max_length: int,
+    ) -> None:
         self._characteristic = _bleio.Characteristic.add_to_service(
             service.bleio_service,
             self.uuid.bleio_uuid,
@@ -187,7 +203,7 @@ class ReportIn:
             initial_value=struct.pack("<BB", self._report_id, _REPORT_TYPE_INPUT),
         )
 
-    def send_report(self, report):
+    def send_report(self, report: Dict) -> None:
         """Send a report to the peers"""
         self._characteristic.value = report
 
@@ -198,7 +214,15 @@ class ReportOut:
     # pylint: disable=too-few-public-methods
     uuid = StandardUUID(_REPORT_UUID_NUM)
 
-    def __init__(self, service, report_id, usage_page, usage, *, max_length):
+    def __init__(
+        self,
+        service: Service,
+        report_id: int,
+        usage_page: bytes,
+        usage: bytes,
+        *,
+        max_length: int,
+    ) -> None:
         self._characteristic = _bleio.Characteristic.add_to_service(
             service.bleio_service,
             self.uuid.bleio_uuid,
@@ -225,7 +249,7 @@ class ReportOut:
         )
 
     @property
-    def report(self):
+    def report(self) -> Dict:
         """The HID OUT report"""
         return self._characteristic.value
 
@@ -320,14 +344,18 @@ class HIDService(Service):
     )
     """Controls whether the device should be suspended (0) or not (1)."""
 
-    def __init__(self, hid_descriptor=DEFAULT_HID_DESCRIPTOR, service=None):
+    def __init__(
+        self,
+        hid_descriptor: bytes = DEFAULT_HID_DESCRIPTOR,
+        service: Optional[Service] = None,
+    ) -> None:
         super().__init__(report_map=hid_descriptor)
         if service:
             # TODO: Add support for connecting to a remote hid server.
             pass
         self._init_devices()
 
-    def _init_devices(self):
+    def _init_devices(self) -> None:
         # pylint: disable=too-many-branches,too-many-statements,too-many-locals
         self.devices = []
         hid_descriptor = self.report_map
@@ -389,7 +417,7 @@ class HIDService(Service):
 
             i += size
 
-        def get_report_info(collection, reports):
+        def get_report_info(collection: Dict, reports: Dict) -> None:
             """Gets info about hid reports"""
             for main in collection["mains"]:
                 if "type" in main:

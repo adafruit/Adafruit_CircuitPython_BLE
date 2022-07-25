@@ -10,11 +10,26 @@ This module provides stream characteristics that bind readable or writable objec
 object they are on.
 
 """
+
+from __future__ import annotations
+
 import _bleio
 
 from . import Attribute
 from . import Characteristic
 from . import ComplexCharacteristic
+
+try:
+    from typing import Optional, Union, TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from circuitpython_typing import ReadableBuffer
+        from adafruit_ble.characteristics import Characteristic
+        from adafruit_ble.uuid import UUID
+        from adafruit_ble.services import Service
+
+except ImportError:
+    pass
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -23,10 +38,10 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class BoundWriteStream:
     """Writes data out to the peer."""
 
-    def __init__(self, bound_characteristic):
+    def __init__(self, bound_characteristic: Characteristic) -> None:
         self.bound_characteristic = bound_characteristic
 
-    def write(self, buf):
+    def write(self, buf: ReadableBuffer) -> None:
         """Write data from buf out to the peer."""
         # We can only write 20 bytes at a time.
         offset = 0
@@ -41,20 +56,20 @@ class StreamOut(ComplexCharacteristic):
     def __init__(
         self,
         *,
-        uuid=None,
-        timeout=1.0,
-        buffer_size=64,
-        properties=Characteristic.NOTIFY,
-        read_perm=Attribute.OPEN,
-        write_perm=Attribute.OPEN
-    ):
+        uuid: Optional[UUID] = None,
+        timeout: float = 1.0,
+        buffer_size: int = 64,
+        properties: int = Characteristic.NOTIFY,
+        read_perm: int = Attribute.OPEN,
+        write_perm: int = Attribute.OPEN,
+    ) -> None:
         self._timeout = timeout
         self._buffer_size = buffer_size
         super().__init__(
             uuid=uuid, properties=properties, read_perm=read_perm, write_perm=write_perm
         )
 
-    def bind(self, service):
+    def bind(self, service: Service) -> Union[_bleio.Characteristic, BoundWriteStream]:
         """Binds the characteristic to the given Service."""
         bound_characteristic = super().bind(service)
         # If we're given a remote service then we're the client and need to buffer in.
@@ -74,12 +89,12 @@ class StreamIn(ComplexCharacteristic):
     def __init__(
         self,
         *,
-        uuid=None,
-        timeout=1.0,
-        buffer_size=64,
-        properties=(Characteristic.WRITE | Characteristic.WRITE_NO_RESPONSE),
-        write_perm=Attribute.OPEN
-    ):
+        uuid: Optional[UUID] = None,
+        timeout: float = 1.0,
+        buffer_size: int = 64,
+        properties: int = (Characteristic.WRITE | Characteristic.WRITE_NO_RESPONSE),
+        write_perm: int = Attribute.OPEN,
+    ) -> None:
         self._timeout = timeout
         self._buffer_size = buffer_size
         super().__init__(
@@ -89,7 +104,9 @@ class StreamIn(ComplexCharacteristic):
             write_perm=write_perm,
         )
 
-    def bind(self, service):
+    def bind(
+        self, service: Service
+    ) -> Union[_bleio.CharacteristicBuffer, BoundWriteStream]:
         """Binds the characteristic to the given Service."""
         bound_characteristic = super().bind(service)
         # If the service is remote need to write out.
