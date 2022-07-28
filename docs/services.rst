@@ -15,8 +15,5 @@
 .. automodule:: adafruit_ble.services.microbit
   :members:
 
-.. automodule:: adafruit_ble.services.midi
-  :members:
-
 .. automodule:: adafruit_ble.services.nordic
   :members:
