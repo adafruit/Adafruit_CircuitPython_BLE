@@ -1,8 +1,9 @@
-# SPDX-FileCopyrightText: 2020 ladyada for Adafruit Industries
+# SPDX-FileCopyrightText: 2022 Alec Delaney, for Adafruit Industries
 #
 # SPDX-License-Identifier: Unlicense
 
 Adafruit-Blinka
 adafruit-blinka-bleio
+###requirements.txt###
 adafruit-circuitpython-typing
 typing-extensions~=4.0.0
