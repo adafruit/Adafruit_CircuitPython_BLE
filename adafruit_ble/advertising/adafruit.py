@@ -20,7 +20,7 @@ from micropython import const
 from . import Advertisement, LazyObjectField
 from .standard import ManufacturerData, ManufacturerDataField
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
 MANUFACTURING_DATA_ADT = const(0xFF)

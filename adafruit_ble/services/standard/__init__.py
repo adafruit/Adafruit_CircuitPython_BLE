@@ -19,7 +19,7 @@ from ...characteristics.string import StringCharacteristic
 from ...characteristics import StructCharacteristic
 from ...characteristics.int import Uint8Characteristic
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
 
