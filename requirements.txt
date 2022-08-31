@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Unlicense
 
 Adafruit-Blinka
-adafruit-blinka-bleio
-###requirements.txt###
+adafruit-blinka-bleio~=3.0
 adafruit-circuitpython-typing
 typing-extensions~=4.0.0
