@@ -360,11 +360,9 @@ class ServiceData(AdvertisingDataField):
             self._adt = 0x21
         self._prefix = bytes(service.uuid)
 
-    def __get__(
+    def __get__(  # pylint: disable=too-many-return-statements,too-many-branches
         self, obj: Optional[Service], cls: Type[Service]
-    ) -> Optional[
-        Union["ServiceData", memoryview]
-    ]:  # pylint: disable=too-many-return-statements,too-many-branches
+    ) -> Optional[Union["ServiceData", memoryview]]:
         if obj is None:
             return self
         # If not present at all and mutable, then we init it, otherwise None.
