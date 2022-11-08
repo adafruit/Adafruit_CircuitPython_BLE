@@ -17,7 +17,9 @@ try:
     if TYPE_CHECKING:
         from _bleio import ScanEntry
 
-        LazyObjectField_GivenClass = TypeVar("LazyObjectField_GivenClass")
+        LazyObjectField_GivenClass = TypeVar(  # pylint: disable=invalid-name
+            "LazyObjectField_GivenClass"
+        )
 
 except ImportError:
     pass
