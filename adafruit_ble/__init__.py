@@ -28,7 +28,7 @@ from .services import Service
 from .advertising import Advertisement
 
 try:
-    from typing import Optional, Iterator, Union, Tuple, NoReturn, TYPE_CHECKING
+    from typing import Iterator, NoReturn, Optional, Tuple, Type, TYPE_CHECKING, Union
     from typing_extensions import Literal
 
     if TYPE_CHECKING:
@@ -72,7 +72,7 @@ class BLEConnection:
                 self._discovered_bleio_services[uuid] = remote_service
         return remote_service
 
-    def __contains__(self, key: Union[UUID, Service]) -> bool:
+    def __contains__(self, key: Union[UUID, Type[Service]]) -> bool:
         """
         Allows easy testing for a particular Service class or a particular UUID
         associated with this connection.
@@ -90,7 +90,7 @@ class BLEConnection:
             uuid = key.uuid
         return self._discover_remote(uuid) is not None
 
-    def __getitem__(self, key: Union[UUID, Service]) -> Optional[Service]:
+    def __getitem__(self, key: Union[UUID, Type[Service]]) -> Optional[Service]:
         """Return the Service for the given Service class or uuid, if any."""
         uuid = key
         maybe_service = False
@@ -221,7 +221,7 @@ class BLERadio:
 
     def start_scan(
         self,
-        *advertisement_types: Advertisement,
+        *advertisement_types: Type[Advertisement],
         buffer_size: int = 512,
         extended: bool = False,
         timeout: Optional[float] = None,
