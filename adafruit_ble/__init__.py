@@ -297,7 +297,7 @@ class BLERadio:
         self._adapter.stop_scan()
 
     def connect(
-        self, peer: Union[Advertisement, _bleio.Address], *, timeout: float = 4.0
+        self, peer: Union[Advertisement, _bleio.Address], *, timeout: float = 10.0
     ) -> BLEConnection:
         """
         Initiates a `BLEConnection` to the peer that advertised the given advertisement.
