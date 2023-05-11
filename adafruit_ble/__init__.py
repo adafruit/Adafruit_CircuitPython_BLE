@@ -130,7 +130,8 @@ class BLEConnection:
         `connection_interval` will then remain the same.
 
         Apple has additional guidelines that dictate should be a multiple of 15ms except if HID
-        is available. When HID is available Apple devices may accept 11.25ms intervals."""
+        is available. When HID is available Apple devices may accept 11.25ms intervals.
+        """
         return self._bleio_connection.connection_interval
 
     @connection_interval.setter

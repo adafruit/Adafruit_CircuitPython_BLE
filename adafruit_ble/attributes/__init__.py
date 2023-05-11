@@ -45,7 +45,8 @@ class Attribute:
 
     .. data:: SIGNED_WITH_MITM
 
-       security_mode: authenticated data signing, without man-in-the-middle protection"""
+       security_mode: authenticated data signing, without man-in-the-middle protection
+    """
 
     # pylint: disable=too-few-public-methods
     NO_ACCESS = _bleio.Attribute.NO_ACCESS

@@ -16,6 +16,7 @@ ble = BLERadio()
 service = SensorService()
 advertisement = ProvideServicesAdvertisement(service)
 
+
 # Function to get some fake weather sensor readings for this example in the desired unit.
 def measure(unit):
     temperature = random.uniform(0.0, 10.0)

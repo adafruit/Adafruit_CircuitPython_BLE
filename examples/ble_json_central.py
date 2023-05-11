@@ -13,7 +13,6 @@ ble = BLERadio()
 connection = None
 
 while True:
-
     if not connection:
         print("Scanning for BLE device advertising our sensor service...")
         for adv in ble.start_scan(ProvideServicesAdvertisement):
