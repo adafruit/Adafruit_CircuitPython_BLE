@@ -62,6 +62,14 @@ class UARTService(Service):
             self._tx = self._server_rx
             self._rx = self._server_tx
 
+    def deinit(self):
+        """The characteristic buffers must be deinitialized when no longer needed.
+        Otherwise they will leak storage.
+        """
+        for obj in (self._tx, self._rx):
+            if hasattr(obj, "deinit"):
+                obj.deinit()
+
     def read(self, nbytes: Optional[int] = None) -> Optional[bytes]:
         """
         Read characters. If ``nbytes`` is specified then read at most that many bytes.

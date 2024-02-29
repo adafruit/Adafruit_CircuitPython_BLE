@@ -82,6 +82,9 @@ class Service:
                 else:
                     getattr(self, class_attr)
 
+    def deinit(self):
+        """Override this method to do any explicit cleanup necessary on connection close."""
+
     @property
     def remote(self) -> bool:
         """True if the service is provided by a peer and accessed remotely."""

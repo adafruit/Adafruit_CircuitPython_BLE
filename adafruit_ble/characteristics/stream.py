@@ -69,7 +69,9 @@ class StreamOut(ComplexCharacteristic):
             uuid=uuid, properties=properties, read_perm=read_perm, write_perm=write_perm
         )
 
-    def bind(self, service: Service) -> Union[_bleio.Characteristic, BoundWriteStream]:
+    def bind(
+        self, service: Service
+    ) -> Union[_bleio.CharacteristicBuffer, BoundWriteStream]:
         """Binds the characteristic to the given Service."""
         bound_characteristic = super().bind(service)
         # If we're given a remote service then we're the client and need to buffer in.
