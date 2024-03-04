@@ -145,6 +145,9 @@ class BLEConnection:
     def disconnect(self) -> None:
         """Disconnect from peer."""
         self._bleio_connection.disconnect()
+        # Clean up any services that need explicit cleanup.
+        for service in self._constructed_services.values():
+            service.deinit()
 
 
 class BLERadio:
