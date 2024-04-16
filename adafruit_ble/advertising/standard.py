@@ -27,7 +27,6 @@ from ..uuid import StandardUUID, VendorUUID
 try:
     from typing import Optional, List, Tuple, Union, Type, Iterator, Iterable, Any
     from adafruit_ble.uuid import UUID
-    from adafruit_ble.characteristics import Characteristic
     from adafruit_ble.services import Service
     from _bleio import ScanEntry
 
@@ -71,7 +70,7 @@ class BoundServiceList:
                     uuid = VendorUUID(data[16 * i : 16 * (i + 1)])
                     self._vendor_services.append(uuid)
 
-    def __contains__(self, key: Union[UUID, Characteristic]) -> bool:
+    def __contains__(self, key: Union[UUID, Service]) -> bool:
         uuid = key
         if hasattr(key, "uuid"):
             uuid = key.uuid
@@ -353,7 +352,7 @@ class ServiceData(AdvertisingDataField):
     """Encapsulates service data. It is read as a memoryview which can be manipulated or set as a
     bytearray to change the size."""
 
-    def __init__(self, service: Characteristic) -> None:
+    def __init__(self, service: Service) -> None:
         if isinstance(service.uuid, StandardUUID):
             self._adt = 0x16
         elif isinstance(service.uuid, VendorUUID):
