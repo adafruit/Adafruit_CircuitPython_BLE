@@ -25,7 +25,9 @@ try:
 
         from adafruit_ble.characteristics import Characteristic
         from adafruit_ble.services import Service
-        from adafruit_ble.uuid import UUID
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -55,7 +57,7 @@ class StreamOut(ComplexCharacteristic):
     def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         timeout: float = 1.0,
         buffer_size: int = 64,
         properties: int = Characteristic.NOTIFY,
@@ -90,7 +92,7 @@ class StreamIn(ComplexCharacteristic):
     def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         timeout: float = 1.0,
         buffer_size: int = 64,
         properties: int = (Characteristic.WRITE | Characteristic.WRITE_NO_RESPONSE),

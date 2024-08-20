@@ -19,9 +19,6 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class UUID:
     """Top level UUID"""
 
-    bleio_uuid: _bleio.UUID
-    size: int
-
     # TODO: Make subclassing _bleio.UUID work so we can just use it directly.
     # pylint: disable=no-member
     def __hash__(self):

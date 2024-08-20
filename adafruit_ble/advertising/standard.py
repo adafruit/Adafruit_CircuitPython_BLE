@@ -28,8 +28,10 @@ from . import (
 
 try:
     from typing import (
+        TYPE_CHECKING,
         Any,
         Collection,
+        Dict,
         Iterable,
         Iterator,
         List,
@@ -39,15 +41,21 @@ try:
         Union,
     )
 
-    from _bleio import ScanEntry
+    if TYPE_CHECKING:
+        from _bleio import ScanEntry
 
-    from adafruit_ble.services import Service
-    from adafruit_ble.uuid import UUID
+        from adafruit_ble.services import Service
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
 
-    UsesServicesAdvertisement = Union[
-        "ProvideServicesAdvertisement", "SolicitServicesAdvertisement"
-    ]
+        from . import DataDict
 
+        AdvServiceLists = Dict[int, "BoundServiceList"]
+
+        UsesServicesAdvertisement = Union[
+            "ProvideServicesAdvertisement", "SolicitServicesAdvertisement"
+        ]
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -69,28 +77,30 @@ class BoundServiceList:
         self._advertisement = advertisement
         self._standard_service_fields = standard_services
         self._vendor_service_fields = vendor_services
-        self._standard_services = []
-        self._vendor_services = []
+        self._standard_services: List[StandardUUID] = []
+        self._vendor_services: List[VendorUUID] = []
         for adt in standard_services:
             if adt in self._advertisement.data_dict:
                 data = self._advertisement.data_dict[adt]
                 for i in range(len(data) // 2):
-                    uuid = StandardUUID(data[2 * i : 2 * (i + 1)])
-                    self._standard_services.append(uuid)
+                    standard_uuid = StandardUUID(data[2 * i : 2 * (i + 1)])
+                    self._standard_services.append(standard_uuid)
         for adt in vendor_services:
             if adt in self._advertisement.data_dict:
                 data = self._advertisement.data_dict[adt]
                 for i in range(len(data) // 16):
-                    uuid = VendorUUID(data[16 * i : 16 * (i + 1)])
-                    self._vendor_services.append(uuid)
+                    vendor_uuid = VendorUUID(data[16 * i : 16 * (i + 1)])
+                    self._vendor_services.append(vendor_uuid)
 
-    def __contains__(self, key: Union[UUID, Service]) -> bool:
+    def __contains__(self, key: Union[Uuid, Service]) -> bool:
         uuid = key
         if hasattr(key, "uuid"):
             uuid = key.uuid
         return uuid in self._vendor_services or uuid in self._standard_services
 
-    def _update(self, adt: int, uuids: List[UUID]) -> None:
+    def _update(
+        self, adt: int, uuids: Union[List[StandardUUID], List[VendorUUID]]
+    ) -> None:
         if not uuids:
             # uuids is empty
             del self._advertisement.data_dict[adt]
@@ -102,7 +112,7 @@ class BoundServiceList:
             i += uuid_length
         self._advertisement.data_dict[adt] = b
 
-    def __iter__(self) -> Iterator[UUID]:
+    def __iter__(self) -> Iterator[Uuid]:
         all_services = list(self._standard_services)
         all_services.extend(self._vendor_services)
         return iter(all_services)
@@ -149,10 +159,10 @@ class BoundServiceList:
 
     def __str__(self) -> str:
         data = []
-        for service_uuid in self._standard_services:
-            data.append(str(service_uuid))
-        for service_uuid in self._vendor_services:
-            data.append(str(service_uuid))
+        for standard_service_uuid in self._standard_services:
+            data.append(str(standard_service_uuid))
+        for vendor_service_uuid in self._vendor_services:
+            data.append(str(vendor_service_uuid))
         return "<BoundServiceList: {}>".format(", ".join(data))
 
 
@@ -194,6 +204,8 @@ class ServiceList(AdvertisingDataField):
 class ProvideServicesAdvertisement(Advertisement):
     """Advertise what services that the device makes available upon connection."""
 
+    adv_service_lists: AdvServiceLists
+
     # Prefixes that match each ADT that can carry service UUIDs.
     match_prefixes = (b"\x02", b"\x03", b"\x06", b"\x07")
     services = ServiceList(standard_services=[0x02, 0x03], vendor_services=[0x06, 0x07])
@@ -222,6 +234,8 @@ class ProvideServicesAdvertisement(Advertisement):
 
 class SolicitServicesAdvertisement(Advertisement):
     """Advertise what services the device would like to use over a connection."""
+
+    adv_service_lists: AdvServiceLists
 
     # Prefixes that match each ADT that can carry solicited service UUIDs.
     match_prefixes = (b"\x14", b"\x15")
@@ -263,7 +277,9 @@ class ManufacturerData(AdvertisingDataField):
         self._company_id = company_id
         self._adt = advertising_data_type
 
-        self.data = OrderedDict()  # makes field order match order they are set in
+        self.data: DataDict = (
+            OrderedDict()
+        )  # makes field order match order they are set in
         self.company_id = company_id
         encoded_company = struct.pack("<H", company_id)
         if 0xFF in obj.data_dict:
@@ -334,12 +350,14 @@ class ManufacturerDataField:
         if len(packed) % self._entry_length != 0:
             raise RuntimeError("Invalid data length")
         entry_count = len(packed) // self._entry_length
-        unpacked = [None] * entry_count
+        unpacked_: List[Optional[Tuple[Any, ...]]] = [None] * entry_count
         for i in range(entry_count):
             offset = i * self._entry_length
-            unpacked[i] = struct.unpack_from(self._format, packed, offset=offset)
+            unpacked_[i] = struct.unpack_from(self._format, packed, offset=offset)
             if self.element_count == 1:
-                unpacked[i] = unpacked[i][0]
+                val = unpacked_[i]
+                assert val is not None
+                unpacked_[i] = val[0]
         return tuple(unpacked)
 
     def __set__(self, obj: "Advertisement", value: Any) -> None:

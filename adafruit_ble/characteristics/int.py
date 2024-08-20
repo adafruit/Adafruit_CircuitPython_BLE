@@ -22,7 +22,9 @@ try:
 
         from adafruit_ble.characteristics import Characteristic
         from adafruit_ble.services import Service
-        from adafruit_ble.uuid import UUID
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -40,7 +42,7 @@ class IntCharacteristic(StructCharacteristic):
         min_value: int,
         max_value: int,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         properties: int = 0,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,

@@ -45,7 +45,10 @@ try:
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
 
-        from adafruit_ble.uuid import UUID
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
+
 
 except ImportError:
     pass
@@ -66,11 +69,11 @@ class BLEConnection:
     def __init__(self, bleio_connection: _bleio.Connection) -> None:
         self._bleio_connection = bleio_connection
         # _bleio.Service objects representing services found during discovery.
-        self._discovered_bleio_services: Dict[UUID, _bleio.Service] = {}
+        self._discovered_bleio_services: Dict[Uuid, _bleio.Service] = {}
         # Service objects that wrap remote services.
-        self._constructed_services: Dict[UUID, Service] = {}
+        self._constructed_services: Dict[Uuid, Service] = {}
 
-    def _discover_remote(self, uuid: UUID) -> Optional[_bleio.Service]:
+    def _discover_remote(self, uuid: Uuid) -> Optional[_bleio.Service]:
         remote_service = None
         if uuid in self._discovered_bleio_services:
             remote_service = self._discovered_bleio_services[uuid]
@@ -83,7 +86,7 @@ class BLEConnection:
                 self._discovered_bleio_services[uuid] = remote_service
         return remote_service
 
-    def __contains__(self, key: Union[UUID, Type[Service]]) -> bool:
+    def __contains__(self, key: Union[Uuid, Type[Service]]) -> bool:
         """
         Allows easy testing for a particular Service class or a particular UUID
         associated with this connection.
@@ -101,7 +104,7 @@ class BLEConnection:
             uuid = key.uuid
         return self._discover_remote(uuid) is not None
 
-    def __getitem__(self, key: Union[UUID, Type[Service]]) -> Optional[Service]:
+    def __getitem__(self, key: Union[Uuid, Type[Service]]) -> Optional[Service]:
         """Return the Service for the given Service class or uuid, if any."""
         uuid = key
         maybe_service = False
@@ -109,7 +112,7 @@ class BLEConnection:
             uuid = key.uuid
             maybe_service = True
 
-        if isinstance(uuid) and uuid in self._constructed_services:
+        if uuid in self._constructed_services:
             return self._constructed_services[uuid]
 
         remote_service = self._discover_remote(uuid)

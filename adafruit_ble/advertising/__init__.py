@@ -11,17 +11,7 @@ from __future__ import annotations
 import struct
 
 try:
-    from typing import (
-        TYPE_CHECKING,
-        Any,
-        Dict,
-        List,
-        Optional,
-        Tuple,
-        Type,
-        TypeVar,
-        Union,
-    )
+    from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, Type, TypeVar, Union
 
     from typing_extensions import Literal
 
@@ -245,6 +235,7 @@ class Advertisement:
 
     address: Optional[Address]
     _rssi: Optional[int]
+    mutable: bool
 
     match_prefixes: Optional[Tuple[bytes, ...]] = ()
     """For Advertisement, :py:attr:`~adafruit_ble.advertising.Advertisement.match_prefixes`

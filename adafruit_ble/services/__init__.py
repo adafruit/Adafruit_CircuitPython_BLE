@@ -15,12 +15,14 @@ import _bleio
 from ..characteristics import Characteristic, ComplexCharacteristic
 
 try:
-    from typing import TYPE_CHECKING, Dict, Optional
+    from typing import TYPE_CHECKING, Dict, Optional, Union
 except ImportError:
     pass
 
 if TYPE_CHECKING:
-    from adafruit_ble.uuid import UUID
+    from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+    Uuid = Union[StandardUUID, VendorUUID]
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -39,7 +41,7 @@ class Service:
     instance for the connection's peer.
     """
 
-    uuid: UUID
+    uuid: Uuid
 
     def __init__(
         self,

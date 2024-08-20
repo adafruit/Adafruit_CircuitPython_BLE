@@ -22,7 +22,9 @@ try:
 
         from adafruit_ble.characteristics import Characteristic
         from adafruit_ble.services import Service
-        from adafruit_ble.uuid import UUID
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -37,7 +39,7 @@ class FloatCharacteristic(StructCharacteristic):
     def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         properties: int = 0,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,

@@ -21,7 +21,9 @@ try:
         from circuitpython_typing import ReadableBuffer
 
         from adafruit_ble.services import Service
-        from adafruit_ble.uuid import UUID
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -36,7 +38,7 @@ class StringCharacteristic(Characteristic):
     def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         properties: int = Characteristic.READ,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,
@@ -79,7 +81,7 @@ class FixedStringCharacteristic(Characteristic):
     """Fixed strings are set once when bound and unchanged after."""
 
     def __init__(
-        self, *, uuid: Optional[UUID] = None, read_perm: int = Attribute.OPEN
+        self, *, uuid: Optional[Uuid] = None, read_perm: int = Attribute.OPEN
     ) -> None:
         super().__init__(
             uuid=uuid,
