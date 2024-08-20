@@ -9,12 +9,11 @@ peripheral.
 
 import time
 
+import adafruit_lis3dh
 import board
 import busio
 import digitalio
-import adafruit_lis3dh
 import neopixel
-
 from adafruit_bluefruit_connect.color_packet import ColorPacket
 
 from adafruit_ble import BLERadio

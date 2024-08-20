@@ -8,9 +8,9 @@ slide switch. The buttons change the color when advertising.
 """
 
 import time
+
 import board
 import digitalio
-
 import neopixel
 
 from adafruit_ble import BLERadio

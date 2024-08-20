@@ -7,6 +7,7 @@ manufacturer and model number of the device(s) that connect to it.
 """
 
 import time
+
 import adafruit_ble
 from adafruit_ble.advertising.standard import Advertisement
 from adafruit_ble.services.standard.device_info import DeviceInfoService

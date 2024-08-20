@@ -4,10 +4,10 @@
 
 # Read sensor readings from peripheral BLE device using a JSON characteristic.
 
-from adafruit_ble.uuid import VendorUUID
-from adafruit_ble.services import Service
 from adafruit_ble.characteristics import Characteristic
 from adafruit_ble.characteristics.json import JSONCharacteristic
+from adafruit_ble.services import Service
+from adafruit_ble.uuid import VendorUUID
 
 
 # A custom service with two JSON characteristics for this device.  The "sensors" characteristic

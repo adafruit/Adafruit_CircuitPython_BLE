@@ -12,16 +12,16 @@ This module provides string characteristics.
 
 from __future__ import annotations
 
-from . import Attribute
-from . import Characteristic
+from . import Attribute, Characteristic
 
 try:
-    from typing import Optional, Type, Union, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional, Type, Union, overload
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -33,7 +33,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class StringCharacteristic(Characteristic):
     """UTF-8 Encoded string characteristic."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         uuid: Optional[UUID] = None,
@@ -52,9 +52,21 @@ class StringCharacteristic(Characteristic):
             initial_value=initial_value,
         )
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __get__(
+            self, obj: None, cls: Optional[Type[Service]] = None
+        ) -> Characteristic:
+            ...
+
+        @overload
+        def __get__(self, obj: Service, cls: Optional[Type[Service]] = None) -> str:
+            ...
+
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Union[str, "StringCharacteristic"]:
+    ) -> Union[Characteristic, str]:
         if obj is None:
             return self
         return str(super().__get__(obj, cls), "utf-8")
@@ -77,9 +89,21 @@ class FixedStringCharacteristic(Characteristic):
             fixed_length=True,
         )
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __get__(
+            self, obj: None, cls: Optional[Type[Service]] = None
+        ) -> Characteristic:
+            ...
+
+        @overload
+        def __get__(self, obj: Service, cls: Optional[Type[Service]] = None) -> str:
+            ...
+
     def __get__(
-        self, obj: Service, cls: Optional[Type[Service]] = None
-    ) -> Union[str, "FixedStringCharacteristic"]:
+        self, obj: Optional[Service], cls: Optional[Type[Service]] = None
+    ) -> Union[Characteristic, str]:
         if obj is None:
             return self
         return str(super().__get__(obj, cls), "utf-8")

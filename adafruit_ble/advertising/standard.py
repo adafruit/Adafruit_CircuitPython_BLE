@@ -11,24 +11,38 @@ even though multiple purposes may actually be present in a single packet.
 
 """
 
+from __future__ import annotations
+
 import struct
 from collections import OrderedDict, namedtuple
 
+from ..uuid import StandardUUID, VendorUUID
 from . import (
     Advertisement,
     AdvertisingDataField,
-    encode_data,
-    decode_data,
-    to_hex,
     compute_length,
+    decode_data,
+    encode_data,
+    to_hex,
 )
-from ..uuid import StandardUUID, VendorUUID
 
 try:
-    from typing import Optional, List, Tuple, Union, Type, Iterator, Iterable, Any
-    from adafruit_ble.uuid import UUID
-    from adafruit_ble.services import Service
+    from typing import (
+        Any,
+        Collection,
+        Iterable,
+        Iterator,
+        List,
+        Optional,
+        Tuple,
+        Type,
+        Union,
+    )
+
     from _bleio import ScanEntry
+
+    from adafruit_ble.services import Service
+    from adafruit_ble.uuid import UUID
 
     UsesServicesAdvertisement = Union[
         "ProvideServicesAdvertisement", "SolicitServicesAdvertisement"
@@ -50,7 +64,7 @@ class BoundServiceList:
         advertisement: UsesServicesAdvertisement,
         *,
         standard_services: List[int],
-        vendor_services: List[int]
+        vendor_services: List[int],
     ) -> None:
         self._advertisement = advertisement
         self._standard_service_fields = standard_services
@@ -243,7 +257,7 @@ class ManufacturerData(AdvertisingDataField):
         *,
         advertising_data_type: int = 0xFF,
         company_id: int,
-        key_encoding: str = "B"
+        key_encoding: str = "B",
     ) -> None:
         self._obj = obj
         self._company_id = company_id
@@ -281,7 +295,7 @@ class ManufacturerDataField:
     """A single piece of data within the manufacturer specific data. The format can be repeated."""
 
     def __init__(
-        self, key: int, value_format: str, field_names: Optional[Iterable[str]] = None
+        self, key: int, value_format: str, field_names: Optional[Collection[str]] = None
     ) -> None:
         self._key = key
         self._format = value_format
@@ -302,7 +316,7 @@ class ManufacturerDataField:
 
     def __get__(
         self, obj: Optional[Advertisement], cls: Type[Advertisement]
-    ) -> Optional[Union["ManufacturerDataField", Tuple, namedtuple]]:
+    ) -> Optional[Union["ManufacturerDataField", Tuple, tuple]]:
         if obj is None:
             return self
         if self._key not in obj.manufacturer_data.data:

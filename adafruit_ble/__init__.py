@@ -12,9 +12,10 @@ building on the native `_bleio` module.
 
 from __future__ import annotations
 
+import sys
+
 # pylint: disable=wrong-import-position
 
-import sys
 
 if sys.implementation.name == "circuitpython" and sys.implementation.version[0] <= 4:
     raise ImportError(
@@ -24,17 +25,27 @@ if sys.implementation.name == "circuitpython" and sys.implementation.version[0] 
 
 import _bleio
 
-from .services import Service
 from .advertising import Advertisement
+from .services import Service
 
 try:
-    from typing import Iterator, NoReturn, Optional, Tuple, Type, TYPE_CHECKING, Union
+    from typing import (
+        TYPE_CHECKING,
+        Dict,
+        Iterator,
+        NoReturn,
+        Optional,
+        Tuple,
+        Type,
+        Union,
+    )
+
     from typing_extensions import Literal
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
+
         from adafruit_ble.uuid import UUID
-        from adafruit_ble.characteristics import Characteristic
 
 except ImportError:
     pass
@@ -55,9 +66,9 @@ class BLEConnection:
     def __init__(self, bleio_connection: _bleio.Connection) -> None:
         self._bleio_connection = bleio_connection
         # _bleio.Service objects representing services found during discovery.
-        self._discovered_bleio_services = {}
+        self._discovered_bleio_services: Dict[UUID, _bleio.Service] = {}
         # Service objects that wrap remote services.
-        self._constructed_services = {}
+        self._constructed_services: Dict[UUID, Service] = {}
 
     def _discover_remote(self, uuid: UUID) -> Optional[_bleio.Service]:
         remote_service = None
@@ -98,7 +109,7 @@ class BLEConnection:
             uuid = key.uuid
             maybe_service = True
 
-        if uuid in self._constructed_services:
+        if isinstance(uuid) and uuid in self._constructed_services:
             return self._constructed_services[uuid]
 
         remote_service = self._discover_remote(uuid)
@@ -166,7 +177,7 @@ class BLERadio:
             raise RuntimeError("No adapter available")
         self._adapter = adapter or _bleio.adapter
         self._current_advertisement = None
-        self._connection_cache = {}
+        self._connection_cache: Dict[_bleio.Connection, BLEConnection] = {}
 
     def start_advertising(
         self,
@@ -223,7 +234,7 @@ class BLERadio:
         """Stops advertising."""
         self._adapter.stop_advertising()
 
-    def start_scan(
+    def start_scan(  # pylint: disable=too-many-arguments
         self,
         *advertisement_types: Type[Advertisement],
         buffer_size: int = 512,
@@ -311,9 +322,15 @@ class BLERadio:
         :return: the connection to the peer
         :rtype: BLEConnection
         """
-        if not isinstance(peer, _bleio.Address):
-            peer = peer.address
-        connection = self._adapter.connect(peer, timeout=timeout)
+        if isinstance(peer, _bleio.Address):
+            peer_ = peer
+        else:
+            if peer.address is None:
+                msg = "Unreachable?"
+                raise RuntimeError(msg)
+            peer_ = peer.address
+
+        connection = self._adapter.connect(peer_, timeout=timeout)
         self._clean_connection_cache()
         self._connection_cache[connection] = BLEConnection(connection)
         return self._connection_cache[connection]

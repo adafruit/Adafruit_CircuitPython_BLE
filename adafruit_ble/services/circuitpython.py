@@ -10,11 +10,11 @@ This module provides Services defined by CircuitPython. **Out of date.**
 
 """
 
-from . import Service
 from ..characteristics import Characteristic
 from ..characteristics.stream import StreamOut
 from ..characteristics.string import StringCharacteristic
 from ..uuid import VendorUUID
+from . import Service
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"

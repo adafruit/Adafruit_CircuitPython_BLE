@@ -12,16 +12,17 @@ This module provides integer characteristics that are usable directly as attribu
 
 from __future__ import annotations
 
-from . import Attribute
-from . import StructCharacteristic
+from . import Attribute, StructCharacteristic
 
 try:
-    from typing import Optional, Type, Union, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional, Type, Union, overload
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
+        from adafruit_ble.characteristics import Characteristic
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -33,7 +34,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class IntCharacteristic(StructCharacteristic):
     """Superclass for different kinds of integer fields."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         format_string: str,
         min_value: int,
@@ -61,12 +62,28 @@ class IntCharacteristic(StructCharacteristic):
             initial_value=initial_value,
         )
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __get__(
+            self, obj: None, cls: Optional[Type[Service]] = None
+        ) -> Characteristic:
+            ...
+
+        @overload
+        def __get__(self, obj: Service, cls: Optional[Type[Service]] = None) -> int:
+            ...
+
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Union[int, "IntCharacteristic"]:
+    ) -> Union[Characteristic, int]:
         if obj is None:
             return self
-        return super().__get__(obj)[0]
+        get = super().__get__(obj)
+        if get is None:
+            msg = "Unreachable?"
+            raise RuntimeError(msg)
+        return get[0]  # pylint: disable=unsubscriptable-object
 
     def __set__(self, obj: Service, value: int) -> None:
         if not self._min_value <= value <= self._max_value:

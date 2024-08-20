@@ -15,12 +15,12 @@ import binascii
 import os
 import sys
 
-from .. import Service
-from ...uuid import StandardUUID
 from ...characteristics.string import FixedStringCharacteristic
+from ...uuid import StandardUUID
+from .. import Service
 
 try:
-    from typing import Optional, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional
 
     if TYPE_CHECKING:
         import _bleio
@@ -43,7 +43,7 @@ class DeviceInfoService(Service):
     software_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2A28))
     manufacturer = FixedStringCharacteristic(uuid=StandardUUID(0x2A29))
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         manufacturer: Optional[str] = None,

@@ -15,18 +15,17 @@ from __future__ import annotations
 
 import _bleio
 
-from . import Attribute
-from . import Characteristic
-from . import ComplexCharacteristic
+from . import Attribute, Characteristic, ComplexCharacteristic
 
 try:
-    from typing import Optional, Union, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional, Union
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
+
         from adafruit_ble.characteristics import Characteristic
-        from adafruit_ble.uuid import UUID
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -53,7 +52,7 @@ class BoundWriteStream:
 class StreamOut(ComplexCharacteristic):
     """Output stream from the Service server."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         uuid: Optional[UUID] = None,
@@ -88,7 +87,7 @@ class StreamOut(ComplexCharacteristic):
 class StreamIn(ComplexCharacteristic):
     """Input stream into the Service server."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         uuid: Optional[UUID] = None,

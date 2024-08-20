@@ -15,9 +15,8 @@ from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 import adafruit_ble
 from adafruit_ble.advertising import Advertisement
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-from adafruit_ble.services.standard.hid import HIDService
 from adafruit_ble.services.standard.device_info import DeviceInfoService
-
+from adafruit_ble.services.standard.hid import HIDService
 
 # Use default HID descriptor
 hid = HIDService()

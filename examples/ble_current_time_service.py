@@ -7,6 +7,7 @@ pairing and then prints the time every second.
 """
 
 import time
+
 import adafruit_ble
 from adafruit_ble.advertising.standard import SolicitServicesAdvertisement
 from adafruit_ble.services.standard import CurrentTimeService

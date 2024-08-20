@@ -16,18 +16,35 @@ from __future__ import annotations
 
 import struct
 
-from micropython import const
 import _bleio
+from micropython import const
 
-from adafruit_ble.characteristics import Attribute
-from adafruit_ble.characteristics import Characteristic
+from adafruit_ble.characteristics import Attribute, Characteristic
 from adafruit_ble.characteristics.int import Uint8Characteristic
 from adafruit_ble.uuid import StandardUUID
 
 from .. import Service
 
 try:
-    from typing import Dict, Optional
+    from typing import TYPE_CHECKING, Dict, List, Literal, Optional, Union
+
+    if TYPE_CHECKING:
+        from typing import TypedDict
+
+        from circuitpython_typing import ReadableBuffer
+
+        class Collection(TypedDict, total=False):
+            """Stub for type checker."""
+
+            # NOTE(elpekenin): total=False means not all keys are required
+            # however i'm pretty sure type,locals,globals are always present
+            # may do that with inheritance, but doesnt seem worth
+            tag: Union[Literal["input"], Literal["output"]]
+            type: ReadableBuffer
+            locals: List[ReadableBuffer]
+            globals: List[ReadableBuffer]
+            mains: List[Collection]
+
 except ImportError:
     pass
 
@@ -173,7 +190,7 @@ class ReportIn:
 
     uuid = StandardUUID(_REPORT_UUID_NUM)
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         service: Service,
         report_id: int,
@@ -214,7 +231,7 @@ class ReportOut:
     # pylint: disable=too-few-public-methods
     uuid = StandardUUID(_REPORT_UUID_NUM)
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         service: Service,
         report_id: int,
@@ -357,12 +374,12 @@ class HIDService(Service):
 
     def _init_devices(self) -> None:
         # pylint: disable=too-many-branches,too-many-statements,too-many-locals
-        self.devices = []
+        self.devices: List[Union[ReportIn, ReportOut]] = []
         hid_descriptor = self.report_map
 
         global_table = [None] * 10
         local_table = [None] * 3
-        collections = []
+        collections: List[Collection] = []
         top_level_collections = []
 
         i = 0
@@ -417,7 +434,7 @@ class HIDService(Service):
 
             i += size
 
-        def get_report_info(collection: Dict, reports: Dict) -> None:
+        def get_report_info(collection: Collection, reports: Dict) -> None:
             """Gets info about hid reports"""
             for main in collection["mains"]:
                 if "type" in main:
@@ -440,7 +457,7 @@ class HIDService(Service):
                 )
             usage_page = collection["globals"][0][0]
             usage = collection["locals"][0][0]
-            reports = {}
+            reports: Dict[int, Dict] = {}
             get_report_info(collection, reports)
             if len(reports) > 1:
                 raise NotImplementedError(

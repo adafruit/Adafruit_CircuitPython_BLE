@@ -13,16 +13,16 @@ This module provides Services used by Nordic Semiconductors.
 
 from __future__ import annotations
 
-from . import Service
+from ..characteristics.stream import StreamIn, StreamOut
 from ..uuid import VendorUUID
-from ..characteristics.stream import StreamOut, StreamIn
+from . import Service
 
 try:
-    from typing import Optional, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional
 
     if TYPE_CHECKING:
-        from circuitpython_typing import WriteableBuffer, ReadableBuffer
         import _bleio
+        from circuitpython_typing import ReadableBuffer, WriteableBuffer
 
 except ImportError:
     pass

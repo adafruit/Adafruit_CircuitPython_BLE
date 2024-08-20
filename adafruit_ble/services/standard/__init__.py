@@ -12,12 +12,11 @@ from __future__ import annotations
 
 import time
 
-from .. import Service
-from ...uuid import StandardUUID
-from ...characteristics import Characteristic
-from ...characteristics.string import StringCharacteristic
-from ...characteristics import StructCharacteristic
+from ...characteristics import Characteristic, StructCharacteristic
 from ...characteristics.int import Uint8Characteristic
+from ...characteristics.string import StringCharacteristic
+from ...uuid import StandardUUID
+from .. import Service
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -78,7 +77,12 @@ class CurrentTimeService(Service):
         """The current time as a `time.struct_time`. Day of year and whether DST is in effect
         are always -1.
         """
-        year, month, day, hour, minute, second, weekday, _, _ = self.current_time
+        current_time = self.current_time
+        if current_time is None:
+            msg = "Could not get current time."
+            raise RuntimeError(msg)
+
+        year, month, day, hour, minute, second, weekday, _, _ = current_time
         # Bluetooth weekdays count from 1. struct_time counts from 0.
         return time.struct_time(
             (year, month, day, hour, minute, second, weekday - 1, -1, -1)

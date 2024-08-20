@@ -4,9 +4,11 @@
 # CircuitPython Bluefruit LE Connect Plotter Example
 
 import time
-import board
-import analogio
+
 import adafruit_thermistor
+import analogio
+import board
+
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 from adafruit_ble.services.nordic import UARTService

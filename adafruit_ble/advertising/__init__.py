@@ -11,15 +11,28 @@ from __future__ import annotations
 import struct
 
 try:
-    from typing import Dict, Any, Union, List, Optional, Type, TypeVar, TYPE_CHECKING
+    from typing import (
+        TYPE_CHECKING,
+        Any,
+        Dict,
+        List,
+        Optional,
+        Tuple,
+        Type,
+        TypeVar,
+        Union,
+    )
+
     from typing_extensions import Literal
 
     if TYPE_CHECKING:
-        from _bleio import ScanEntry
+        from _bleio import Address, ScanEntry
 
         LazyObjectField_GivenClass = TypeVar(  # pylint: disable=invalid-name
             "LazyObjectField_GivenClass"
         )
+
+        DataDict = Dict[Any, bytes]
 
 except ImportError:
     pass
@@ -35,9 +48,7 @@ def to_bytes_literal(seq: bytes) -> str:
     return 'b"' + "".join("\\x{:02x}".format(v) for v in seq) + '"'
 
 
-def decode_data(
-    data: bytes, *, key_encoding: str = "B"
-) -> Dict[Any, Union[bytes, List[bytes]]]:
+def decode_data(data: bytes, *, key_encoding: str = "B") -> DataDict:
     """Helper which decodes length encoded structures into a dictionary with the given key
     encoding."""
     i = 0
@@ -49,20 +60,17 @@ def decode_data(
         if item_length == 0:
             break
         key = struct.unpack_from(key_encoding, data, i)[0]
+        if key not in data_dict:
+            data_dict[key] = b""
+
         value = data[i + key_size : i + item_length]
-        if key in data_dict:
-            if not isinstance(data_dict[key], list):
-                data_dict[key] = [data_dict[key]]
-            data_dict[key].append(value)
-        else:
-            data_dict[key] = value
+        data_dict[key] += value
+
         i += item_length
     return data_dict
 
 
-def compute_length(
-    data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encoding: str = "B"
-) -> int:
+def compute_length(data_dict: DataDict, *, key_encoding: str = "B") -> int:
     """Computes the length of the encoded data dictionary."""
     value_size = 0
     for value in data_dict.values():
@@ -74,9 +82,7 @@ def compute_length(
     return len(data_dict) + len(data_dict) * struct.calcsize(key_encoding) + value_size
 
 
-def encode_data(
-    data_dict: Dict[Any, Union[bytes, List[bytes]]], *, key_encoding: str = "B"
-) -> bytes:
+def encode_data(data_dict: DataDict, *, key_encoding: str = "B") -> bytes:
     """Helper which encodes dictionaries into length encoded structures with the given key
     encoding."""
     length = compute_length(data_dict, key_encoding=key_encoding)
@@ -237,7 +243,10 @@ class Advertisement:
     bytestring prefixes to match against the multiple data structures in the advertisement.
     """
 
-    match_prefixes = ()
+    address: Optional[Address]
+    _rssi: Optional[int]
+
+    match_prefixes: Optional[Tuple[bytes, ...]] = ()
     """For Advertisement, :py:attr:`~adafruit_ble.advertising.Advertisement.match_prefixes`
     will always return ``True``. Subclasses may override this value."""
     # cached bytes of merged prefixes.
@@ -293,15 +302,16 @@ class Advertisement:
         return self._rssi
 
     @classmethod
-    def get_prefix_bytes(cls) -> Optional[bytes]:
+    def get_prefix_bytes(cls) -> bytes:
         """Return a merged version of match_prefixes as a single bytes object,
         with length headers.
         """
         # Check for deprecated `prefix` class attribute.
-        cls._prefix_bytes = getattr(cls, "prefix", None)
+        prefix_bytes: Optional[bytes] = getattr(cls, "prefix", None)
+
         # Do merge once and memoize it.
-        if cls._prefix_bytes is None:
-            cls._prefix_bytes = (
+        cls._prefix_bytes = (
+            (
                 b""
                 if cls.match_prefixes is None
                 else b"".join(
@@ -309,6 +319,9 @@ class Advertisement:
                     for prefix in cls.match_prefixes
                 )
             )
+            if prefix_bytes is None
+            else prefix_bytes
+        )
 
         return cls._prefix_bytes
 

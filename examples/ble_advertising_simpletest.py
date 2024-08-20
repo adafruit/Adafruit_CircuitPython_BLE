@@ -6,7 +6,6 @@ Simple connectable name advertisement. No services.
 """
 
 from adafruit_ble import BLERadio
-
 from adafruit_ble.advertising import Advertisement
 
 ble = BLERadio()
