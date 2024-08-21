@@ -41,6 +41,9 @@ uart_connection = None
 # See if any existing connections are providing UARTService.
 if ble.connected:
     for connection in ble.connections:
+        if connection is None:
+            raise RuntimeError
+
         if UARTService in connection:
             uart_connection = connection
         break
@@ -63,7 +66,10 @@ while True:
         neopixels.fill(color)
         color_packet = ColorPacket(color)
         try:
-            uart_connection[UARTService].write(color_packet.to_bytes())
+            service = uart_connection[UARTService]
+            if service is None:
+                raise RuntimeError
+            service.write(color_packet.to_bytes())
         except OSError:
             try:
                 uart_connection.disconnect()

@@ -24,6 +24,9 @@ while True:
 
     if connection and connection.connected:
         service = connection[SensorService]
+        if service is None:
+            raise RuntimeError
+
         service.settings = {"unit": "celsius"}  #  'fahrenheit'
         while connection.connected:
             print("Sensors: ", service.sensors)

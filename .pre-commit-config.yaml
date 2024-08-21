@@ -45,3 +45,7 @@ repos:
         files: "^tests/"
         args:
           - --disable=missing-docstring,consider-using-f-string,duplicate-code
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.0
+    hooks:
+      - id: mypy

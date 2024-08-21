@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from . import Attribute, StructCharacteristic
 
+TYPE_CHECKING = False
 try:
     from typing import TYPE_CHECKING, Optional, Type, Union, overload
 
@@ -57,8 +58,9 @@ class FloatCharacteristic(StructCharacteristic):
         )
 
     if TYPE_CHECKING:
-
-        @overload
+        # NOTE(elpekenin): return type doesn't match parent, but that's
+        # not a problem
+        @overload  # type: ignore[override]
         def __get__(
             self, obj: None, cls: Optional[Type[Service]] = None
         ) -> Characteristic:
@@ -75,9 +77,8 @@ class FloatCharacteristic(StructCharacteristic):
             return self
         get = super().__get__(obj)
         if get is None:
-            msg = "Unreachable?"
-            raise RuntimeError(msg)
+            raise RuntimeError
         return get[0]  # pylint: disable=unsubscriptable-object
 
-    def __set__(self, obj: Service, value: float) -> None:
+    def __set__(self, obj: Service, value: float) -> None:  # type: ignore[override]
         super().__set__(obj, (value,))

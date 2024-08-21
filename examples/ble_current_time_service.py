@@ -15,6 +15,8 @@ from adafruit_ble.services.standard import CurrentTimeService
 radio = adafruit_ble.BLERadio()
 a = SolicitServicesAdvertisement()
 a.complete_name = "TimePlease"
+if not a.solicited_services:
+    raise RuntimeError
 a.solicited_services.append(CurrentTimeService)
 radio.start_advertising(a)
 
@@ -25,10 +27,17 @@ print("connected")
 
 while radio.connected:
     for connection in radio.connections:
+        if connection is None:
+            raise RuntimeError
+
         if not connection.paired:
             connection.pair()
             print("paired")
+
         cts = connection[CurrentTimeService]
+        if cts is None:
+            raise RuntimeError
+
         print(cts.current_time)
     time.sleep(1)
 

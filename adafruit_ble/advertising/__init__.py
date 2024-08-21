@@ -11,7 +11,17 @@ from __future__ import annotations
 import struct
 
 try:
-    from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, Type, TypeVar, Union
+    from typing import (
+        TYPE_CHECKING,
+        Any,
+        Dict,
+        List,
+        Optional,
+        Tuple,
+        Type,
+        TypeVar,
+        Union,
+    )
 
     from typing_extensions import Literal
 
@@ -22,7 +32,7 @@ try:
             "LazyObjectField_GivenClass"
         )
 
-        DataDict = Dict[Any, bytes]
+        DataDict = Dict[int, Union[bytes, List[bytes]]]
 
 except ImportError:
     pass
@@ -42,7 +52,7 @@ def decode_data(data: bytes, *, key_encoding: str = "B") -> DataDict:
     """Helper which decodes length encoded structures into a dictionary with the given key
     encoding."""
     i = 0
-    data_dict = {}
+    data_dict: DataDict = {}
     key_size = struct.calcsize(key_encoding)
     while i < len(data):
         item_length = data[i]
@@ -50,12 +60,15 @@ def decode_data(data: bytes, *, key_encoding: str = "B") -> DataDict:
         if item_length == 0:
             break
         key = struct.unpack_from(key_encoding, data, i)[0]
-        if key not in data_dict:
-            data_dict[key] = b""
-
         value = data[i + key_size : i + item_length]
-        data_dict[key] += value
-
+        if key in data_dict:
+            cur_value = data_dict[key]
+            if isinstance(cur_value, list):
+                cur_value.append(value)
+            else:
+                data_dict[key] = [cur_value, value]
+        else:
+            data_dict[key] = value
         i += item_length
     return data_dict
 
@@ -133,7 +146,10 @@ class AdvertisingFlags(AdvertisingDataField):
         self._adt = advertising_data_type
         self.flags = 0
         if self._adt in self._advertisement.data_dict:
-            self.flags = self._advertisement.data_dict[self._adt][0]
+            value = self._advertisement.data_dict[self._adt]
+            if isinstance(value, list):
+                raise RuntimeError
+            self.flags = value[0]
 
     def __len__(self) -> Literal[1]:
         return 1
@@ -166,7 +182,10 @@ class String(AdvertisingDataField):
             return self
         if self._adt not in obj.data_dict:
             return None
-        return str(obj.data_dict[self._adt], "utf-8")
+        value = obj.data_dict[self._adt]
+        if isinstance(value, list):
+            raise RuntimeError
+        return str(value, "utf-8")
 
     def __set__(self, obj: "Advertisement", value: str) -> None:
         obj.data_dict[self._adt] = value.encode("utf-8")
@@ -186,7 +205,10 @@ class Struct(AdvertisingDataField):
             return self
         if self._adt not in obj.data_dict:
             return None
-        return struct.unpack(self._format, obj.data_dict[self._adt])[0]
+        value = obj.data_dict[self._adt]
+        if isinstance(value, list):
+            raise RuntimeError
+        return struct.unpack(self._format, value)[0]
 
     def __set__(self, obj: "Advertisement", value: Any) -> None:
         obj.data_dict[self._adt] = struct.pack(self._format, value)
@@ -232,10 +254,6 @@ class Advertisement:
     The class attribute ``match_prefixes``, if not ``None``, is a tuple of
     bytestring prefixes to match against the multiple data structures in the advertisement.
     """
-
-    address: Optional[Address]
-    _rssi: Optional[int]
-    mutable: bool
 
     match_prefixes: Optional[Tuple[bytes, ...]] = ()
     """For Advertisement, :py:attr:`~adafruit_ble.advertising.Advertisement.match_prefixes`

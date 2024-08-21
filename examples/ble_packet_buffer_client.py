@@ -17,13 +17,22 @@ ble = BLERadio()
 buf = bytearray(512)
 while True:
     while ble.connected and any(
-        PacketBufferService in connection for connection in ble.connections
+        map(
+            lambda conn: conn is not None and PacketBufferService in conn,
+            ble.connections,
+        )
     ):
         for connection in ble.connections:
+            if connection is None:
+                raise RuntimeError
+
             if PacketBufferService not in connection:
                 continue
             print("echo")
+
             pb = connection[PacketBufferService]
+            if pb is None:
+                raise RuntimeError
             pb.write(b"echo")
             # Returns 0 if nothing was read.
             packet_len = pb.readinto(buf)

@@ -16,6 +16,7 @@ import _bleio
 
 from ..attributes import Attribute
 
+TYPE_CHECKING = False
 try:
     from typing import TYPE_CHECKING, Iterable, Optional, Tuple, Type, Union, overload
 

@@ -29,10 +29,17 @@ print("connected")
 
 while radio.connected:
     for connection in radio.connections:
+        if connection is None:
+            raise RuntimeError
+
         if not connection.paired:
             connection.pair()
             print("paired")
+
         dis = connection[DeviceInfoService]
+        if dis is None:
+            raise RuntimeError
+
         print(dis.manufacturer)
         print(dis.model_number)
     time.sleep(60)

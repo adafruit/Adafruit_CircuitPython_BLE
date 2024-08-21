@@ -14,13 +14,19 @@ from adafruit_ble.services.nordic import UARTService
 ble = BLERadio()
 while True:
     while ble.connected and any(
-        UARTService in connection for connection in ble.connections
+        map(lambda conn: conn is not None and UARTService in conn, ble.connections)
     ):
         for connection in ble.connections:
+            if connection is None:
+                raise RuntimeError
+
             if UARTService not in connection:
                 continue
             print("echo")
+
             uart = connection[UARTService]
+            if uart is None:
+                raise RuntimeError
             uart.write(b"echo")
             # Returns b'' if nothing was read.
             one_byte = uart.read(4)

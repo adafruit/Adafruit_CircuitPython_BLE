@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from . import Attribute, Characteristic
 
+TYPE_CHECKING = False
 try:
     from typing import TYPE_CHECKING, Optional, Type, Union, overload
 

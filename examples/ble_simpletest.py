@@ -7,12 +7,13 @@ from every device found.
 """
 
 from adafruit_ble import BLERadio
+from adafruit_ble.advertising import Advertisement
 
 ble = BLERadio()
 print("scanning")
 found = set()
 scan_responses = set()
-for advertisement in ble.start_scan():
+for advertisement in ble.start_scan(Advertisement):
     addr = advertisement.address
     if advertisement.scan_response and addr not in scan_responses:
         scan_responses.add(addr)

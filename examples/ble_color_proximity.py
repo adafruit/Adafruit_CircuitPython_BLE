@@ -73,10 +73,13 @@ while True:
     else:
         closest = None
         closest_rssi = -80
-        closest_last_time = 0
+        closest_last_time: float = 0
         print("Scanning for colors")
         while not slide_switch.value:
             for entry in ble.start_scan(AdafruitColor, minimum_rssi=-100, timeout=1):
+                if entry.rssi is None:
+                    raise RuntimeError
+
                 if slide_switch.value:
                     break
                 now = time.monotonic()

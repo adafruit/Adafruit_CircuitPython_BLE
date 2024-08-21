@@ -26,7 +26,9 @@ from adafruit_ble.uuid import StandardUUID
 from .. import Service
 
 try:
-    from typing import TYPE_CHECKING, Dict, List, Literal, Optional, Union
+    from typing import TYPE_CHECKING, Dict, List, Optional, Union
+
+    from typing_extensions import Literal
 
     if TYPE_CHECKING:
         from typing import TypedDict
@@ -220,7 +222,7 @@ class ReportIn:
             initial_value=struct.pack("<BB", self._report_id, _REPORT_TYPE_INPUT),
         )
 
-    def send_report(self, report: Dict) -> None:
+    def send_report(self, report: bytearray) -> None:
         """Send a report to the peers"""
         self._characteristic.value = report
 
@@ -266,7 +268,7 @@ class ReportOut:
         )
 
     @property
-    def report(self) -> Dict:
+    def report(self) -> bytearray:
         """The HID OUT report"""
         return self._characteristic.value
 

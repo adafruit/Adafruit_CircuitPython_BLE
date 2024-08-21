@@ -27,16 +27,19 @@ import _bleio
 
 from .advertising import Advertisement
 from .services import Service
+from .uuid import UUID
 
 try:
     from typing import (
         TYPE_CHECKING,
         Dict,
         Iterator,
+        List,
         NoReturn,
         Optional,
         Tuple,
         Type,
+        TypeVar,
         Union,
     )
 
@@ -49,6 +52,8 @@ try:
 
         Uuid = Union[StandardUUID, VendorUUID]
 
+        Adv = TypeVar("Adv", bound=Advertisement)
+        Ser = TypeVar("Ser", bound=Service)
 
 except ImportError:
     pass
@@ -99,16 +104,15 @@ class BLEConnection:
             if StandardUUID(0x1234) in connection:
                 # do something
         """
-        uuid = key
-        if hasattr(key, "uuid"):
-            uuid = key.uuid
+        uuid = key if isinstance(key, UUID) else key.uuid
         return self._discover_remote(uuid) is not None
 
-    def __getitem__(self, key: Union[Uuid, Type[Service]]) -> Optional[Service]:
+    def __getitem__(self, key: Union[Uuid, Type[Ser]]) -> Optional[Ser]:
         """Return the Service for the given Service class or uuid, if any."""
-        uuid = key
-        maybe_service = False
-        if hasattr(key, "uuid"):
+        if isinstance(key, UUID):
+            uuid = key
+            maybe_service = False
+        else:
             uuid = key.uuid
             maybe_service = True
 
@@ -118,7 +122,7 @@ class BLEConnection:
         remote_service = self._discover_remote(uuid)
         if remote_service:
             constructed_service = None
-            if maybe_service:
+            if maybe_service and not isinstance(key, UUID):
                 constructed_service = key(service=remote_service)
                 self._constructed_services[uuid] = constructed_service
             return constructed_service
@@ -239,7 +243,7 @@ class BLERadio:
 
     def start_scan(  # pylint: disable=too-many-arguments
         self,
-        *advertisement_types: Type[Advertisement],
+        *advertisement_types: Type[Adv],
         buffer_size: int = 512,
         extended: bool = False,
         timeout: Optional[float] = None,
@@ -247,7 +251,7 @@ class BLERadio:
         window: float = 0.1,
         minimum_rssi: int = -80,
         active: bool = True,
-    ) -> Iterator[Advertisement]:
+    ) -> Iterator[Adv]:
         """
         Starts scanning. Returns an iterator of advertisement objects of the types given in
         advertisement_types. The iterator will block until an advertisement is heard or the scan
@@ -276,10 +280,10 @@ class BLERadio:
             If none are given then `Advertisement` objects will be returned.
         :rtype: iterable
         """
-        if not advertisement_types:
-            advertisement_types = (Advertisement,)
 
-        all_prefix_bytes = tuple(adv.get_prefix_bytes() for adv in advertisement_types)
+        adv_types: Tuple[Type[Adv], ...] = advertisement_types or (Advertisement,)
+
+        all_prefix_bytes = tuple(adv.get_prefix_bytes() for adv in adv_types)
 
         # If one of the advertisement_types has no prefix restrictions, then
         # no prefixes should be specified at all, so we match everything.
@@ -296,14 +300,14 @@ class BLERadio:
             active=active,
         ):
             adv_type = Advertisement
-            for possible_type in advertisement_types:
+            for possible_type in adv_types:
                 if possible_type.matches(entry) and issubclass(possible_type, adv_type):
                     adv_type = possible_type
             # Double check the adv_type is requested. We may return Advertisement accidentally
             # otherwise.
-            if adv_type not in advertisement_types:
+            if adv_type not in adv_types:
                 continue
-            advertisement = adv_type(entry=entry)
+            advertisement: Adv = adv_type(entry=entry)
             if advertisement:
                 yield advertisement
 
@@ -329,8 +333,7 @@ class BLERadio:
             peer_ = peer
         else:
             if peer.address is None:
-                msg = "Unreachable?"
-                raise RuntimeError(msg)
+                raise RuntimeError
             peer_ = peer.address
 
         connection = self._adapter.connect(peer_, timeout=timeout)
@@ -348,7 +351,7 @@ class BLERadio:
         """A tuple of active `BLEConnection` objects."""
         self._clean_connection_cache()
         connections = self._adapter.connections
-        wrapped_connections = [None] * len(connections)
+        wrapped_connections: List[Optional[BLEConnection]] = [None] * len(connections)
         for i, connection in enumerate(connections):
             if connection not in self._connection_cache:
                 self._connection_cache[connection] = BLEConnection(connection)
