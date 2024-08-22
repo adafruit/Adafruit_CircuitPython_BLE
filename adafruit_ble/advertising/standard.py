@@ -37,10 +37,9 @@ try:
         Iterator,
         List,
         Optional,
-        Protocol,
         Tuple,
         Type,
-        TypeVar,
+        TypeGuard,
         Union,
         overload,
     )
@@ -61,23 +60,23 @@ try:
 
         Uuid = Union[StandardUUID, VendorUUID]
 
-        class WithManufacturerData:
-            """Stub type, anything with a manufacturer_data attribute."""
+        class WithManufacturerData(Advertisement):
+            """Stub type, any subclass of Advertisement which has manufacturer data."""
 
             manufacturer_data: ManufacturerData
-
-        AdvertisementWithManufacturerData = TypeVar(
-            "AdvertisementWithManufacturerData",
-            Advertisement,
-            WithManufacturerData,
-        )
-
 
 except ImportError:
     pass
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
+
+
+def has_manufacturer_data(obj: Advertisement) -> TypeGuard[WithManufacturerData]:
+    """Tiny function for type correctness."""
+    return hasattr(obj, "manufacturer_data") and isinstance(
+        obj.manufacturer_data, ManufacturerData
+    )
 
 
 class BoundServiceList:
@@ -251,8 +250,7 @@ class ProvideServicesAdvertisement(Advertisement):
             # Attributes are supplied by entry.
             return
         if services:
-            if not self.services:
-                raise RuntimeError
+            assert self.services
             self.services.extend(services)
         self.connectable = True
         self.flags.general_discovery = True
@@ -284,8 +282,7 @@ class SolicitServicesAdvertisement(Advertisement):
                 raise ValueError("Supply services or entry, not both")
             # Attributes are supplied by entry.
             return
-        if not self.solicited_services:
-            raise RuntimeError
+        assert self.solicited_services
         self.solicited_services.extend(services)
         self.connectable = True
         self.flags.general_discovery = True
@@ -368,8 +365,12 @@ class ManufacturerDataField:
         self._entry_length = struct.calcsize(value_format)
         self.field_names = field_names
         if field_names:
+            assert self.field_names is not None
             # Mostly, this is to raise a ValueError if field_names has invalid entries
-            self.mdf_tuple = namedtuple("mdf_tuple", self.field_names)
+            self.mdf_tuple = namedtuple(  # type: ignore[misc, arg-type]
+                "mdf_tuple",
+                self.field_names,
+            )
 
     if TYPE_CHECKING:
 
@@ -377,29 +378,31 @@ class ManufacturerDataField:
         def __get__(
             self,
             obj: None,
-            cls: Optional[Type[AdvertisementWithManufacturerData]] = None,
+            cls: Optional[Type[Advertisement]] = None,
         ) -> ManufacturerDataField:
             ...
 
         @overload
         def __get__(
             self,
-            obj: AdvertisementWithManufacturerData,
-            cls: Optional[Type[AdvertisementWithManufacturerData]] = None,
+            obj: Advertisement,
+            cls: Optional[Type[Advertisement]] = None,
         ) -> Optional[Tuple]:
             ...
 
     def __get__(
         self,
-        obj: Optional[AdvertisementWithManufacturerData],
-        cls: Optional[Type[AdvertisementWithManufacturerData]] = None,
+        obj: Optional[Advertisement],
+        cls: Optional[Type[Advertisement]] = None,
     ) -> Union[ManufacturerDataField, Optional[Tuple]]:
         if obj is None:
             return self
+        assert has_manufacturer_data(obj)
         if self._key not in obj.manufacturer_data.data:
             return None
         packed = obj.manufacturer_data.data[self._key]
         if self._entry_length == len(packed):
+            assert isinstance(packed, bytes)
             unpacked = struct.unpack_from(self._format, packed)
             if self.element_count == 1:
                 unpacked = unpacked[0]
@@ -414,6 +417,7 @@ class ManufacturerDataField:
         unpacked_: List[Optional[Tuple[Any, ...]]] = [None] * entry_count
         for i in range(entry_count):
             offset = i * self._entry_length
+            assert isinstance(packed, bytes)
             unpacked_[i] = struct.unpack_from(self._format, packed, offset=offset)
             if self.element_count == 1:
                 val = unpacked_[i]
@@ -421,7 +425,9 @@ class ManufacturerDataField:
                 unpacked_[i] = val[0]
         return tuple(unpacked)
 
-    def __set__(self, obj: AdvertisementWithManufacturerData, value: Any) -> None:
+    def __set__(self, obj: Advertisement, value: Any) -> None:
+        assert has_manufacturer_data(obj)
+
         if not obj.mutable:
             raise AttributeError()
         if isinstance(value, tuple) and (

@@ -84,8 +84,7 @@ class IntCharacteristic(StructCharacteristic):
         if obj is None:
             return self
         get = super().__get__(obj)
-        if get is None:
-            raise RuntimeError
+        assert get is not None
         return get[0]  # pylint: disable=unsubscriptable-object
 
     def __set__(self, obj: Service, value: int) -> None:  # type: ignore[override]

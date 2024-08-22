@@ -77,8 +77,8 @@ while True:
         print("Scanning for colors")
         while not slide_switch.value:
             for entry in ble.start_scan(AdafruitColor, minimum_rssi=-100, timeout=1):
-                if entry.rssi is None:
-                    raise RuntimeError
+                assert isinstance(entry, AdafruitColor)
+                assert entry.rssi is not None
 
                 if slide_switch.value:
                     break

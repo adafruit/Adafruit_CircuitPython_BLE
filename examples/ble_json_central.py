@@ -16,6 +16,7 @@ while True:
     if not connection:
         print("Scanning for BLE device advertising our sensor service...")
         for adv in ble.start_scan(ProvideServicesAdvertisement):
+            assert isinstance(adv, ProvideServicesAdvertisement)
             if SensorService in adv.services:
                 connection = ble.connect(adv)
                 print("Connected")
@@ -24,8 +25,7 @@ while True:
 
     if connection and connection.connected:
         service = connection[SensorService]
-        if service is None:
-            raise RuntimeError
+        assert isinstance(service, SensorService)
 
         service.settings = {"unit": "celsius"}  #  'fahrenheit'
         while connection.connected:

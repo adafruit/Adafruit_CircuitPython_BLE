@@ -39,7 +39,6 @@ try:
         Optional,
         Tuple,
         Type,
-        TypeVar,
         Union,
     )
 
@@ -51,9 +50,6 @@ try:
         from adafruit_ble.uuid import StandardUUID, VendorUUID
 
         Uuid = Union[StandardUUID, VendorUUID]
-
-        Adv = TypeVar("Adv", bound=Advertisement)
-        Ser = TypeVar("Ser", bound=Service)
 
 except ImportError:
     pass
@@ -107,7 +103,7 @@ class BLEConnection:
         uuid = key if isinstance(key, UUID) else key.uuid
         return self._discover_remote(uuid) is not None
 
-    def __getitem__(self, key: Union[Uuid, Type[Ser]]) -> Optional[Ser]:
+    def __getitem__(self, key: Union[Uuid, Type[Service]]) -> Optional[Service]:
         """Return the Service for the given Service class or uuid, if any."""
         if isinstance(key, UUID):
             uuid = key
@@ -243,7 +239,7 @@ class BLERadio:
 
     def start_scan(  # pylint: disable=too-many-arguments
         self,
-        *advertisement_types: Type[Adv],
+        *advertisement_types: Type[Advertisement],
         buffer_size: int = 512,
         extended: bool = False,
         timeout: Optional[float] = None,
@@ -251,7 +247,7 @@ class BLERadio:
         window: float = 0.1,
         minimum_rssi: int = -80,
         active: bool = True,
-    ) -> Iterator[Adv]:
+    ) -> Iterator[Advertisement]:
         """
         Starts scanning. Returns an iterator of advertisement objects of the types given in
         advertisement_types. The iterator will block until an advertisement is heard or the scan
@@ -280,10 +276,10 @@ class BLERadio:
             If none are given then `Advertisement` objects will be returned.
         :rtype: iterable
         """
+        if not advertisement_types:
+            advertisement_types = (Advertisement,)
 
-        adv_types: Tuple[Type[Adv], ...] = advertisement_types or (Advertisement,)
-
-        all_prefix_bytes = tuple(adv.get_prefix_bytes() for adv in adv_types)
+        all_prefix_bytes = tuple(adv.get_prefix_bytes() for adv in advertisement_types)
 
         # If one of the advertisement_types has no prefix restrictions, then
         # no prefixes should be specified at all, so we match everything.
@@ -300,14 +296,14 @@ class BLERadio:
             active=active,
         ):
             adv_type = Advertisement
-            for possible_type in adv_types:
+            for possible_type in advertisement_types:
                 if possible_type.matches(entry) and issubclass(possible_type, adv_type):
                     adv_type = possible_type
             # Double check the adv_type is requested. We may return Advertisement accidentally
             # otherwise.
-            if adv_type not in adv_types:
+            if adv_type not in advertisement_types:
                 continue
-            advertisement: Adv = adv_type(entry=entry)
+            advertisement = adv_type(entry=entry)
             if advertisement:
                 yield advertisement
 
@@ -332,8 +328,7 @@ class BLERadio:
         if isinstance(peer, _bleio.Address):
             peer_ = peer
         else:
-            if peer.address is None:
-                raise RuntimeError
+            assert peer.address is not None
             peer_ = peer.address
 
         connection = self._adapter.connect(peer_, timeout=timeout)

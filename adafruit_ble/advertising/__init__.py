@@ -147,8 +147,7 @@ class AdvertisingFlags(AdvertisingDataField):
         self.flags = 0
         if self._adt in self._advertisement.data_dict:
             value = self._advertisement.data_dict[self._adt]
-            if isinstance(value, list):
-                raise RuntimeError
+            assert not isinstance(value, list)
             self.flags = value[0]
 
     def __len__(self) -> Literal[1]:
@@ -183,8 +182,7 @@ class String(AdvertisingDataField):
         if self._adt not in obj.data_dict:
             return None
         value = obj.data_dict[self._adt]
-        if isinstance(value, list):
-            raise RuntimeError
+        assert not isinstance(value, list)
         return str(value, "utf-8")
 
     def __set__(self, obj: "Advertisement", value: str) -> None:
@@ -206,8 +204,7 @@ class Struct(AdvertisingDataField):
         if self._adt not in obj.data_dict:
             return None
         value = obj.data_dict[self._adt]
-        if isinstance(value, list):
-            raise RuntimeError
+        assert not isinstance(value, list)
         return struct.unpack(self._format, value)[0]
 
     def __set__(self, obj: "Advertisement", value: Any) -> None:
@@ -254,6 +251,9 @@ class Advertisement:
     The class attribute ``match_prefixes``, if not ``None``, is a tuple of
     bytestring prefixes to match against the multiple data structures in the advertisement.
     """
+
+    address: Optional[Address]
+    _rssi: Optional[int]
 
     match_prefixes: Optional[Tuple[bytes, ...]] = ()
     """For Advertisement, :py:attr:`~adafruit_ble.advertising.Advertisement.match_prefixes`

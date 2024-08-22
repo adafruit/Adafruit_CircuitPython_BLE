@@ -41,8 +41,7 @@ uart_connection = None
 # See if any existing connections are providing UARTService.
 if ble.connected:
     for connection in ble.connections:
-        if connection is None:
-            raise RuntimeError
+        assert connection is not None
 
         if UARTService in connection:
             uart_connection = connection
@@ -52,6 +51,7 @@ while True:
     if not uart_connection:
         print("Scanning...")
         for adv in ble.start_scan(ProvideServicesAdvertisement, timeout=5):
+            assert isinstance(adv, ProvideServicesAdvertisement)
             if UARTService in adv.services:
                 print("found a UARTService advertisement")
                 uart_connection = ble.connect(adv)
@@ -67,8 +67,8 @@ while True:
         color_packet = ColorPacket(color)
         try:
             service = uart_connection[UARTService]
-            if service is None:
-                raise RuntimeError
+            assert isinstance(service, UARTService)
+
             service.write(color_packet.to_bytes())
         except OSError:
             try:

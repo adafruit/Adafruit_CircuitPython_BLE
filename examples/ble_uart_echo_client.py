@@ -17,16 +17,15 @@ while True:
         map(lambda conn: conn is not None and UARTService in conn, ble.connections)
     ):
         for connection in ble.connections:
-            if connection is None:
-                raise RuntimeError
+            assert connection is not None
 
             if UARTService not in connection:
                 continue
             print("echo")
 
             uart = connection[UARTService]
-            if uart is None:
-                raise RuntimeError
+            assert isinstance(uart, UARTService)
+
             uart.write(b"echo")
             # Returns b'' if nothing was read.
             one_byte = uart.read(4)
@@ -37,6 +36,7 @@ while True:
 
     print("disconnected, scanning")
     for advertisement in ble.start_scan(ProvideServicesAdvertisement, timeout=1):
+        assert isinstance(advertisement, ProvideServicesAdvertisement)
         if UARTService not in advertisement.services:
             continue
         ble.connect(advertisement)
