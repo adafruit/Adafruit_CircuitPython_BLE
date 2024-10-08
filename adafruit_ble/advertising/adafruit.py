@@ -15,6 +15,7 @@ Adafruit customers for their own data.
 """
 
 import struct
+
 from micropython import const
 
 from . import Advertisement, LazyObjectField

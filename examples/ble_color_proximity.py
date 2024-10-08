@@ -8,9 +8,9 @@ slide switch. The buttons change the color when advertising.
 """
 
 import time
+
 import board
 import digitalio
-
 import neopixel
 
 from adafruit_ble import BLERadio
@@ -73,10 +73,13 @@ while True:
     else:
         closest = None
         closest_rssi = -80
-        closest_last_time = 0
+        closest_last_time: float = 0
         print("Scanning for colors")
         while not slide_switch.value:
             for entry in ble.start_scan(AdafruitColor, minimum_rssi=-100, timeout=1):
+                assert isinstance(entry, AdafruitColor)
+                assert entry.rssi is not None
+
                 if slide_switch.value:
                     break
                 now = time.monotonic()

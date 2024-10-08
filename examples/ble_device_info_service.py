@@ -7,6 +7,7 @@ manufacturer and model number of the device(s) that connect to it.
 """
 
 import time
+
 import adafruit_ble
 from adafruit_ble.advertising.standard import Advertisement
 from adafruit_ble.services.standard.device_info import DeviceInfoService
@@ -28,10 +29,15 @@ print("connected")
 
 while radio.connected:
     for connection in radio.connections:
+        assert connection is not None
+
         if not connection.paired:
             connection.pair()
             print("paired")
+
         dis = connection[DeviceInfoService]
+        assert isinstance(dis, DeviceInfoService)
+
         print(dis.manufacturer)
         print(dis.model_number)
     time.sleep(60)

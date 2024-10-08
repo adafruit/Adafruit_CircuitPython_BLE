@@ -11,7 +11,6 @@ from packet_buffer_service import PacketBufferService
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 
-
 ble = BLERadio()
 pbs = PacketBufferService()
 advertisement = ProvideServicesAdvertisement(pbs)

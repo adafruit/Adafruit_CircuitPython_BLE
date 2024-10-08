@@ -11,17 +11,22 @@ This module provides core BLE characteristic classes that are used within Servic
 from __future__ import annotations
 
 import struct
+
 import _bleio
 
 from ..attributes import Attribute
 
+TYPE_CHECKING = False
 try:
-    from typing import Optional, Type, Union, Tuple, Iterable, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Iterable, Optional, Tuple, Type, Union, overload
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -32,7 +37,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 
 class Characteristic:
     """
-    Top level Characteristic class that does basic binding.
+    Base Characteristic class that does basic binding.
 
     :param UUID uuid: The uuid of the characteristic
     :param int properties: The properties of the characteristic,
@@ -85,10 +90,13 @@ class Characteristic:
     WRITE = _bleio.Characteristic.WRITE
     WRITE_NO_RESPONSE = _bleio.Characteristic.WRITE_NO_RESPONSE
 
-    def __init__(
+    field_name: str
+    value: ReadableBuffer
+
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         properties: int = 0,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,
@@ -96,7 +104,7 @@ class Characteristic:
         fixed_length: bool = False,
         initial_value: Optional[ReadableBuffer] = None,
     ) -> None:
-        self.field_name = None  # Set by Service during basic binding
+        # field_name is set by Service during basic binding
 
         if uuid:
             self.uuid = uuid
@@ -126,18 +134,18 @@ class Characteristic:
         service.bleio_characteristics[self.field_name] = bleio_characteristic
 
     def __bind_locally(
-        self, service: Service, initial_value: Optional[bytes]
+        self, service: Service, initial_value: Optional[ReadableBuffer]
     ) -> _bleio.Characteristic:
-        if initial_value is None:
-            initial_value = self.initial_value
-        if initial_value is None and self.max_length:
-            initial_value = bytes(self.max_length)
+        value = initial_value if initial_value is not None else self.initial_value
+
         max_length = self.max_length
-        if max_length is None and initial_value is None:
-            max_length = 0
-            initial_value = b""
-        elif max_length is None:
-            max_length = len(initial_value)
+        if value is None:
+            if max_length is None:
+                max_length = 0
+                value = b""
+        else:
+            max_length = len(value)
+
         return _bleio.Characteristic.add_to_service(
             service.bleio_service,
             self.uuid.bleio_uuid,
@@ -149,9 +157,23 @@ class Characteristic:
             write_perm=self.write_perm,
         )
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __get__(
+            self, service: None, cls: Optional[Type[Service]] = None
+        ) -> Characteristic:
+            ...
+
+        @overload
+        def __get__(
+            self, service: Service, cls: Optional[Type[Service]] = None
+        ) -> ReadableBuffer:
+            ...
+
     def __get__(
         self, service: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> ReadableBuffer:
+    ) -> Union[Characteristic, ReadableBuffer]:
         # CircuitPython doesn't invoke descriptor protocol on obj's class,
         # but CPython does. In the CPython case, pretend that it doesn't.
         if service is None:
@@ -175,10 +197,12 @@ class ComplexCharacteristic:
     has been bound to the corresponding instance attribute.
     """
 
-    def __init__(
+    field_name: str
+
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         properties: int = 0,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,
@@ -186,7 +210,7 @@ class ComplexCharacteristic:
         fixed_length: bool = False,
         initial_value: Optional[ReadableBuffer] = None,
     ) -> None:
-        self.field_name = None  # Set by Service during basic binding
+        # field_name is set by Service during basic binding
 
         if uuid:
             self.uuid = uuid
@@ -214,9 +238,23 @@ class ComplexCharacteristic:
             write_perm=self.write_perm,
         )
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __get__(
+            self, service: None, cls: Optional[Type[Service]] = None
+        ) -> ComplexCharacteristic:
+            ...
+
+        @overload
+        def __get__(
+            self, service: Service, cls: Optional[Type[Service]] = None
+        ) -> _bleio.Characteristic:
+            ...
+
     def __get__(
         self, service: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> _bleio.Characteristic:
+    ) -> Union[ComplexCharacteristic, _bleio.Characteristic]:
         if service is None:
             return self
         bound_object = self.bind(service)
@@ -237,11 +275,11 @@ class StructCharacteristic(Characteristic):
     :param buf initial_value: see `Characteristic`
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         struct_format,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         properties: int = 0,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,
@@ -261,9 +299,26 @@ class StructCharacteristic(Characteristic):
             write_perm=write_perm,
         )
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __get__(
+            self, obj: None, cls: Optional[Type[Service]] = None
+        ) -> Characteristic:
+            # NOTE(elpekenin): we actually return StructCharacteristic, but we hint like
+            # this so that we dont change parent's function signature, causing a mypy warn
+            # regardless, this is not wrong, just incomplete, because this is a subclass
+            ...
+
+        @overload
+        def __get__(
+            self, obj: Service, cls: Optional[Type[Service]] = None
+        ) -> Optional[Tuple[int, ...]]:
+            ...
+
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Optional[Union[Tuple, "StructCharacteristic"]]:
+    ) -> Union[Characteristic, Optional[Tuple[int, ...]]]:
         if obj is None:
             return self
         raw_data = super().__get__(obj, cls)

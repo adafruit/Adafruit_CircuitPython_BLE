@@ -13,16 +13,19 @@ This module provides a JSON characteristic for reading/writing JSON serializable
 from __future__ import annotations
 
 import json
-from . import Attribute
-from . import Characteristic
+
+from . import Attribute, Characteristic
 
 try:
-    from typing import Optional, Any, Type, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Any, Optional, Type, Union
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -34,10 +37,10 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class JSONCharacteristic(Characteristic):
     """JSON string characteristic for JSON serializable values of a limited size (max_length)."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         properties: int = Characteristic.READ,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,

@@ -7,6 +7,11 @@ repos:
     rev: 23.3.0
     hooks:
       - id: black
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--filter-files"]
   - repo: https://github.com/fsfe/reuse-tool
     rev: v1.1.2
     hooks:
@@ -18,7 +23,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/pycqa/pylint
-    rev: v2.17.4
+    rev: v3.0.4
     hooks:
       - id: pylint
         name: pylint (library code)
@@ -40,3 +45,7 @@ repos:
         files: "^tests/"
         args:
           - --disable=missing-docstring,consider-using-f-string,duplicate-code
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.0
+    hooks:
+      - id: mypy

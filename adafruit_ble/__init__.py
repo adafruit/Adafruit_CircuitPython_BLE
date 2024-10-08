@@ -12,9 +12,10 @@ building on the native `_bleio` module.
 
 from __future__ import annotations
 
+import sys
+
 # pylint: disable=wrong-import-position
 
-import sys
 
 if sys.implementation.name == "circuitpython" and sys.implementation.version[0] <= 4:
     raise ImportError(
@@ -24,17 +25,31 @@ if sys.implementation.name == "circuitpython" and sys.implementation.version[0] 
 
 import _bleio
 
-from .services import Service
 from .advertising import Advertisement
+from .services import Service
+from .uuid import UUID
 
 try:
-    from typing import Iterator, NoReturn, Optional, Tuple, Type, TYPE_CHECKING, Union
+    from typing import (
+        TYPE_CHECKING,
+        Dict,
+        Iterator,
+        List,
+        NoReturn,
+        Optional,
+        Tuple,
+        Type,
+        Union,
+    )
+
     from typing_extensions import Literal
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
-        from adafruit_ble.characteristics import Characteristic
+
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -55,11 +70,11 @@ class BLEConnection:
     def __init__(self, bleio_connection: _bleio.Connection) -> None:
         self._bleio_connection = bleio_connection
         # _bleio.Service objects representing services found during discovery.
-        self._discovered_bleio_services = {}
+        self._discovered_bleio_services: Dict[Uuid, _bleio.Service] = {}
         # Service objects that wrap remote services.
-        self._constructed_services = {}
+        self._constructed_services: Dict[Uuid, Service] = {}
 
-    def _discover_remote(self, uuid: UUID) -> Optional[_bleio.Service]:
+    def _discover_remote(self, uuid: Uuid) -> Optional[_bleio.Service]:
         remote_service = None
         if uuid in self._discovered_bleio_services:
             remote_service = self._discovered_bleio_services[uuid]
@@ -72,7 +87,7 @@ class BLEConnection:
                 self._discovered_bleio_services[uuid] = remote_service
         return remote_service
 
-    def __contains__(self, key: Union[UUID, Type[Service]]) -> bool:
+    def __contains__(self, key: Union[Uuid, Type[Service]]) -> bool:
         """
         Allows easy testing for a particular Service class or a particular UUID
         associated with this connection.
@@ -85,16 +100,15 @@ class BLEConnection:
             if StandardUUID(0x1234) in connection:
                 # do something
         """
-        uuid = key
-        if hasattr(key, "uuid"):
-            uuid = key.uuid
+        uuid = key if isinstance(key, UUID) else key.uuid
         return self._discover_remote(uuid) is not None
 
-    def __getitem__(self, key: Union[UUID, Type[Service]]) -> Optional[Service]:
+    def __getitem__(self, key: Union[Uuid, Type[Service]]) -> Optional[Service]:
         """Return the Service for the given Service class or uuid, if any."""
-        uuid = key
-        maybe_service = False
-        if hasattr(key, "uuid"):
+        if isinstance(key, UUID):
+            uuid = key
+            maybe_service = False
+        else:
             uuid = key.uuid
             maybe_service = True
 
@@ -104,7 +118,7 @@ class BLEConnection:
         remote_service = self._discover_remote(uuid)
         if remote_service:
             constructed_service = None
-            if maybe_service:
+            if maybe_service and not isinstance(key, UUID):
                 constructed_service = key(service=remote_service)
                 self._constructed_services[uuid] = constructed_service
             return constructed_service
@@ -166,7 +180,7 @@ class BLERadio:
             raise RuntimeError("No adapter available")
         self._adapter = adapter or _bleio.adapter
         self._current_advertisement = None
-        self._connection_cache = {}
+        self._connection_cache: Dict[_bleio.Connection, BLEConnection] = {}
 
     def start_advertising(
         self,
@@ -223,7 +237,7 @@ class BLERadio:
         """Stops advertising."""
         self._adapter.stop_advertising()
 
-    def start_scan(
+    def start_scan(  # pylint: disable=too-many-arguments
         self,
         *advertisement_types: Type[Advertisement],
         buffer_size: int = 512,
@@ -311,9 +325,13 @@ class BLERadio:
         :return: the connection to the peer
         :rtype: BLEConnection
         """
-        if not isinstance(peer, _bleio.Address):
-            peer = peer.address
-        connection = self._adapter.connect(peer, timeout=timeout)
+        if isinstance(peer, _bleio.Address):
+            peer_ = peer
+        else:
+            assert peer.address is not None
+            peer_ = peer.address
+
+        connection = self._adapter.connect(peer_, timeout=timeout)
         self._clean_connection_cache()
         self._connection_cache[connection] = BLEConnection(connection)
         return self._connection_cache[connection]
@@ -328,7 +346,7 @@ class BLERadio:
         """A tuple of active `BLEConnection` objects."""
         self._clean_connection_cache()
         connections = self._adapter.connections
-        wrapped_connections = [None] * len(connections)
+        wrapped_connections: List[Optional[BLEConnection]] = [None] * len(connections)
         for i, connection in enumerate(connections):
             if connection not in self._connection_cache:
                 self._connection_cache[connection] = BLEConnection(connection)

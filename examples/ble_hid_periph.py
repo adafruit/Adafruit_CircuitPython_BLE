@@ -15,9 +15,8 @@ from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 import adafruit_ble
 from adafruit_ble.advertising import Advertisement
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-from adafruit_ble.services.standard.hid import HIDService
 from adafruit_ble.services.standard.device_info import DeviceInfoService
-
+from adafruit_ble.services.standard.hid import HIDService
 
 # Use default HID descriptor
 hid = HIDService()
@@ -30,8 +29,9 @@ scan_response = Advertisement()
 
 ble = adafruit_ble.BLERadio()
 if ble.connected:
-    for c in ble.connections:
-        c.disconnect()
+    for conn in ble.connections:
+        if conn is not None:
+            conn.disconnect()
 
 print("advertising")
 ble.start_advertising(advertisement, scan_response)
@@ -43,9 +43,9 @@ while True:
         pass
     print("Start typing:")
     while ble.connected:
-        c = sys.stdin.read(1)
-        sys.stdout.write(c)
-        kl.write(c)
+        char = sys.stdin.read(1)
+        sys.stdout.write(char)
+        kl.write(char)
         # print("sleeping")
         time.sleep(0.1)
     ble.start_advertising(advertisement)

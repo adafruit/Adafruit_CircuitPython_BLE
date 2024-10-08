@@ -15,9 +15,14 @@ import _bleio
 from ..characteristics import Characteristic, ComplexCharacteristic
 
 try:
-    from typing import Optional
+    from typing import TYPE_CHECKING, Dict, Optional, Union
 except ImportError:
     pass
+
+if TYPE_CHECKING:
+    from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+    Uuid = Union[StandardUUID, VendorUUID]
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -36,6 +41,8 @@ class Service:
     instance for the connection's peer.
     """
 
+    uuid: Uuid
+
     def __init__(
         self,
         *,
@@ -44,6 +51,7 @@ class Service:
         **initial_values,
     ) -> None:
         if service is None:
+            # NOTE(elpekenin): when is self.uuid set? __new__?
             # pylint: disable=no-member
             self.bleio_service = _bleio.Service(
                 self.uuid.bleio_uuid, secondary=secondary
@@ -56,7 +64,7 @@ class Service:
         # This internal dictionary is manipulated by the Characteristic descriptors to store their
         # per-Service state. It is NOT managed by the Service itself. It is an attribute of the
         # Service so that the lifetime of the objects is the same as the Service.
-        self.bleio_characteristics = {}
+        self.bleio_characteristics: Dict[str, _bleio.Characteristic] = {}
 
         # Set the field name on all of the characteristic objects so they can replace themselves if
         # they choose.

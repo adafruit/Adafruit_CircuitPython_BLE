@@ -9,12 +9,11 @@ peripheral.
 
 import time
 
+import adafruit_lis3dh
 import board
 import busio
 import digitalio
-import adafruit_lis3dh
 import neopixel
-
 from adafruit_bluefruit_connect.color_packet import ColorPacket
 
 from adafruit_ble import BLERadio
@@ -42,6 +41,8 @@ uart_connection = None
 # See if any existing connections are providing UARTService.
 if ble.connected:
     for connection in ble.connections:
+        assert connection is not None
+
         if UARTService in connection:
             uart_connection = connection
         break
@@ -50,6 +51,7 @@ while True:
     if not uart_connection:
         print("Scanning...")
         for adv in ble.start_scan(ProvideServicesAdvertisement, timeout=5):
+            assert isinstance(adv, ProvideServicesAdvertisement)
             if UARTService in adv.services:
                 print("found a UARTService advertisement")
                 uart_connection = ble.connect(adv)
@@ -64,7 +66,10 @@ while True:
         neopixels.fill(color)
         color_packet = ColorPacket(color)
         try:
-            uart_connection[UARTService].write(color_packet.to_bytes())
+            service = uart_connection[UARTService]
+            assert isinstance(service, UARTService)
+
+            service.write(color_packet.to_bytes())
         except OSError:
             try:
                 uart_connection.disconnect()

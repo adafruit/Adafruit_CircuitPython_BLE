@@ -17,13 +17,21 @@ ble = BLERadio()
 buf = bytearray(512)
 while True:
     while ble.connected and any(
-        PacketBufferService in connection for connection in ble.connections
+        map(
+            lambda conn: conn is not None and PacketBufferService in conn,
+            ble.connections,
+        )
     ):
         for connection in ble.connections:
+            assert connection is not None
+
             if PacketBufferService not in connection:
                 continue
             print("echo")
+
             pb = connection[PacketBufferService]
+            assert isinstance(pb, PacketBufferService)
+
             pb.write(b"echo")
             # Returns 0 if nothing was read.
             packet_len = pb.readinto(buf)
@@ -34,6 +42,7 @@ while True:
 
     print("disconnected, scanning")
     for advertisement in ble.start_scan(ProvideServicesAdvertisement, timeout=1):
+        assert isinstance(advertisement, ProvideServicesAdvertisement)
         if PacketBufferService not in advertisement.services:
             continue
         ble.connect(advertisement)

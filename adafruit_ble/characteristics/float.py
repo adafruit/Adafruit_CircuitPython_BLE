@@ -12,16 +12,20 @@ This module provides float characteristics that are usable directly as attribute
 
 from __future__ import annotations
 
-from . import Attribute
-from . import StructCharacteristic
+from . import Attribute, StructCharacteristic
 
+TYPE_CHECKING = False
 try:
-    from typing import Optional, Type, Union, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional, Type, Union, overload
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
+        from adafruit_ble.characteristics import Characteristic
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import StandardUUID, VendorUUID
+
+        Uuid = Union[StandardUUID, VendorUUID]
 
 except ImportError:
     pass
@@ -33,10 +37,10 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
 class FloatCharacteristic(StructCharacteristic):
     """32-bit float"""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[Uuid] = None,
         properties: int = 0,
         read_perm: int = Attribute.OPEN,
         write_perm: int = Attribute.OPEN,
@@ -53,12 +57,27 @@ class FloatCharacteristic(StructCharacteristic):
             initial_value=initial_value,
         )
 
+    if TYPE_CHECKING:
+        # NOTE(elpekenin): return type doesn't match parent, but that's
+        # not a problem
+        @overload  # type: ignore[override]
+        def __get__(
+            self, obj: None, cls: Optional[Type[Service]] = None
+        ) -> Characteristic:
+            ...
+
+        @overload
+        def __get__(self, obj: Service, cls: Optional[Type[Service]] = None) -> float:
+            ...
+
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Union[float, "FloatCharacteristic"]:
+    ) -> Union[Characteristic, float]:
         if obj is None:
             return self
-        return super().__get__(obj)[0]
+        get = super().__get__(obj)
+        assert get is not None
+        return get[0]  # pylint: disable=unsubscriptable-object
 
-    def __set__(self, obj: Service, value: float) -> None:
+    def __set__(self, obj: Service, value: float) -> None:  # type: ignore[override]
         super().__set__(obj, (value,))

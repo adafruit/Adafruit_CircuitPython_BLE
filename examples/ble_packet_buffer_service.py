@@ -8,12 +8,12 @@ PacketBuffer with.
 
 import _bleio
 
-from adafruit_ble.services import Service
 from adafruit_ble.characteristics import (
     Attribute,
     Characteristic,
     ComplexCharacteristic,
 )
+from adafruit_ble.services import Service
 from adafruit_ble.uuid import VendorUUID
 
 
@@ -30,7 +30,7 @@ class PacketBufferUUID(VendorUUID):
 
 
 class PacketBufferCharacteristic(ComplexCharacteristic):
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         uuid=None,
