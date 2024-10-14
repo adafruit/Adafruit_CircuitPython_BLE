@@ -14,9 +14,11 @@ from __future__ import annotations
 import binascii
 import os
 import sys
+from collections.abc import Iterable
 
 from .. import Service
 from ...uuid import StandardUUID
+from ...characteristics import StructCharacteristic
 from ...characteristics.string import FixedStringCharacteristic
 
 try:
@@ -42,6 +44,7 @@ class DeviceInfoService(Service):
     hardware_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2A27))
     software_revision = FixedStringCharacteristic(uuid=StandardUUID(0x2A28))
     manufacturer = FixedStringCharacteristic(uuid=StandardUUID(0x2A29))
+    pnp_id = StructCharacteristic("<BHHH", uuid=StandardUUID(0x2A50))
 
     def __init__(
         self,
@@ -52,6 +55,7 @@ class DeviceInfoService(Service):
         serial_number: Optional[str] = None,
         firmware_revision: Optional[str] = None,
         hardware_revision: Optional[str] = None,
+        pnp_id: Optional[Iterable] = None,
         service: Optional[_bleio.Service] = None,
     ) -> None:
         if not service:
@@ -75,5 +79,6 @@ class DeviceInfoService(Service):
             serial_number=serial_number,
             firmware_revision=firmware_revision,
             hardware_revision=hardware_revision,
+            pnp_id=pnp_id,
             service=service,
         )
