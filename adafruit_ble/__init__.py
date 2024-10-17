@@ -12,7 +12,7 @@ building on the native `_bleio` module.
 
 from __future__ import annotations
 
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,too-many-arguments
 
 import sys
 

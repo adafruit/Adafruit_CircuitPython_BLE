@@ -12,6 +12,8 @@ This module provides integer characteristics that are usable directly as attribu
 
 from __future__ import annotations
 
+# pylint: disable=too-many-arguments
+
 from . import Attribute
 from . import StructCharacteristic
 

@@ -13,6 +13,8 @@ object they are on.
 
 from __future__ import annotations
 
+# pylint: disable=too-many-arguments
+
 import _bleio
 
 from . import Attribute
@@ -53,7 +55,7 @@ class BoundWriteStream:
 class StreamOut(ComplexCharacteristic):
     """Output stream from the Service server."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         *,
         uuid: Optional[UUID] = None,
@@ -92,7 +94,7 @@ class StreamOut(ComplexCharacteristic):
 class StreamIn(ComplexCharacteristic):
     """Input stream into the Service server."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         *,
         uuid: Optional[UUID] = None,
