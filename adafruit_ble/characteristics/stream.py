@@ -53,7 +53,7 @@ class BoundWriteStream:
 class StreamOut(ComplexCharacteristic):
     """Output stream from the Service server."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         uuid: Optional[UUID] = None,
@@ -66,7 +66,11 @@ class StreamOut(ComplexCharacteristic):
         self._timeout = timeout
         self._buffer_size = buffer_size
         super().__init__(
-            uuid=uuid, properties=properties, read_perm=read_perm, write_perm=write_perm
+            uuid=uuid,
+            properties=properties,
+            read_perm=read_perm,
+            write_perm=write_perm,
+            max_length=buffer_size,
         )
 
     def bind(
@@ -88,7 +92,7 @@ class StreamOut(ComplexCharacteristic):
 class StreamIn(ComplexCharacteristic):
     """Input stream into the Service server."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         uuid: Optional[UUID] = None,
@@ -104,6 +108,7 @@ class StreamIn(ComplexCharacteristic):
             properties=properties,
             read_perm=Attribute.NO_ACCESS,
             write_perm=write_perm,
+            max_length=buffer_size,
         )
 
     def bind(
