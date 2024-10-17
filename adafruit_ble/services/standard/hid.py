@@ -14,6 +14,8 @@ BLE Human Interface Device (HID)
 
 from __future__ import annotations
 
+# pylint: disable=too-many-arguments
+
 import struct
 
 from micropython import const

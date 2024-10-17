@@ -13,6 +13,8 @@ object they are on.
 
 from __future__ import annotations
 
+# pylint: disable=too-many-arguments
+
 import _bleio
 
 from . import Attribute
@@ -66,7 +68,11 @@ class StreamOut(ComplexCharacteristic):
         self._timeout = timeout
         self._buffer_size = buffer_size
         super().__init__(
-            uuid=uuid, properties=properties, read_perm=read_perm, write_perm=write_perm
+            uuid=uuid,
+            properties=properties,
+            read_perm=read_perm,
+            write_perm=write_perm,
+            max_length=buffer_size,
         )
 
     def bind(
@@ -104,6 +110,7 @@ class StreamIn(ComplexCharacteristic):
             properties=properties,
             read_perm=Attribute.NO_ACCESS,
             write_perm=write_perm,
+            max_length=buffer_size,
         )
 
     def bind(

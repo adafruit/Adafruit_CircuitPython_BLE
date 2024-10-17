@@ -46,7 +46,7 @@ class DeviceInfoService(Service):
     manufacturer = FixedStringCharacteristic(uuid=StandardUUID(0x2A29))
     pnp_id = StructCharacteristic("<BHHH", uuid=StandardUUID(0x2A50))
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         *,
         manufacturer: Optional[str] = None,
