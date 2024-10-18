@@ -14,7 +14,6 @@ from __future__ import annotations
 import binascii
 import os
 import sys
-from collections.abc import Iterable
 
 from .. import Service
 from ...uuid import StandardUUID
@@ -22,7 +21,7 @@ from ...characteristics import StructCharacteristic
 from ...characteristics.string import FixedStringCharacteristic
 
 try:
-    from typing import Optional, TYPE_CHECKING
+    from typing import Iterable, Optional, TYPE_CHECKING
 
     if TYPE_CHECKING:
         import _bleio
