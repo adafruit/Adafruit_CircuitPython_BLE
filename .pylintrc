@@ -361,7 +361,8 @@ valid-metaclass-classmethod-first-arg=mcs
 [DESIGN]
 
 # Maximum number of arguments for function / method
-max-args=5
+# Changed for this library, Adafruit_CircuitPython_BLE
+max-args=9
 
 # Maximum number of attributes for a class (see R0902).
 # max-attributes=7

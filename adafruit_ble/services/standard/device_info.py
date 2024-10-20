@@ -71,6 +71,10 @@ class DeviceInfoService(Service):
                     pass
             if firmware_revision is None:
                 firmware_revision = getattr(os.uname(), "version", None)
+            if pnp_id is None:
+                # These values are not necessarily valid according to the spec,
+                # but they work on Android and iOS.
+                pnp_id = (0x00, 0x0000, 0x0000, 0x0000)
         super().__init__(
             manufacturer=manufacturer,
             software_revision=software_revision,
