@@ -442,24 +442,27 @@ class HIDService(Service):
             usage = collection["locals"][0][0]
             reports = {}
             get_report_info(collection, reports)
-            if len(reports) > 1:
-                raise NotImplementedError(
-                    "Only one report id per Application collection supported"
-                )
-
-            report_id, report = list(reports.items())[0]
-            output_size = report["output_size"]
-            if output_size > 0:
-                self.devices.append(
-                    ReportOut(
-                        self, report_id, usage_page, usage, max_length=output_size // 8
+            for report_id, report in reports:
+                output_size = report["output_size"]
+                if output_size > 0:
+                    self.devices.append(
+                        ReportOut(
+                            self,
+                            report_id,
+                            usage_page,
+                            usage,
+                            max_length=output_size // 8,
+                        )
                     )
-                )
 
-            input_size = reports[report_id]["input_size"]
-            if input_size > 0:
-                self.devices.append(
-                    ReportIn(
-                        self, report_id, usage_page, usage, max_length=input_size // 8
+                input_size = reports[report_id]["input_size"]
+                if input_size > 0:
+                    self.devices.append(
+                        ReportIn(
+                            self,
+                            report_id,
+                            usage_page,
+                            usage,
+                            max_length=input_size // 8,
+                        )
                     )
-                )
