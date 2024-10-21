@@ -14,7 +14,6 @@ from __future__ import annotations
 import binascii
 import os
 import sys
-from collections.abc import Iterable
 
 from .. import Service
 from ...uuid import StandardUUID
@@ -22,7 +21,7 @@ from ...characteristics import StructCharacteristic
 from ...characteristics.string import FixedStringCharacteristic
 
 try:
-    from typing import Optional, TYPE_CHECKING
+    from typing import Iterable, Optional, TYPE_CHECKING
 
     if TYPE_CHECKING:
         import _bleio
@@ -72,6 +71,10 @@ class DeviceInfoService(Service):
                     pass
             if firmware_revision is None:
                 firmware_revision = getattr(os.uname(), "version", None)
+            if pnp_id is None:
+                # These values are not necessarily valid according to the spec,
+                # but they work on Android and iOS.
+                pnp_id = (0x00, 0x0000, 0x0000, 0x0000)
         super().__init__(
             manufacturer=manufacturer,
             software_revision=software_revision,
