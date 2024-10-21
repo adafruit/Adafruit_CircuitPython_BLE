@@ -30,7 +30,7 @@ class PacketBufferUUID(VendorUUID):
 
 
 class PacketBufferCharacteristic(ComplexCharacteristic):
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         *,
         uuid=None,

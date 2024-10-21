@@ -12,8 +12,6 @@ This module provides a JSON characteristic for reading/writing JSON serializable
 
 from __future__ import annotations
 
-# pylint: disable=too-many-arguments
-
 import json
 from . import Attribute
 from . import Characteristic

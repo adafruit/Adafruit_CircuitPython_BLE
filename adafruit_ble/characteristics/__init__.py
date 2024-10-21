@@ -10,8 +10,6 @@ This module provides core BLE characteristic classes that are used within Servic
 
 from __future__ import annotations
 
-# pylint: disable=too-many-arguments
-
 import struct
 import _bleio
 

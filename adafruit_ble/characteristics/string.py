@@ -12,8 +12,6 @@ This module provides string characteristics.
 
 from __future__ import annotations
 
-# pylint: disable=too-many-arguments
-
 from . import Attribute
 from . import Characteristic
 

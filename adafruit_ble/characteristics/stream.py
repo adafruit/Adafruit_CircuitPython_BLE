@@ -13,8 +13,6 @@ object they are on.
 
 from __future__ import annotations
 
-# pylint: disable=too-many-arguments
-
 import _bleio
 
 from . import Attribute

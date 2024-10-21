@@ -12,8 +12,6 @@ This module provides float characteristics that are usable directly as attribute
 
 from __future__ import annotations
 
-# pylint: disable=too-many-arguments
-
 from . import Attribute
 from . import StructCharacteristic
 
