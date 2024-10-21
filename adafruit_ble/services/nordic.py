@@ -43,12 +43,14 @@ class UARTService(Service):
     _server_tx = StreamOut(
         uuid=VendorUUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"),
         timeout=1.0,
-        buffer_size=64,
+        # 512 is the largest negotiated MTU-3 value for all CircuitPython ports.
+        buffer_size=512,
     )
     _server_rx = StreamIn(
         uuid=VendorUUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"),
         timeout=1.0,
-        buffer_size=64,
+        # 512 is the largest negotiated MTU-3 value for all CircuitPython ports.
+        buffer_size=512,
     )
 
     def __init__(self, service: Optional[_bleio.Service] = None) -> None:
