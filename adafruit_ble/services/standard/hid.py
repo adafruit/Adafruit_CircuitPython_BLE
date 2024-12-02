@@ -442,7 +442,7 @@ class HIDService(Service):
             usage = collection["locals"][0][0]
             reports = {}
             get_report_info(collection, reports)
-            for report_id, report in reports:
+            for report_id, report in reports.items():
                 output_size = report["output_size"]
                 if output_size > 0:
                     self.devices.append(
@@ -455,7 +455,7 @@ class HIDService(Service):
                         )
                     )
 
-                input_size = reports[report_id]["input_size"]
+                input_size = report["input_size"]
                 if input_size > 0:
                     self.devices.append(
                         ReportIn(
