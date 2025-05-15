@@ -14,21 +14,23 @@ even though multiple purposes may actually be present in a single packet.
 import struct
 from collections import OrderedDict, namedtuple
 
+from ..uuid import StandardUUID, VendorUUID
 from . import (
     Advertisement,
     AdvertisingDataField,
-    encode_data,
-    decode_data,
-    to_hex,
     compute_length,
+    decode_data,
+    encode_data,
+    to_hex,
 )
-from ..uuid import StandardUUID, VendorUUID
 
 try:
-    from typing import Optional, List, Tuple, Union, Type, Iterator, Iterable, Any
-    from adafruit_ble.uuid import UUID
-    from adafruit_ble.services import Service
+    from typing import Any, Iterable, Iterator, List, Optional, Tuple, Type, Union
+
     from _bleio import ScanEntry
+
+    from adafruit_ble.services import Service
+    from adafruit_ble.uuid import UUID
 
     UsesServicesAdvertisement = Union[
         "ProvideServicesAdvertisement", "SolicitServicesAdvertisement"
@@ -50,7 +52,7 @@ class BoundServiceList:
         advertisement: UsesServicesAdvertisement,
         *,
         standard_services: List[int],
-        vendor_services: List[int]
+        vendor_services: List[int],
     ) -> None:
         self._advertisement = advertisement
         self._standard_service_fields = standard_services
@@ -96,16 +98,10 @@ class BoundServiceList:
     # TODO: Differentiate between complete and incomplete lists.
     def append(self, service: Service) -> None:
         """Append a service to the list."""
-        if (
-            isinstance(service.uuid, StandardUUID)
-            and service not in self._standard_services
-        ):
+        if isinstance(service.uuid, StandardUUID) and service not in self._standard_services:
             self._standard_services.append(service.uuid)
             self._update(self._standard_service_fields[0], self._standard_services)
-        elif (
-            isinstance(service.uuid, VendorUUID)
-            and service not in self._vendor_services
-        ):
+        elif isinstance(service.uuid, VendorUUID) and service not in self._vendor_services:
             self._vendor_services.append(service.uuid)
             self._update(self._vendor_service_fields[0], self._vendor_services)
 
@@ -121,10 +117,7 @@ class BoundServiceList:
             ):
                 self._standard_services.append(service.uuid)
                 standard = True
-            elif (
-                isinstance(service.uuid, VendorUUID)
-                and service.uuid not in self._vendor_services
-            ):
+            elif isinstance(service.uuid, VendorUUID) and service.uuid not in self._vendor_services:
                 self._vendor_services.append(service.uuid)
                 vendor = True
 
@@ -145,9 +138,7 @@ class BoundServiceList:
 class ServiceList(AdvertisingDataField):
     """Descriptor for a list of Service UUIDs that lazily binds a corresponding BoundServiceList."""
 
-    def __init__(
-        self, *, standard_services: List[int], vendor_services: List[int]
-    ) -> None:
+    def __init__(self, *, standard_services: List[int], vendor_services: List[int]) -> None:
         self.standard_services = standard_services
         self.vendor_services = vendor_services
 
@@ -243,7 +234,7 @@ class ManufacturerData(AdvertisingDataField):
         *,
         advertising_data_type: int = 0xFF,
         company_id: int,
-        key_encoding: str = "B"
+        key_encoding: str = "B",
     ) -> None:
         self._obj = obj
         self._company_id = company_id
@@ -272,9 +263,7 @@ class ManufacturerData(AdvertisingDataField):
 
     def __str__(self) -> str:
         hex_data = to_hex(encode_data(self.data, key_encoding=self._key_encoding))
-        return "<ManufacturerData company_id={:04x} data={} >".format(
-            self.company_id, hex_data
-        )
+        return f"<ManufacturerData company_id={self.company_id:04x} data={hex_data} >"
 
 
 class ManufacturerDataField:
@@ -288,12 +277,8 @@ class ManufacturerDataField:
         # TODO: Support format strings that use numbers to repeat a given type. For now, we strip
         # numbers because Radio specifies string length with it.
         self.element_count = len(value_format.strip("><!=@0123456789").replace("x", ""))
-        if self.element_count > 1 and (
-            not field_names or len(field_names) != self.element_count
-        ):
-            raise ValueError(
-                "Provide field_names when multiple values are in the format"
-            )
+        if self.element_count > 1 and (not field_names or len(field_names) != self.element_count):
+            raise ValueError("Provide field_names when multiple values are in the format")
         self._entry_length = struct.calcsize(value_format)
         self.field_names = field_names
         if field_names:
@@ -331,9 +316,7 @@ class ManufacturerDataField:
     def __set__(self, obj: "Advertisement", value: Any) -> None:
         if not obj.mutable:
             raise AttributeError()
-        if isinstance(value, tuple) and (
-            self.element_count == 1 or isinstance(value[0], tuple)
-        ):
+        if isinstance(value, tuple) and (self.element_count == 1 or isinstance(value[0], tuple)):
             packed = bytearray(self._entry_length * len(value))
             for i, entry in enumerate(value):
                 offset = i * self._entry_length
@@ -359,7 +342,7 @@ class ServiceData(AdvertisingDataField):
             self._adt = 0x21
         self._prefix = bytes(service.uuid)
 
-    def __get__(  # pylint: disable=too-many-return-statements,too-many-branches
+    def __get__(
         self, obj: Optional[Service], cls: Type[Service]
     ) -> Optional[Union["ServiceData", memoryview]]:
         if obj is None:

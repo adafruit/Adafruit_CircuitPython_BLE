@@ -5,9 +5,8 @@
 
 import board
 import neopixel
-
-from adafruit_bluefruit_connect.packet import Packet
 from adafruit_bluefruit_connect.color_packet import ColorPacket
+from adafruit_bluefruit_connect.packet import Packet
 
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement

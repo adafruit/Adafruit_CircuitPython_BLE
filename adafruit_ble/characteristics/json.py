@@ -13,16 +13,17 @@ This module provides a JSON characteristic for reading/writing JSON serializable
 from __future__ import annotations
 
 import json
-from . import Attribute
-from . import Characteristic
+
+from . import Attribute, Characteristic
 
 try:
-    from typing import Optional, Any, Type, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Any, Optional, Type
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -63,9 +64,7 @@ class JSONCharacteristic(Characteristic):
         """Converts a utf-8 encoded JSON string into a python value."""
         return json.loads(str(value, "utf-8"))
 
-    def __get__(
-        self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Any:
+    def __get__(self, obj: Optional[Service], cls: Optional[Type[Service]] = None) -> Any:
         if obj is None:
             return self
         return self.unpack(super().__get__(obj, cls))

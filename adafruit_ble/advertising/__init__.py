@@ -11,15 +11,14 @@ from __future__ import annotations
 import struct
 
 try:
-    from typing import Dict, Any, Union, List, Optional, Type, TypeVar, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, TypeVar, Union
+
     from typing_extensions import Literal
 
     if TYPE_CHECKING:
         from _bleio import ScanEntry
 
-        LazyObjectField_GivenClass = TypeVar(  # pylint: disable=invalid-name
-            "LazyObjectField_GivenClass"
-        )
+        LazyObjectField_GivenClass = TypeVar("LazyObjectField_GivenClass")
 
 except ImportError:
     pass
@@ -27,17 +26,15 @@ except ImportError:
 
 def to_hex(seq: bytes) -> str:
     """Pretty prints a byte sequence as hex values."""
-    return " ".join("{:02x}".format(v) for v in seq)
+    return " ".join(f"{v:02x}" for v in seq)
 
 
 def to_bytes_literal(seq: bytes) -> str:
     """Prints a byte sequence as a Python bytes literal that only uses hex encoding."""
-    return 'b"' + "".join("\\x{:02x}".format(v) for v in seq) + '"'
+    return 'b"' + "".join(f"\\x{v:02x}" for v in seq) + '"'
 
 
-def decode_data(
-    data: bytes, *, key_encoding: str = "B"
-) -> Dict[Any, Union[bytes, List[bytes]]]:
+def decode_data(data: bytes, *, key_encoding: str = "B") -> Dict[Any, Union[bytes, List[bytes]]]:
     """Helper which decodes length encoded structures into a dictionary with the given key
     encoding."""
     i = 0
@@ -94,7 +91,6 @@ def encode_data(
     return bytes(data)
 
 
-# pylint: disable=too-few-public-methods
 class AdvertisingDataField:
     """Top level class for any descriptor classes that live in Advertisement or its subclasses."""
 
@@ -106,13 +102,13 @@ class AdvertisingFlag:
         self._bitmask = 1 << bit_position
 
     def __get__(
-        self, obj: Optional["AdvertisingFlags"], cls: Type["AdvertisingFlags"]
-    ) -> Union[bool, "AdvertisingFlag"]:
+        self, obj: Optional[AdvertisingFlags], cls: Type[AdvertisingFlags]
+    ) -> Union[bool, AdvertisingFlag]:
         if obj is None:
             return self
         return (obj.flags & self._bitmask) != 0
 
-    def __set__(self, obj: "AdvertisingFlags", value: bool) -> None:
+    def __set__(self, obj: AdvertisingFlags, value: bool) -> None:
         if value:
             obj.flags |= self._bitmask
         else:
@@ -130,9 +126,7 @@ class AdvertisingFlags(AdvertisingDataField):
     """BR/EDR not supported."""
     # BR/EDR flags not included here, since we don't support BR/EDR.
 
-    def __init__(
-        self, advertisement: "Advertisement", advertising_data_type: int
-    ) -> None:
+    def __init__(self, advertisement: Advertisement, advertising_data_type: int) -> None:
         self._advertisement = advertisement
         self._adt = advertising_data_type
         self.flags = 0
@@ -164,15 +158,15 @@ class String(AdvertisingDataField):
         self._adt = advertising_data_type
 
     def __get__(
-        self, obj: Optional["Advertisement"], cls: Type["Advertisement"]
-    ) -> Optional[Union[str, "String"]]:
+        self, obj: Optional[Advertisement], cls: Type[Advertisement]
+    ) -> Optional[Union[str, String]]:
         if obj is None:
             return self
         if self._adt not in obj.data_dict:
             return None
         return str(obj.data_dict[self._adt], "utf-8")
 
-    def __set__(self, obj: "Advertisement", value: str) -> None:
+    def __set__(self, obj: Advertisement, value: str) -> None:
         obj.data_dict[self._adt] = value.encode("utf-8")
 
 
@@ -184,15 +178,15 @@ class Struct(AdvertisingDataField):
         self._adt = advertising_data_type
 
     def __get__(
-        self, obj: Optional["Advertisement"], cls: Type["Advertisement"]
-    ) -> Optional[Union[Any, "Struct"]]:
+        self, obj: Optional[Advertisement], cls: Type[Advertisement]
+    ) -> Optional[Union[Any, Struct]]:
         if obj is None:
             return self
         if self._adt not in obj.data_dict:
             return None
         return struct.unpack(self._format, obj.data_dict[self._adt])[0]
 
-    def __set__(self, obj: "Advertisement", value: Any) -> None:
+    def __set__(self, obj: Advertisement, value: Any) -> None:
         obj.data_dict[self._adt] = struct.pack(self._format, value)
 
 
@@ -207,9 +201,7 @@ class LazyObjectField(AdvertisingDataField):
         self._adt = advertising_data_type
         self._kwargs = kwargs
 
-    def __get__(
-        self, obj: Optional["Advertisement"], cls: Type["Advertisement"]
-    ) -> Any:
+    def __get__(self, obj: Optional[Advertisement], cls: Type[Advertisement]) -> Any:
         if obj is None:
             return self
         # Return None if our object is immutable and the data is not present.
@@ -274,7 +266,7 @@ class Advertisement:
         if entry:
             self.data_dict = decode_data(entry.advertisement_bytes)
             self.address = entry.address
-            self._rssi = entry.rssi  # pylint: disable=protected-access
+            self._rssi = entry.rssi
             self.connectable = entry.connectable
             self.scan_response = entry.scan_response
             self.mutable = False
@@ -305,8 +297,7 @@ class Advertisement:
                 b""
                 if cls.match_prefixes is None
                 else b"".join(
-                    len(prefix).to_bytes(1, "little") + prefix
-                    for prefix in cls.match_prefixes
+                    len(prefix).to_bytes(1, "little") + prefix for prefix in cls.match_prefixes
                 )
             )
 
@@ -353,13 +344,11 @@ class Advertisement:
                     continue
                 value = getattr(self, attr)
                 if value is not None:
-                    parts.append("{}={}".format(attr, str(value)))
+                    parts.append(f"{attr}={str(value)}")
         return "<{} {} >".format(self.__class__.__name__, " ".join(parts))
 
     def __len__(self) -> int:
         return compute_length(self.data_dict)
 
     def __repr__(self) -> str:
-        return "Advertisement(data={})".format(
-            to_bytes_literal(encode_data(self.data_dict))
-        )
+        return f"Advertisement(data={to_bytes_literal(encode_data(self.data_dict))})"

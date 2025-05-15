@@ -12,16 +12,16 @@ This module provides integer characteristics that are usable directly as attribu
 
 from __future__ import annotations
 
-from . import Attribute
-from . import StructCharacteristic
+from . import Attribute, StructCharacteristic
 
 try:
-    from typing import Optional, Type, Union, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional, Type, Union
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -63,7 +63,7 @@ class IntCharacteristic(StructCharacteristic):
 
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Union[int, "IntCharacteristic"]:
+    ) -> Union[int, IntCharacteristic]:
         if obj is None:
             return self
         return super().__get__(obj)[0]
@@ -77,17 +77,13 @@ class IntCharacteristic(StructCharacteristic):
 class Int8Characteristic(IntCharacteristic):
     """Int8 number."""
 
-    # pylint: disable=too-few-public-methods
-    def __init__(
-        self, *, min_value: int = -128, max_value: int = 127, **kwargs
-    ) -> None:
+    def __init__(self, *, min_value: int = -128, max_value: int = 127, **kwargs) -> None:
         super().__init__("<b", min_value, max_value, **kwargs)
 
 
 class Uint8Characteristic(IntCharacteristic):
     """Uint8 number."""
 
-    # pylint: disable=too-few-public-methods
     def __init__(self, *, min_value: int = 0, max_value: int = 0xFF, **kwargs) -> None:
         super().__init__("<B", min_value, max_value, **kwargs)
 
@@ -95,27 +91,20 @@ class Uint8Characteristic(IntCharacteristic):
 class Int16Characteristic(IntCharacteristic):
     """Int16 number."""
 
-    # pylint: disable=too-few-public-methods
-    def __init__(
-        self, *, min_value: int = -32768, max_value: int = 32767, **kwargs
-    ) -> None:
+    def __init__(self, *, min_value: int = -32768, max_value: int = 32767, **kwargs) -> None:
         super().__init__("<h", min_value, max_value, **kwargs)
 
 
 class Uint16Characteristic(IntCharacteristic):
     """Uint16 number."""
 
-    # pylint: disable=too-few-public-methods
-    def __init__(
-        self, *, min_value: int = 0, max_value: int = 0xFFFF, **kwargs
-    ) -> None:
+    def __init__(self, *, min_value: int = 0, max_value: int = 0xFFFF, **kwargs) -> None:
         super().__init__("<H", min_value, max_value, **kwargs)
 
 
 class Int32Characteristic(IntCharacteristic):
     """Int32 number."""
 
-    # pylint: disable=too-few-public-methods
     def __init__(
         self, *, min_value: int = -2147483648, max_value: int = 2147483647, **kwargs
     ) -> None:
@@ -125,8 +114,5 @@ class Int32Characteristic(IntCharacteristic):
 class Uint32Characteristic(IntCharacteristic):
     """Uint32 number."""
 
-    # pylint: disable=too-few-public-methods
-    def __init__(
-        self, *, min_value: int = 0, max_value: int = 0xFFFFFFFF, **kwargs
-    ) -> None:
+    def __init__(self, *, min_value: int = 0, max_value: int = 0xFFFFFFFF, **kwargs) -> None:
         super().__init__("<I", min_value, max_value, **kwargs)

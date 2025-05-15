@@ -8,10 +8,10 @@ and updates a Circuit Playground to show the history of the received packets.
 
 import board
 import neopixel
+from adafruit_bluefruit_connect.color_packet import ColorPacket
 
 # Only the packet classes that are imported will be known to Packet.
 from adafruit_bluefruit_connect.packet import Packet
-from adafruit_bluefruit_connect.color_packet import ColorPacket
 
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement

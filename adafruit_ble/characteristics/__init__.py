@@ -11,17 +11,19 @@ This module provides core BLE characteristic classes that are used within Servic
 from __future__ import annotations
 
 import struct
+
 import _bleio
 
 from ..attributes import Attribute
 
 try:
-    from typing import Optional, Type, Union, Tuple, Iterable, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Iterable, Optional, Tuple, Type, Union
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -107,9 +109,7 @@ class Characteristic:
         self.fixed_length = fixed_length
         self.initial_value = initial_value
 
-    def _ensure_bound(
-        self, service: Service, initial_value: Optional[bytes] = None
-    ) -> None:
+    def _ensure_bound(self, service: Service, initial_value: Optional[bytes] = None) -> None:
         """Binds the characteristic to the local Service or remote Characteristic object given."""
         if self.field_name in service.bleio_characteristics:
             return
@@ -263,7 +263,7 @@ class StructCharacteristic(Characteristic):
 
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Optional[Union[Tuple, "StructCharacteristic"]]:
+    ) -> Optional[Union[Tuple, StructCharacteristic]]:
         if obj is None:
             return self
         raw_data = super().__get__(obj, cls)

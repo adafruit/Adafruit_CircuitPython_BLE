@@ -13,16 +13,16 @@ This module provides Services used by Nordic Semiconductors.
 
 from __future__ import annotations
 
-from . import Service
+from ..characteristics.stream import StreamIn, StreamOut
 from ..uuid import VendorUUID
-from ..characteristics.stream import StreamOut, StreamIn
+from . import Service
 
 try:
-    from typing import Optional, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional
 
     if TYPE_CHECKING:
-        from circuitpython_typing import WriteableBuffer, ReadableBuffer
         import _bleio
+        from circuitpython_typing import ReadableBuffer, WriteableBuffer
 
 except ImportError:
     pass
@@ -38,7 +38,6 @@ class UARTService(Service):
     See ``examples/ble_uart_echo_test.py`` for a usage example.
     """
 
-    # pylint: disable=no-member
     uuid = VendorUUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
     _server_tx = StreamOut(
         uuid=VendorUUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"),
@@ -83,9 +82,7 @@ class UARTService(Service):
         """
         return self._rx.read(nbytes)
 
-    def readinto(
-        self, buf: WriteableBuffer, nbytes: Optional[int] = None
-    ) -> Optional[int]:
+    def readinto(self, buf: WriteableBuffer, nbytes: Optional[int] = None) -> Optional[int]:
         """
         Read bytes into the ``buf``. If ``nbytes`` is specified then read at most
         that many bytes. Otherwise, read at most ``len(buf)`` bytes.

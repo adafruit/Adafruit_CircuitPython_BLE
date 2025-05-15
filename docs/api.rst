@@ -1,3 +1,6 @@
+API Reference
+#############
+
 :py:mod:`~adafruit_ble`
 =======================
 

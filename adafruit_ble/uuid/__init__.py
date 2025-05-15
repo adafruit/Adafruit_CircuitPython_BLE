@@ -20,7 +20,6 @@ class UUID:
     """Top level UUID"""
 
     # TODO: Make subclassing _bleio.UUID work so we can just use it directly.
-    # pylint: disable=no-member
     def __hash__(self):
         return hash(self.bleio_uuid)
 

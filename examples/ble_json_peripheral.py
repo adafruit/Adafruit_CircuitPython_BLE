@@ -4,12 +4,13 @@
 
 # Provide readable sensor values and writable settings to connected devices via JSON characteristic.
 
-import time
 import random
+import time
+
 from ble_json_service import SensorService
+
 from adafruit_ble import BLERadio
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
-
 
 # Create BLE radio, custom service, and advertisement.
 ble = BLERadio()

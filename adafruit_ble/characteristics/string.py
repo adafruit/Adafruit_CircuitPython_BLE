@@ -12,16 +12,16 @@ This module provides string characteristics.
 
 from __future__ import annotations
 
-from . import Attribute
-from . import Characteristic
+from . import Attribute, Characteristic
 
 try:
-    from typing import Optional, Type, Union, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional, Type, Union
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -54,7 +54,7 @@ class StringCharacteristic(Characteristic):
 
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Union[str, "StringCharacteristic"]:
+    ) -> Union[str, StringCharacteristic]:
         if obj is None:
             return self
         return str(super().__get__(obj, cls), "utf-8")
@@ -66,9 +66,7 @@ class StringCharacteristic(Characteristic):
 class FixedStringCharacteristic(Characteristic):
     """Fixed strings are set once when bound and unchanged after."""
 
-    def __init__(
-        self, *, uuid: Optional[UUID] = None, read_perm: int = Attribute.OPEN
-    ) -> None:
+    def __init__(self, *, uuid: Optional[UUID] = None, read_perm: int = Attribute.OPEN) -> None:
         super().__init__(
             uuid=uuid,
             properties=Characteristic.READ,
@@ -79,7 +77,7 @@ class FixedStringCharacteristic(Characteristic):
 
     def __get__(
         self, obj: Service, cls: Optional[Type[Service]] = None
-    ) -> Union[str, "FixedStringCharacteristic"]:
+    ) -> Union[str, FixedStringCharacteristic]:
         if obj is None:
             return self
         return str(super().__get__(obj, cls), "utf-8")
