@@ -44,10 +44,7 @@ class Service:
         **initial_values,
     ) -> None:
         if service is None:
-            # pylint: disable=no-member
-            self.bleio_service = _bleio.Service(
-                self.uuid.bleio_uuid, secondary=secondary
-            )
+            self.bleio_service = _bleio.Service(self.uuid.bleio_uuid, secondary=secondary)
         elif not service.remote:
             raise ValueError("Can only create services with a remote service or None")
         else:

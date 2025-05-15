@@ -10,11 +10,11 @@ This module provides Services defined by CircuitPython. **Out of date.**
 
 """
 
-from . import Service
 from ..characteristics import Characteristic
 from ..characteristics.stream import StreamOut
 from ..characteristics.string import StringCharacteristic
 from ..uuid import VendorUUID
+from . import Service
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_BLE.git"
@@ -24,7 +24,7 @@ class CircuitPythonUUID(VendorUUID):
     """UUIDs with the CircuitPython base UUID."""
 
     def __init__(self, uuid16: int) -> None:
-        uuid128 = bytearray("nhtyPtiucriC".encode("utf-8") + b"\x00\x00\xaf\xad")
+        uuid128 = bytearray(b"nhtyPtiucriC" + b"\x00\x00\xaf\xad")
         uuid128[-3] = uuid16 >> 8
         uuid128[-4] = uuid16 & 0xFF
         super().__init__(uuid128)

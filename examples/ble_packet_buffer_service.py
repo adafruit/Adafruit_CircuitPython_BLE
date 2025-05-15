@@ -8,22 +8,20 @@ PacketBuffer with.
 
 import _bleio
 
-from adafruit_ble.services import Service
 from adafruit_ble.characteristics import (
     Attribute,
     Characteristic,
     ComplexCharacteristic,
 )
+from adafruit_ble.services import Service
 from adafruit_ble.uuid import VendorUUID
 
 
 class PacketBufferUUID(VendorUUID):
     """UUIDs with the PacketBuffer base UUID."""
 
-    # pylint: disable=too-few-public-methods
-
     def __init__(self, uuid16):
-        uuid128 = bytearray("reffuBtekcaP".encode("utf-8") + b"\x00\x00\xaf\xad")
+        uuid128 = bytearray(b"reffuBtekcaP" + b"\x00\x00\xaf\xad")
         uuid128[-3] = uuid16 >> 8
         uuid128[-4] = uuid16 & 0xFF
         super().__init__(uuid128)
@@ -35,11 +33,9 @@ class PacketBufferCharacteristic(ComplexCharacteristic):
         *,
         uuid=None,
         buffer_size=4,
-        properties=Characteristic.WRITE_NO_RESPONSE
-        | Characteristic.NOTIFY
-        | Characteristic.READ,
+        properties=Characteristic.WRITE_NO_RESPONSE | Characteristic.NOTIFY | Characteristic.READ,
         read_perm=Attribute.OPEN,
-        write_perm=Attribute.OPEN
+        write_perm=Attribute.OPEN,
     ):
         self.buffer_size = buffer_size
         super().__init__(

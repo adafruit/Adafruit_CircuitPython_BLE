@@ -12,16 +12,16 @@ This module provides float characteristics that are usable directly as attribute
 
 from __future__ import annotations
 
-from . import Attribute
-from . import StructCharacteristic
+from . import Attribute, StructCharacteristic
 
 try:
-    from typing import Optional, Type, Union, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional, Type, Union
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -55,7 +55,7 @@ class FloatCharacteristic(StructCharacteristic):
 
     def __get__(
         self, obj: Optional[Service], cls: Optional[Type[Service]] = None
-    ) -> Union[float, "FloatCharacteristic"]:
+    ) -> Union[float, FloatCharacteristic]:
         if obj is None:
             return self
         return super().__get__(obj)[0]

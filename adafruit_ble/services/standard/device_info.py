@@ -15,13 +15,13 @@ import binascii
 import os
 import sys
 
-from .. import Service
-from ...uuid import StandardUUID
 from ...characteristics import StructCharacteristic
 from ...characteristics.string import FixedStringCharacteristic
+from ...uuid import StandardUUID
+from .. import Service
 
 try:
-    from typing import Iterable, Optional, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Iterable, Optional
 
     if TYPE_CHECKING:
         import _bleio
@@ -62,11 +62,9 @@ class DeviceInfoService(Service):
                 model_number = sys.platform
             if serial_number is None:
                 try:
-                    import microcontroller  # pylint: disable=import-outside-toplevel
+                    import microcontroller
 
-                    serial_number = binascii.hexlify(
-                        microcontroller.cpu.uid  # pylint: disable=no-member
-                    ).decode("utf-8")
+                    serial_number = binascii.hexlify(microcontroller.cpu.uid).decode("utf-8")
                 except ImportError:
                     pass
             if firmware_revision is None:

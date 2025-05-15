@@ -15,18 +15,17 @@ from __future__ import annotations
 
 import _bleio
 
-from . import Attribute
-from . import Characteristic
-from . import ComplexCharacteristic
+from . import Attribute, Characteristic, ComplexCharacteristic
 
 try:
-    from typing import Optional, Union, TYPE_CHECKING
+    from typing import TYPE_CHECKING, Optional, Union
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
+
         from adafruit_ble.characteristics import Characteristic
-        from adafruit_ble.uuid import UUID
         from adafruit_ble.services import Service
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -73,9 +72,7 @@ class StreamOut(ComplexCharacteristic):
             max_length=buffer_size,
         )
 
-    def bind(
-        self, service: Service
-    ) -> Union[_bleio.CharacteristicBuffer, BoundWriteStream]:
+    def bind(self, service: Service) -> Union[_bleio.CharacteristicBuffer, BoundWriteStream]:
         """Binds the characteristic to the given Service."""
         bound_characteristic = super().bind(service)
         # If we're given a remote service then we're the client and need to buffer in.
@@ -111,9 +108,7 @@ class StreamIn(ComplexCharacteristic):
             max_length=buffer_size,
         )
 
-    def bind(
-        self, service: Service
-    ) -> Union[_bleio.CharacteristicBuffer, BoundWriteStream]:
+    def bind(self, service: Service) -> Union[_bleio.CharacteristicBuffer, BoundWriteStream]:
         """Binds the characteristic to the given Service."""
         bound_characteristic = super().bind(service)
         # If the service is remote need to write out.

@@ -8,9 +8,9 @@ slide switch. The buttons change the color when advertising.
 """
 
 import time
+
 import board
 import digitalio
-
 import neopixel
 
 from adafruit_ble import BLERadio
@@ -63,7 +63,7 @@ while True:
             if last_i != i:
                 color = color_options[i]
                 neopixels.fill(color)
-                print("New color {:06x}".format(color))
+                print(f"New color {color:06x}")
                 advertisement.color = color
                 ble.stop_advertising()
                 ble.start_advertising(advertisement)

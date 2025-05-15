@@ -10,6 +10,7 @@ This module provides definitions common to all kinds of BLE attributes,
 specifically characteristics and descriptors.
 
 """
+
 import _bleio
 
 __version__ = "0.0.0+auto.0"
@@ -48,7 +49,6 @@ class Attribute:
        security_mode: authenticated data signing, without man-in-the-middle protection
     """
 
-    # pylint: disable=too-few-public-methods
     NO_ACCESS = _bleio.Attribute.NO_ACCESS
     OPEN = _bleio.Attribute.OPEN
     ENCRYPT_NO_MITM = _bleio.Attribute.ENCRYPT_NO_MITM

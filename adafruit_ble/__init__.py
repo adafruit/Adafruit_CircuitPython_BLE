@@ -12,29 +12,28 @@ building on the native `_bleio` module.
 
 from __future__ import annotations
 
-# pylint: disable=wrong-import-position
-
 import sys
 
 if sys.implementation.name == "circuitpython" and sys.implementation.version[0] <= 4:
     raise ImportError(
         "This release is not compatible with CircuitPython 4.x; use library release 1.x.x"
     )
-# pylint: enable=wrong-import-position
 
 import _bleio
 
-from .services import Service
 from .advertising import Advertisement
+from .services import Service
 
 try:
-    from typing import Iterator, NoReturn, Optional, Tuple, Type, TYPE_CHECKING, Union
+    from typing import TYPE_CHECKING, Iterator, NoReturn, Optional, Tuple, Type, Union
+
     from typing_extensions import Literal
 
     if TYPE_CHECKING:
         from circuitpython_typing import ReadableBuffer
-        from adafruit_ble.uuid import UUID
+
         from adafruit_ble.characteristics import Characteristic
+        from adafruit_ble.uuid import UUID
 
 except ImportError:
     pass
@@ -64,9 +63,7 @@ class BLEConnection:
         if uuid in self._discovered_bleio_services:
             remote_service = self._discovered_bleio_services[uuid]
         else:
-            results = self._bleio_connection.discover_remote_services(
-                (uuid.bleio_uuid,)
-            )
+            results = self._bleio_connection.discover_remote_services((uuid.bleio_uuid,))
             if results:
                 remote_service = results[0]
                 self._discovered_bleio_services[uuid] = remote_service
@@ -109,7 +106,7 @@ class BLEConnection:
                 self._constructed_services[uuid] = constructed_service
             return constructed_service
 
-        raise KeyError("{!r} object has no service {}".format(self, key))
+        raise KeyError(f"{self!r} object has no service {key}")
 
     @property
     def connected(self) -> bool:
@@ -196,12 +193,8 @@ class BLERadio:
         if scan_response:
             scan_response_bytes = bytes(scan_response)
 
-        # pylint: disable=unexpected-keyword-arg
         # Remove after 5.x is no longer supported.
-        if (
-            sys.implementation.name == "circuitpython"
-            and sys.implementation.version[0] <= 5
-        ):
+        if sys.implementation.name == "circuitpython" and sys.implementation.version[0] <= 5:
             if timeout is not None:
                 raise NotImplementedError("timeout not available for CircuitPython 5.x")
             self._adapter.start_advertising(
@@ -364,7 +357,7 @@ class BLERadio:
     @property
     def advertising(self) -> bool:
         """The advertising state"""
-        return self._adapter.advertising  # pylint: disable=no-member
+        return self._adapter.advertising
 
     def _clean_connection_cache(self) -> None:
         """Remove cached connections that have disconnected."""

@@ -6,7 +6,6 @@
 # specialty advertising types.
 
 from adafruit_ble import BLERadio
-
 from adafruit_ble.advertising import Advertisement
 from adafruit_ble.advertising.standard import ProvideServicesAdvertisement
 
