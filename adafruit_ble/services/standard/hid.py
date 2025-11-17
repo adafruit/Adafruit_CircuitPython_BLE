@@ -26,7 +26,7 @@ from adafruit_ble.uuid import StandardUUID
 from .. import Service
 
 try:
-    from typing import Dict, Optional
+    from typing import Dict, Optional, Sequence
 except ImportError:
     pass
 
@@ -248,6 +248,60 @@ class ReportOut:
         return self._characteristic.value
 
 
+class Device:
+    """Container that groups multiple ReportIn and ReportOut objects for a given
+    usage_page/usage.
+
+    Each device may have multiple report IDs. This class keeps mappings from
+    report_id -> ReportIn/ReportOut and provides convenience methods that use
+    the first-added report_id when none is specified.
+    """
+
+    def __init__(self, usage_page, usage):
+        self._usage_page = usage_page
+        self._usage = usage
+        self._first_report_in_id = None
+        self._first_report_out_id = None
+        self._report_ins = {}  # report_id -> ReportIn
+        self._report_outs = {}  # report_id -> ReportOut
+
+    @property
+    def usage_page(self):
+        return self._usage_page
+
+    @property
+    def usage(self):
+        return self._usage
+
+    def add_report_in(self, report_id: int, report_in: ReportIn) -> None:
+        """Register a ReportIn instance for a report_id."""
+        if self._first_report_in_id is None:
+            self._first_report_in_id = report_id
+        self._report_ins[report_id] = report_in
+
+    def add_report_out(self, report_id: int, report_out: ReportOut) -> None:
+        """Register a ReportOut instance for a report_id."""
+        if self._first_report_out_id is None:
+            self._first_report_out_id = report_id
+        self._report_outs[report_id] = report_out
+
+    def send_report(self, report: Dict, report_id: int | None = None) -> None:
+        """Send a report via the ReportIn class."""
+        if report_id is None and self._first_report_in_id is not None:
+            report_id = self._first_report_in_id
+        if report_id is None:
+            raise RuntimeError("No input report available")
+        self._report_ins[report_id].send_report(report)
+
+    def get_last_received_report(self, report_id: int | None = None):
+        """Return the last OUT report received."""
+        if report_id is None and self._first_report_out_id is not None:
+            report_id = self._first_report_out_id
+        if report_id is None:
+            raise RuntimeError("No output report available")
+        return self._report_outs[report_id].report
+
+
 _ITEM_TYPE_MAIN = const(0)
 _ITEM_TYPE_GLOBAL = const(1)
 _ITEM_TYPE_LOCAL = const(2)
@@ -268,9 +322,9 @@ class HIDService(Service):
 
     Example::
 
-        from adafruit_ble.hid_server import HIDServer
+        from adafruit_ble.services.standard.hid import HIDService
 
-        hid = HIDServer()
+        hid = HIDService()
     """
 
     uuid = StandardUUID(0x1812)
@@ -429,25 +483,39 @@ class HIDService(Service):
             get_report_info(collection, reports)
             for report_id, report in reports.items():
                 output_size = report["output_size"]
-                if output_size > 0:
-                    self.devices.append(
-                        ReportOut(
-                            self,
-                            report_id,
-                            usage_page,
-                            usage,
-                            max_length=output_size // 8,
-                        )
-                    )
-
+                # Group ReportIn and ReportOut by usage_page and usage into a Devices
                 input_size = report["input_size"]
-                if input_size > 0:
-                    self.devices.append(
-                        ReportIn(
-                            self,
-                            report_id,
-                            usage_page,
-                            usage,
-                            max_length=input_size // 8,
-                        )
+
+                # Find an existing device with same usage_page and usage
+                device = None
+                for d in self.devices:
+                    # Device instances expose usage_page and usage properties
+                    if d.usage_page == usage_page and d.usage == usage:
+                        device = d
+                        break
+
+                if device is None:
+                    device = Device(usage_page, usage)
+                    self.devices.append(device)
+
+                if output_size > 0:
+                    # Create ReportOut and attach to device
+                    report_out = ReportOut(
+                        self,
+                        report_id,
+                        usage_page,
+                        usage,
+                        max_length=output_size // 8,
                     )
+                    device.add_report_out(report_id, report_out)
+
+                if input_size > 0:
+                    # Create ReportIn and attach to device
+                    report_in = ReportIn(
+                        self,
+                        report_id,
+                        usage_page,
+                        usage,
+                        max_length=input_size // 8,
+                    )
+                    device.add_report_in(report_id, report_in)

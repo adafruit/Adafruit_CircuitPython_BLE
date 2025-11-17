@@ -46,5 +46,6 @@ while True:
         sys.stdout.write(c)
         kl.write(c)
         # print("sleeping")
+        # print(f"{k.led_status}") #read led_status
         time.sleep(0.1)
     ble.start_advertising(advertisement)
