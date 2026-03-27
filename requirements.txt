@@ -5,4 +5,4 @@
 Adafruit-Blinka
 adafruit-blinka-bleio
 adafruit-circuitpython-typing
-typing-extensions~=4.0.0
+typing-extensions
