@@ -109,6 +109,7 @@ ignore = [
     "E501", # line too long
     "PLR0914", # too many local vars
     "E722", # bare except
+    "UP045", # use X | None for type annotations
 ]
 
 [format]
