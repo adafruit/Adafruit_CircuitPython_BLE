@@ -9,8 +9,8 @@ from adafruit_ble import BLERadio
 from adafruit_ble.advertising import Advertisement
 
 ble = BLERadio()
+ble.name = "HELLO"
 advertisement = Advertisement()
-advertisement.short_name = "HELLO"
 advertisement.connectable = True
 
 while True:
