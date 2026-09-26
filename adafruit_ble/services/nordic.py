@@ -90,6 +90,8 @@ class UARTService(Service):
         :return: number of bytes read and stored into ``buf``
         :rtype: int or None (on a non-blocking error)
         """
+        if nbytes is None:
+            return self._rx.readinto(buf)
         return self._rx.readinto(buf, nbytes)
 
     def readline(self) -> Optional[bytes]:
