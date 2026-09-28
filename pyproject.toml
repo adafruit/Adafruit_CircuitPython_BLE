@@ -42,3 +42,6 @@ packages = ["adafruit_ble"]
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
 optional-dependencies = {optional = {file = ["optional_requirements.txt"]}}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

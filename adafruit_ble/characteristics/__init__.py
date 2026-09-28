@@ -209,6 +209,7 @@ class ComplexCharacteristic:
             self.uuid.bleio_uuid,
             initial_value=self.initial_value,
             max_length=self.max_length,
+            fixed_length=self.fixed_length,
             properties=self.properties,
             read_perm=self.read_perm,
             write_perm=self.write_perm,
